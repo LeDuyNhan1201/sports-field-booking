@@ -1,0 +1,133 @@
+version: '3.9'
+
+services:
+  #  MYSQL
+  sports-field-booking-mysql:
+    image: mysql:latest
+    container_name: sports-field-booking-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_DATABASE: sports_field_booking_db
+      MYSQL_USER: group23
+      MYSQL_PASSWORD: gRoUp23IsThEbEsT#
+    volumes:
+      - ./sports-field-booking-mysql-init-db:/docker-entrypoint-initdb.d
+      - sports-field-booking-mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # PHPMYADMIN
+  sports-field-booking-phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: sports-field-booking-phpmyadmin
+    depends_on:
+      [ sports-field-booking-mysql ]
+    environment:
+      PMA_HOST: sports-field-booking-mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: ""
+    ports:
+      - "8000:80"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #  REDIS
+  sports-field-booking-redis:
+    image: redis:latest
+    container_name: sports-field-booking-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - sports-field-booking-redis-data:/data
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #  REDIS INSIGHT
+  sports-field-booking-redis-insight:
+    image: redis/redisinsight:latest
+    container_name: sports-field-booking-redis-insight
+    volumes:
+      - sports-field-booking-redis-insight-data:/db
+    ports:
+      - "5540:5540"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # KAFKA BROKER
+  sports-field-booking-kafka-broker:
+    image: bitnami/kafka:3.5.2-debian-12-r24
+    container_name: sports-field-booking-kafka-broker
+    hostname: sports-field-booking-kafka-broker
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_BROKER_ID: 1
+      KAFKA_KRAFT_MODE: true
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT_LOCAL://0.0.0.0:9092,PLAINTEXT_DOCKER://0.0.0.0:9093,CONTROLLER://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_LOCAL://localhost:9092,PLAINTEXT_DOCKER://sports-field-booking-kafka-broker:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_LOCAL:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_DOCKER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@sports-field-booking-kafka-broker:9094
+      KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+    volumes:
+      - sports-field-booking-kafka-broker-data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+      - "9094:9094"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # KAFKA UI
+  sports-field-booking-kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: sports-field-booking-kafka-ui
+    depends_on:
+      [ sports-field-booking-kafka-broker ]
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://sports-field-booking-kafka-broker:9093
+    volumes:
+      - sports-field-booking-kafka-ui-data:/app/kafka-ui/data
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # MINIO
+  sports-field-booking-minio:
+    image: minio/minio:RELEASE.2024-08-26T15-33-07Z.fips
+    container_name: sports-field-booking-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - sports-field-booking-minio-data:/data
+    environment:
+      MINIO_ROOT_USER: group23
+      MINIO_ROOT_PASSWORD: gRoUp23IsThEbEsT#
+    command: server /data --console-address ":9001"
+
+networks:
+  sports-field-booking-network:
+    driver: bridge
+
+volumes:
+  sports-field-booking-mysql-data:
+  sports-field-booking-redis-data:
+  sports-field-booking-redis-insight-data:
+  sports-field-booking-kafka-broker-data:
+  sports-field-booking-kafka-ui-data:
+  sports-field-booking-minio-data:

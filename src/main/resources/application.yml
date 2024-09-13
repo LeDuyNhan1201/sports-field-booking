@@ -1,0 +1,144 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /sports-field-booking
+    encoding:
+      charset: UTF-8
+
+jwt:
+  accessSignerKey: ${ACCESS_SIGNER_KEY}
+  refreshSignerKey: ${REFRESH_SIGNER_KEY}
+  valid-duration: 1800 # in seconds = 30 minutes
+  refreshable-duration: 2592000 # in seconds = 30 days
+
+api:
+  prefix: /api/v1
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: group23
+  secret-key: gRoUp23IsThEbEsT#
+  bucket-name: sports-field-booking-bucket
+
+# Spring Boot Actuator configuration (Health, Info, Metrics, etc.)
+management:
+  endpoints:
+    web:
+      base-path: ${api.prefix}/actuator
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
+
+# Springdoc configuration (Swagger UI)
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+  show-actuator: true
+
+# OpenAPI configuration
+openapi:
+  service:
+    api-docs: rest-api-service-dev
+    title: Sports Field Booking server REST API
+    description: This is the API documentation for Sports Field Booking software.
+    version: 1.0.0
+    server-url: http://localhost:${server.port}${server.servlet.context-path}
+    server-description: Sports Field Booking Backend API service For Development
+
+# Logging configuration
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+# Spring configuration
+spring:
+  config:
+    import: file:env.properties
+
+  application:
+    name: sports-field-booking
+
+  profiles:
+    active: dev
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    default-locale: en
+
+  mail:
+    from: ${FROM_MAIL}
+    host: smtp.gmail.com
+    port: 587
+    username: ${FROM_MAIL}
+    password: ${SMTP_PASSWORD} # wzjg pkgh yvmv noyz
+    default-encoding: UTF-8
+    properties:
+      mail:
+        mime:
+          charset: UTF
+        smtp:
+          writetimeout: 10000
+          connectiontimeout: 10000
+          timeout: 10000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  # Database configuration
+  datasource:
+    username: group23
+    password: gRoUp23IsThEbEsT#
+    url: jdbc:mysql://localhost:3306/sports_field_booking_db?createDatabaseIfNotExist=true
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 10
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Redis configuration
+#  cache:
+#    type: redis
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      database: 0
+
+  # Configure Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    mail-consumer:
+      group-id: send-mail-group
+
+    file-consumer:
+      group-id: handle-file-group
