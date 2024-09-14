@@ -38,3 +38,5 @@ go to the root directory of the project, create file "env.properties" and paste 
 4. Create a new .json file with any name, paste the copied content into the file
 5. Open Postman, click on "Import" button, choose "Import File", choose the created .json file in step 4
 
+lkfsdlksflks
+
