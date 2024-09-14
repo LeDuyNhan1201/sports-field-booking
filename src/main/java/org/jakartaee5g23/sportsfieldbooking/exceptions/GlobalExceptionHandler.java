@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.dashboard.DashboardException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
 import org.springframework.context.NoSuchMessageException;
@@ -49,6 +50,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
                 .build());
+    }
+
+    // Handle exceptions about messages that are not found
+    @ExceptionHandler(value = DashboardException.class)
+    ResponseEntity<CommonResponse<?>> handlingDashboardException(DashboardException exception) {
+        log.error("Dashboard Exception: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(exception.getMessage())
+                .build());
+        /*
+        {
+            errorCode: "dashboard/users-not-found",
+            message: "Error loading dashboard",
+        }
+        * */
     }
 
     // Handle authentication exceptions

@@ -55,7 +55,9 @@ public class SecurityConfiguration {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/swagger-resources/**",
-                "/media/**"
+                "/media/**",
+                "/dashboards/summary",
+                "/dashboards/abc"
 
         ).map(s -> (
                 s.contains("api-docs") ||
