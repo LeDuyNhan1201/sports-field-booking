@@ -19,6 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -45,6 +46,27 @@ public class AuthenticationController {
     UserService userService;
 
     UserMapper userMapper = UserMapper.INSTANCE;
+
+    @Operation(summary = "Test field owner role", description = "Test field owner")
+    @PreAuthorize("hasRole('FIELD_OWNER')")
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello";
+    }
+
+    @Operation(summary = "Test admin role", description = "Test admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/hello1")
+    public String hello1() {
+        return "Hello";
+    }
+
+    @Operation(summary = "Test customer role", description = "Test customer")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/hello2")
+    public String hello2() {
+        return "Hello";
+    }
 
     @Operation(summary = "Sign up", description = "Create new user")
     @PostMapping("/sign-up")

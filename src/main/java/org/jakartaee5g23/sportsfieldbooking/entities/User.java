@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,33 +37,51 @@ public class User extends AbstractEntity {
 
     String bio;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     String username;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false, length = 50)
     String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = false, length = 50)
     String lastName;
 
-    @Column(name = "middle_name")
+    @Column(name = "middle_name", length = 50)
     String middleName;
 
-    @Column(name = "mobile_number", nullable = false)
+    @Column(name = "mobile_number", nullable = false, length = 20)
     String mobileNumber;
 
     @Column(name = "birthdate")
     LocalDate birthdate;
 
+    @Column(length = 20)
     @Enumerated(EnumType.STRING)
     Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    UserStatus status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     List<Verification> verifications;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     FileMetadata avatar;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    List<UserRole> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<SportField> sportFields;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Order> orders;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Review> reviews;
 
 }

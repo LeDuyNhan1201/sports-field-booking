@@ -8,6 +8,7 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageEr
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,6 +31,14 @@ public class GlobalExceptionHandler {
         log.error("Exception: ", exception);
         return ResponseEntity.badRequest().body(CommonResponse.builder()
                 .message(getLocalizedMessage("uncategorized"))
+                .build());
+    }
+
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    ResponseEntity<CommonResponse<?>> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        log.error("Authorization Denied Exception: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(getLocalizedMessage("not_have_permission"))
                 .build());
     }
 

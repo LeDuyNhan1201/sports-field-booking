@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
@@ -35,6 +36,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -205,7 +207,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (!isRefresh) {
             jwtClaimsSet = new JWTClaimsSet.Builder(jwtClaimsSet)
-                    .claim("more-info", "???????")
+                    .claim("scope", buildScope(user))
                     .build();
         }
 
@@ -392,6 +394,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return signedJWT;
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(role -> stringJoiner.add("ROLE_" + role.getRole().getName()));
+
+        return stringJoiner.toString();
     }
 
     public static String generateVerificationCode(int length) {
