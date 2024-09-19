@@ -46,10 +46,12 @@ public class VNPayConfiguration {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
+        // start time
         String vnpCreateDate = formatter.format(calendar.getTime());
         vnpParamsMap.put("vnp_CreateTime", vnpCreateDate);
         calendar.add(Calendar.MINUTE, 15);
 
+        // end time
         String vnpExpireDate = formatter.format(calendar);
         vnpParamsMap.put("vnp_ExpireTime",vnpExpireDate);
 
