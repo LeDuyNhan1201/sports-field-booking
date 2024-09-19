@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
 import org.springframework.context.NoSuchMessageException;
@@ -50,6 +51,15 @@ public class GlobalExceptionHandler {
                 .message(exception.getMessage())
                 .build());
     }
+
+    @ExceptionHandler(value = BookingException.class)
+    ResponseEntity<CommonResponse<?>> handlingBookingException(BookingException exception) {
+        log.error("Booking error: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(exception.getMessage())
+                .build());
+    }
+
 
     // Handle authentication exceptions
     @ExceptionHandler(value = AuthenticationException.class)
