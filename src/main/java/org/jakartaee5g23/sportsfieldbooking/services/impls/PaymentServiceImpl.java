@@ -7,7 +7,6 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentMethod;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.jakartaee5g23.sportsfieldbooking.vnpay.Utils.VNPayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -20,8 +19,20 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public boolean isVerifyPayment(PaymentMethod method, Double price) {
         switch (method) {
-            case method.VN_PAY:
+            case VN_PAY:
                 return verifyVNPayPayment(price);
+            case CASH:
+                // Add logic for CASH payment verification if needed
+                return false;
+            case CREDIT_CARD:
+                // Add logic for CREDIT_CARD payment verification if needed
+                return false;
+            case DEBIT_CARD:
+                // Add logic for DEBIT_CARD payment verification if needed
+                return false;
+            case PAYPAL:
+                // Add logic for PAYPAL payment verification if needed
+                return false;
         }
 
         return false;
@@ -37,7 +48,7 @@ public class PaymentServiceImpl implements PaymentService {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
         vnpParamsMap.put("vnp_IpAddr", VNPayUtils.getIpAddress(request));
-        //build query url
+        // build query url
         String queryUrl = VNPayUtils.getPaymentURL(vnpParamsMap, true);
         String hashData = VNPayUtils.getPaymentURL(vnpParamsMap, false);
         String vnpSecureHash = VNPayUtils.hmacSHA512(vnPayConfiguration.getSecretKey(), hashData);
@@ -51,6 +62,5 @@ public class PaymentServiceImpl implements PaymentService {
 
         return false;
     }
-
 
 }
