@@ -25,6 +25,7 @@ public class Payment extends AbstractEntity {
     @Column(nullable = false, length = 50)
     PaymentMethod method;
 
+    @Column(nullable = false)
     Double price;
 
     @Column(nullable = false, length = 20)

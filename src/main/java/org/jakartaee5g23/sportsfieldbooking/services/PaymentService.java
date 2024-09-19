@@ -10,4 +10,6 @@ public interface PaymentService {
     boolean isVerifyPayment(PaymentMethod method, Double price);
     VNPayResponse createVNPayPayment(HttpServletRequest request);
     boolean verifyVNPayPayment(double price);
+    VNPayResponse createQRCode(HttpServletRequest request);
+
 }

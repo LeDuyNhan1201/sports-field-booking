@@ -9,6 +9,8 @@ public enum BookingErrorCode {
     SPORTFIELD_NOT_FOUND("SPORTFIELD-NOT-FOUND","sport field not found"),
     PAYMENT_NOT_FOUND("PAYMENT-NOT-FOUND","payment not found"),
     ORDER_NOT_FOUND("ORDER-NOT-FOUND","order not found"),
+    USER_BANNED("USER-BANNED", "user is banned"),
+    SPORTFIELD_NONE("SPORTFIELD-NONE", "sport field is not available(currently PRE-ORDER or ORDER)")
     ;
 
     BookingErrorCode(String code, String message) {
