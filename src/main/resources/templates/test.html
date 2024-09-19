@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th scope="col">Mã</th>
+        <th scope="col">Tên thiết bị</th>
+        <th scope="col">Mô tả</th>
+        <th scope="col">Mô tả</th>
+        <th scope="col">Mô tả</th>
+    </tr>
+    </thead>
+    <tbody id="list">
+    <tr th:each="l : ${list}">
+        <td th:text="${l.id}"></td>
+        <td th:text="${l.startTime}"></td>
+        <td th:text="${l.bookingHours}"></td>
+        <td th:text="${l.endTime}"></td>
+        <td th:text="${l.status}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
