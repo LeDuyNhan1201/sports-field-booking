@@ -67,7 +67,10 @@ public class BookingController {
     public ResponseEntity<BookingResponse> booking(@RequestBody @Valid BookingRequest request) {
         BookingResponse response = bookingService.getBookingConfirmation(request);
 
+
+
         return ResponseEntity.status(HttpStatus.OK).body(new BookingResponse(getLocalizedMessage("booking_success")));
+
     }
 
 

@@ -12,6 +12,8 @@ import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
@@ -37,14 +39,13 @@ public class BookingServiceImpl implements BookingService {
 
     PaymentRepository paymentRepository;
 
-
     @Override
     @Transactional
     public BookingResponse getBookingConfirmation(BookingRequest request) {
         if (request.isConfirmed()) {
             User user = userRepository.findById(request.idUser()).orElseThrow(() -> new BookingException(BookingErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
             SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(() -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
-            Payment payment = paymentRepository.findById(request.idUser()).orElseThrow(() -> new BookingException(BookingErrorCode.PAYMENT_NOT_FOUND, HttpStatus.NOT_FOUND));
+            Payment payment = paymentRepository.findById(request.idUser()).orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Payment"));
 
             Order order = Order.builder()
                     .startTime(request.startTime())
@@ -62,7 +63,10 @@ public class BookingServiceImpl implements BookingService {
             Order existOrder = orderRepository.findById(createOrder.getId())
                     .orElseThrow(() -> new BookingException(BookingErrorCode.SEND_MAIL_FAILED, HttpStatus.NOT_FOUND));
 
-            return new BookingResponse(getLocalizedMessage("booking_success"));
+            if (existOrder != null) {
+                return new BookingResponse(getLocalizedMessage("booking_success"));
+            }
+
         }else {
             return new BookingResponse(getLocalizedMessage("booking_failed"));
         }
