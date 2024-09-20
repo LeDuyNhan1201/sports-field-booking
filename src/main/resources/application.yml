@@ -142,3 +142,12 @@ spring:
 
     file-consumer:
       group-id: handle-file-group
+
+#VNPAY
+payment.vnPay.url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+payment.vnPay.tmnCode: 58X4B4HP
+payment.vnPay.secretKey: VRLDWNVWDNPCOEPBZUTWSEDQAGXJCNGZ
+payment.vnPay.returnUrl: http://localhost:8080/api/v1/payment/vn-pay-callback
+payment.vnPay.version: 2.1.0
+payment.vnPay.command: pay
+payment.vnPay.orderType: other

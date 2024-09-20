@@ -6,6 +6,8 @@ public enum SportFieldStatus {
 
     ORDER,
 
-    NONE
+    NONE,
+
+    BANNED
 
 }
