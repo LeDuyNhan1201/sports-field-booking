@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+</head>
+
+<body>
+    <h1>Orders</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Sport Field</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="orders-body">
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:8888/sports-field-booking/api/v1/orders');
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+
+                const data = await response.json();
+
+                const tableBody = document.getElementById('orders-body');
+
+                data.forEach(order => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${order.id}</td>
+                        <td>${order.user.username}</td>
+                        <td>${order.sportField.name}</td>
+                        <td>${order.startTime}</td>
+                        <td>${order.endTime}</td>
+                        <td>${order.status}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Có lỗi xảy ra:', error);
+            }
+        }
+
+        window.onload = fetchData;
+    </script>
+</body>
+
+</html>

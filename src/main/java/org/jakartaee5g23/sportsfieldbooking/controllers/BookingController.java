@@ -54,23 +54,21 @@ public class BookingController {
 
     SportFieldRepository sportFieldRepository;
 
+    // @GetMapping("/test")
+    // public String getTestPage() {
+    // return "test";
+    // }
 
-//    @GetMapping("/test")
-//    public String getTestPage() {
-//        return "test";
-//    }
-
-
-    @Operation(summary = "Get sport field price & orderID", description = "Get sport field price & orderID when user clicks on payment form",
-            security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Get sport field price & orderID", description = "Get sport field price & orderID when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/sport-field-paymentInfo")
     public String getPaymentInfo(@RequestBody @Valid String orderID, Model model) {
-        Order order = orderRepository.findById(orderID).orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+        Order order = orderRepository.findById(orderID)
+                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
         Double price = 0.0;
         List<SportField> sportFieldList = sportFieldRepository.findAll();
         for (SportField field : sportFieldList) {
-            if(order.getSportField().getId().equals(field.getId())) {
+            if (order.getSportField().getId().equals(field.getId())) {
                 price = field.getPricePerHour() * order.getBookingHours();
             }
         }
@@ -79,20 +77,17 @@ public class BookingController {
         return "sport-field-price";
     }
 
-    @Operation(summary = "Create QR Code", description = "Create QR Code",
-            security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Create QR Code", description = "Create QR Code", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/createQRCode")
     public VNPayResponse createQRCode(HttpServletRequest request,
-                                      @RequestParam("amount") Double amount,
-                                      @RequestParam("bankCode") String bankCode) {
+            @RequestParam("amount") Double amount,
+            @RequestParam("bankCode") String bankCode) {
         request.setAttribute("amount", amount);
         request.setAttribute("bankCode", bankCode);
         return paymentService.createQRCode(request);
     }
 
-
-    @Operation(summary = "Make payment", description = "Make payment",
-            security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Make payment", description = "Make payment", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/making-payment")
     ResponseEntity<PaymentResponse> makePayment(@RequestBody @Valid PaymentRequest request) {
         PaymentMethod method = request.method();
@@ -105,35 +100,38 @@ public class BookingController {
         }
 
         return ResponseEntity.status(OK).body(
-                new PaymentResponse(getLocalizedMessage("payment_success"))
-        );
+                new PaymentResponse(getLocalizedMessage("payment_success")));
     }
 
-    @Operation(summary = "Confirm booking", description = "Save booking's order",
-            security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Confirm booking", description = "Save booking's order", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/confirm-booking")
     public ResponseEntity<BookingResponse> booking(@RequestBody @Valid BookingRequest request) {
         BookingResponse response = bookingService.getBookingConfirmation(request);
         return ResponseEntity.status(OK).body(response);
     }
 
-
-    @Operation(summary = "Cancel booking", description = "Cancel booking after ordered",
-            security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Cancel booking", description = "Cancel booking after ordered", security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/cancel-booking")
     public ResponseEntity<CancelBookingResponse> cancelBooking(@RequestBody @Valid CancelBookingRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(bookingService.cancelBooking(request));
     }
 
-//    @Operation(summary = "Receive booking confirm", description = "Receive booking confirm",
-//                security = @SecurityRequirement(name = "bearerAuth"))
-//    @GetMapping("/receive-confirmation/{orderId}")
-//    public ResponseEntity<BookingResponse> receiveConfirmation(@PathVariable String orderId) {
-//        BookingResponse response = bookingService.getBookingConfirmation(orderId);
-//
-//        return ResponseEntity.status(OK).body(response);
-//    }
+    // @Operation(summary = "Receive booking confirm", description = "Receive
+    // booking confirm",
+    // security = @SecurityRequirement(name = "bearerAuth"))
+    // @GetMapping("/receive-confirmation/{orderId}")
+    // public ResponseEntity<BookingResponse> receiveConfirmation(@PathVariable
+    // String orderId) {
+    // BookingResponse response = bookingService.getBookingConfirmation(orderId);
+    //
+    // return ResponseEntity.status(OK).body(response);
+    // }
 
-
+    @Operation(summary = "View upcoming bookings", description = "Get list of upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/upcoming-bookings")
+    public ResponseEntity<List<BookingResponse>> getUpcomingBookings() {
+        List<BookingResponse> upcomingBookings = bookingService.getUpcomingBookings();
+        return ResponseEntity.status(HttpStatus.OK).body(upcomingBookings);
+    }
 
 }
