@@ -191,6 +191,10 @@ public class PaymentController {
                 "</html>\n";
     }
     // for UI tests
+    // UI link: http://localhost:8888/sports-field-booking/api/v1/booking/test
+    // Card number: 9704198526191432198
+    // Owner name: NGUYEN VAN A
+    // Date: 07/15
 //    @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
 //    @PostMapping("/createVNPayPayment")
 //    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
