@@ -191,55 +191,55 @@ public class PaymentController {
                 "</html>\n";
     }
     // for UI tests
-    @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
-    @PostMapping("/createVNPayPayment")
-    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
-        String amountString = (String) requestBody.get("amount");
-        double amountDouble = Double.parseDouble(amountString);
-        long amount = (long) amountDouble;
-        String bankCode = (String) requestBody.get("bankCode");
-        String orderID = (String) requestBody.get("invoice");
-
-        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, bankCode, orderID, request);
-
-        return ResponseEntity.ok(vnPayResponse);
-    }
-
 //    @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
 //    @PostMapping("/createVNPayPayment")
-//    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest, HttpServletRequest request) {
-//        long amount = (long) payRequest.amount();
-//        String bankCode = payRequest.bankCode();
-//        String orderID = payRequest.orderID();
+//    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
+//        String amountString = (String) requestBody.get("amount");
+//        double amountDouble = Double.parseDouble(amountString);
+//        long amount = (long) amountDouble;
+//        String bankCode = (String) requestBody.get("bankCode");
+//        String orderID = (String) requestBody.get("invoice");
 //
 //        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, bankCode, orderID, request);
 //
 //        return ResponseEntity.ok(vnPayResponse);
 //    }
 
-    // for UI tests
-    @Operation(summary = "Create Payment", description = "Create Payment")
-    @PostMapping("/createPayment")
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody Map<String, Object> requestBody) {
-        String amountString = (String) requestBody.get("amount");
-        double amount = Double.parseDouble(amountString);
-        String orderID = (String) requestBody.get("invoice");
+    @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
+    @PostMapping("/createVNPayPayment")
+    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest, HttpServletRequest request) {
+        long amount = (long) payRequest.amount();
+        String bankCode = payRequest.bankCode();
+        String orderID = payRequest.orderID();
 
-        PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
+        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, bankCode, orderID, request);
 
-        return ResponseEntity.ok(paymentResponse);
+        return ResponseEntity.ok(vnPayResponse);
     }
 
+    // for UI tests
 //    @Operation(summary = "Create Payment", description = "Create Payment")
 //    @PostMapping("/createPayment")
-//    public ResponseEntity<PaymentResponse> createPayment(@RequestBody @Valid PaymentRequest request) {
-//        double amount = (double) request.amount();
-//        String orderID = request.orderID();
+//    public ResponseEntity<PaymentResponse> createPayment(@RequestBody Map<String, Object> requestBody) {
+//        String amountString = (String) requestBody.get("amount");
+//        double amount = Double.parseDouble(amountString);
+//        String orderID = (String) requestBody.get("invoice");
 //
 //        PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
 //
 //        return ResponseEntity.ok(paymentResponse);
 //    }
+
+    @Operation(summary = "Create Payment", description = "Create Payment")
+    @PostMapping("/createPayment")
+    public ResponseEntity<PaymentResponse> createPayment(@RequestBody @Valid PaymentRequest request) {
+        double amount = (double) request.amount();
+        String orderID = request.orderID();
+
+        PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
+
+        return ResponseEntity.ok(paymentResponse);
+    }
 
     @Operation(summary = "VNPay Callback", description = "Handle VNPay payment callback")
     @GetMapping("/vnPayCallback")
