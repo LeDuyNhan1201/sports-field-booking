@@ -58,7 +58,9 @@ public class SecurityConfiguration {
                 "/media/**",
                 "/booking/cancel-booking",
                 "/booking/confirm-booking",
-                "/orders"
+                "/orders",
+                "/sport-field/edit-sport-field",
+                "/sport-field/delete-sport-field"
 
         ).map(s -> (
                 s.contains("api-docs") ||
