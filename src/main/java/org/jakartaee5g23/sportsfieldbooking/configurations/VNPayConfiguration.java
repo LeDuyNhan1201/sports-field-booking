@@ -16,6 +16,7 @@ public class VNPayConfiguration {
     @Getter
     @Value("${payment.vnPay.url}")
     private String vnp_PayUrl;
+    @Getter
     @Value("${payment.vnPay.returnUrl}")
     private String vnp_ReturnUrl;
     @Value("${payment.vnPay.tmnCode}")
@@ -36,9 +37,9 @@ public class VNPayConfiguration {
         vnpParamsMap.put("vnp_Version", this.vnp_Version);
         vnpParamsMap.put("vnp_Command", this.vnp_Command);
         vnpParamsMap.put("vnp_TmnCode", this.vnp_TmnCode);
-        vnpParamsMap.put("vnp_CurrCode", "VNĐ");
+        vnpParamsMap.put("vnp_CurrCode", "VND");
         vnpParamsMap.put("vnp_TxnRef",  VNPayUtils.getRandomNumber(8));
-        vnpParamsMap.put("vnp_OrderInfo", "Thanh toan don hang:" +  VNPayUtils.getRandomNumber(8));
+        vnpParamsMap.put("vnp_OrderInfo", "Thanh toán đơn hàng:" +  VNPayUtils.getRandomNumber(8));
         vnpParamsMap.put("vnp_OrderType", this.orderType);
         vnpParamsMap.put("vnp_Locale", "vn");
         vnpParamsMap.put("vnp_ReturnUrl", this.vnp_ReturnUrl);
@@ -48,12 +49,12 @@ public class VNPayConfiguration {
 
         // start time
         String vnpCreateDate = formatter.format(calendar.getTime());
-        vnpParamsMap.put("vnp_CreateTime", vnpCreateDate);
+        vnpParamsMap.put("vnp_CreateDate", vnpCreateDate);
         calendar.add(Calendar.MINUTE, 15);
 
         // end time
-        String vnpExpireDate = formatter.format(calendar);
-        vnpParamsMap.put("vnp_ExpireTime",vnpExpireDate);
+        String vnpExpireDate = formatter.format(calendar.getTime());
+        vnpParamsMap.put("vnp_ExpireDate",vnpExpireDate);
 
         return vnpParamsMap;
     }

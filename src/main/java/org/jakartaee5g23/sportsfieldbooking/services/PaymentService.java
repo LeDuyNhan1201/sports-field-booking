@@ -1,15 +1,20 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.CommonResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentMethod;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public interface PaymentService {
-    boolean isVerifyPayment(PaymentMethod method, Double price);
-    VNPayResponse createVNPayPayment(HttpServletRequest request);
-    boolean verifyVNPayPayment(double price);
-    VNPayResponse createQRCode(HttpServletRequest request);
+    boolean isVerifyPayment(PaymentMethod method, Map<String, String> params);
+    VNPayResponse createVNPayPayment(long amount, String bankCode, String orderID,HttpServletRequest request);
+    boolean verifyVNPayPayment(Map<String, String> params, String orderId, String secureHash);
+
+    PaymentResponse createPayment(double amount, String orderID);
 
 }
