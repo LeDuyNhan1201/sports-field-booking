@@ -4,16 +4,13 @@ import java.util.List;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.OrderRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.OrderResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.SignUpResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
 import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 

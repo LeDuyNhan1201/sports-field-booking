@@ -7,6 +7,8 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.Authentica
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.order.OrderException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentException;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -52,9 +54,29 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+
+    // booking exceptions
     @ExceptionHandler(value = BookingException.class)
     ResponseEntity<CommonResponse<?>> handlingBookingException(BookingException exception) {
         log.error("Booking error: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(exception.getMessage())
+                .build());
+    }
+
+    // payment exceptions
+    @ExceptionHandler(value = PaymentException.class)
+    ResponseEntity<CommonResponse<?>> handlingPaymentException(PaymentException exception) {
+        log.error("Payment error: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(exception.getMessage())
+                .build());
+    }
+
+    // order exceptions
+    @ExceptionHandler(value = OrderException.class)
+    ResponseEntity<CommonResponse<?>> handlingOrderException(OrderException exception) {
+        log.error("Order error: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
                 .build());

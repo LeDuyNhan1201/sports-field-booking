@@ -58,6 +58,12 @@ public class SecurityConfiguration {
                 "/media/**",
                 "/booking/cancel-booking",
                 "/booking/confirm-booking",
+                "/booking/test",
+                "/payment/making-payment",
+                "/payment/createVNPayPayment",
+                "/payment/vnPayCallback",
+                "/payment/createPayment",
+                "/payment/test",
                 "/orders"
 
         ).map(s -> (
