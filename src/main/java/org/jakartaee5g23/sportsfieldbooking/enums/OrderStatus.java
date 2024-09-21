@@ -1,12 +1,10 @@
 package org.jakartaee5g23.sportsfieldbooking.enums;
 
 public enum OrderStatus {
-        
     PENDING,
-
     ACCEPTED,
-
     REJECTED,
-    CANCELED
-
+    CANCELED,
+    RESCHEDULED,
+    REFUND_REQUESTED
 }

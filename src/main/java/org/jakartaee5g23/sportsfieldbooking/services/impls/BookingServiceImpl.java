@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
@@ -20,6 +22,7 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingNotFoundException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.PaymentRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
@@ -126,4 +129,39 @@ public class BookingServiceImpl implements BookingService {
         return "Booking for " + order.getSportField().getName() + " by " + order.getUser().getUsername();
     }
 
+    @Override
+    public List<BookingResponse> getBookingHistory(String userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+                .map(this::convertToBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BookingResponse rescheduleBooking(String bookingId, BookingRequest newBookingRequest) {
+        Optional<Order> optionalOrder = orderRepository.findById(bookingId);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            order.setStartTime(newBookingRequest.startTime());
+            order.setEndTime(newBookingRequest.endTime());
+            order.setStatus(OrderStatus.RESCHEDULED);
+            orderRepository.save(order);
+            return convertToBookingResponse(order);
+        } else {
+            throw new BookingNotFoundException("Booking not found with id: " + bookingId);
+        }
+    }
+
+    @Override
+    public BookingResponse requestRefund(String bookingId) {
+        Optional<Order> optionalOrder = orderRepository.findById(bookingId);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            order.setStatus(OrderStatus.REFUND_REQUESTED);
+            orderRepository.save(order);
+            return convertToBookingResponse(order);
+        } else {
+            throw new BookingNotFoundException("Booking not found with id: " + bookingId);
+        }
+    }
 }

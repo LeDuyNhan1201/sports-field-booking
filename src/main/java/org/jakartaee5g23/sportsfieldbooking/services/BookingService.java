@@ -16,4 +16,10 @@ public interface BookingService {
     CancelBookingResponse cancelBooking(CancelBookingRequest request);
 
     List<BookingResponse> getUpcomingBookings();
+
+    List<BookingResponse> getBookingHistory(String userId);
+
+    BookingResponse rescheduleBooking(String bookingId, BookingRequest newBookingRequest);
+
+    BookingResponse requestRefund(String bookingId);
 }
