@@ -106,7 +106,7 @@
 
 
         if (paymentMethod === 'transfer') {
-            const response = await fetch('/sports-field-booking/api/v1/booking/createVNPayPayment', {
+            const response = await fetch('/sports-field-booking/api/v1/payment/createVNPayPayment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -126,7 +126,7 @@
                 console.error('Failed to create payment');
             }
         }else if(paymentMethod === 'cash') {
-            const response = await fetch('/sports-field-booking/api/v1/booking/createPayment', {
+            const response = await fetch('/sports-field-booking/api/v1/payment/createPayment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
