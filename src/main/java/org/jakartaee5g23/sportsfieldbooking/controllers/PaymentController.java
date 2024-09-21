@@ -5,35 +5,38 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
+
+import java.util.List;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.PaymentRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.VNPayRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
+import org.jakartaee5g23.sportsfieldbooking.entities.Order;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.OK;
+import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
+import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
 
 @RestController
 @RequestMapping("${api.prefix}/payment")
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 @Tag(name = "Payment APIs")
 public class PaymentController {
-    BookingService bookingService;
     PaymentService paymentService;
+    OrderRepository orderRepository;
+    SportFieldRepository sportFieldRepository;
 
     @GetMapping("/test")
     public String getTestPage() {
@@ -130,7 +133,8 @@ public class PaymentController {
                 "        </div>\n" +
                 "        <div class=\"button-group\">\n" +
                 "            <button type=\"submit\" class=\"submit-btn\">Submit</button>\n" +
-                "            <button type=\"button\" class=\"cancel-btn\" onclick=\"window.location.reload()\">Cancel</button>\n" +
+                "            <button type=\"button\" class=\"cancel-btn\" onclick=\"window.location.reload()\">Cancel</button>\n"
+                +
                 "        </div>\n" +
                 "    </form>\n" +
                 "</div>\n" +
@@ -145,7 +149,8 @@ public class PaymentController {
                 "\n" +
                 "\n" +
                 "        if (paymentMethod === 'transfer') {\n" +
-                "            const response = await fetch('/sports-field-booking/api/v1/payment/createVNPayPayment', {\n" +
+                "            const response = await fetch('/sports-field-booking/api/v1/payment/createVNPayPayment', {\n"
+                +
                 "                method: 'POST',\n" +
                 "                headers: {\n" +
                 "                    'Content-Type': 'application/json'\n" +
@@ -195,23 +200,27 @@ public class PaymentController {
     // Card number: 9704198526191432198
     // Owner name: NGUYEN VAN A
     // Date: 07/15
-//    @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
-//    @PostMapping("/createVNPayPayment")
-//    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
-//        String amountString = (String) requestBody.get("amount");
-//        double amountDouble = Double.parseDouble(amountString);
-//        long amount = (long) amountDouble;
-//        String bankCode = (String) requestBody.get("bankCode");
-//        String orderID = (String) requestBody.get("invoice");
-//
-//        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, bankCode, orderID, request);
-//
-//        return ResponseEntity.ok(vnPayResponse);
-//    }
+    // @Operation(summary = "Create VNPay Payment", description = "Create VNPay
+    // Payment")
+    // @PostMapping("/createVNPayPayment")
+    // public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody
+    // Map<String, Object> requestBody, HttpServletRequest request) {
+    // String amountString = (String) requestBody.get("amount");
+    // double amountDouble = Double.parseDouble(amountString);
+    // long amount = (long) amountDouble;
+    // String bankCode = (String) requestBody.get("bankCode");
+    // String orderID = (String) requestBody.get("invoice");
+    //
+    // VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount,
+    // bankCode, orderID, request);
+    //
+    // return ResponseEntity.ok(vnPayResponse);
+    // }
 
     @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
     @PostMapping("/createVNPayPayment")
-    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest, HttpServletRequest request) {
+    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest,
+            HttpServletRequest request) {
         long amount = (long) payRequest.amount();
         String bankCode = payRequest.bankCode();
         String orderID = payRequest.orderID();
@@ -222,17 +231,19 @@ public class PaymentController {
     }
 
     // for UI tests
-//    @Operation(summary = "Create Payment", description = "Create Payment")
-//    @PostMapping("/createPayment")
-//    public ResponseEntity<PaymentResponse> createPayment(@RequestBody Map<String, Object> requestBody) {
-//        String amountString = (String) requestBody.get("amount");
-//        double amount = Double.parseDouble(amountString);
-//        String orderID = (String) requestBody.get("invoice");
-//
-//        PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
-//
-//        return ResponseEntity.ok(paymentResponse);
-//    }
+    // @Operation(summary = "Create Payment", description = "Create Payment")
+    // @PostMapping("/createPayment")
+    // public ResponseEntity<PaymentResponse> createPayment(@RequestBody Map<String,
+    // Object> requestBody) {
+    // String amountString = (String) requestBody.get("amount");
+    // double amount = Double.parseDouble(amountString);
+    // String orderID = (String) requestBody.get("invoice");
+    //
+    // PaymentResponse paymentResponse = paymentService.createPayment(amount,
+    // orderID);
+    //
+    // return ResponseEntity.ok(paymentResponse);
+    // }
 
     @Operation(summary = "Create Payment", description = "Create Payment")
     @PostMapping("/createPayment")
@@ -262,12 +273,21 @@ public class PaymentController {
         return ResponseEntity.ok("Callback processed and payment verified");
     }
 
+    @Operation(summary = "Get sport field price & orderID", description = "Get sport field price & orderID when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/sport-field-paymentInfo")
+    public String getPaymentInfo(@RequestBody @Valid String orderID, Model model) {
+        Order order = orderRepository.findById(orderID)
+                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-    @Operation(summary = "Confirm booking", description = "Save booking's order",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/confirm-booking")
-    public ResponseEntity<BookingResponse> booking(@RequestBody @Valid BookingRequest request) {
-        BookingResponse response = bookingService.getBookingConfirmation(request);
-        return ResponseEntity.status(OK).body(response);
+        Double price = 0.0;
+        List<SportField> sportFieldList = sportFieldRepository.findAll();
+        for (SportField field : sportFieldList) {
+            if (order.getSportField().getId().equals(field.getId())) {
+                price = field.getPricePerHour() * order.getBookingHours();
+            }
+        }
+        model.addAttribute("price", price);
+        model.addAttribute("orderID", orderID);
+        return "sport-field-paymentInfo";
     }
 }

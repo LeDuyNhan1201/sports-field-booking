@@ -11,29 +11,29 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.Booking
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
-import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingNotFoundException;
+import org.jakartaee5g23.sportsfieldbooking.repositories.NotificationRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.PaymentRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
-import org.json.HTTP;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +48,8 @@ public class BookingServiceImpl implements BookingService {
 
     SportFieldRepository sportFieldRepository;
 
-    PaymentRepository paymentRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Override
     @Transactional
@@ -80,6 +81,15 @@ public class BookingServiceImpl implements BookingService {
                     .orElseThrow(() -> new BookingException(BookingErrorCode.SEND_MAIL_FAILED, HttpStatus.NOT_FOUND));
 
             sportField.setStatus(SportFieldStatus.PRE_ORDER);
+            Notification notification = Notification.builder()
+                    .user(user)
+                    .order(existOrder)
+                    .type(NotificationType.INFO)
+                    .message(getLocalizedMessage("booking_confirmed"))
+                    .created(new Date())
+                    .build();
+
+            notificationRepository.save(notification);
 
             return existOrder != null
                     ? new BookingResponse(HttpStatus.OK.value(), getLocalizedMessage("booking_success"))

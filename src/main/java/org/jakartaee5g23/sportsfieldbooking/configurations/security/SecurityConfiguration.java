@@ -30,95 +30,89 @@ import java.util.stream.Stream;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfiguration {
 
-    @Value("${api.prefix}")
-    @NonFinal
-    String API_PREFIX;
+        @Value("${api.prefix}")
+        @NonFinal
+        String API_PREFIX;
 
-    CustomJwtDecoder customJwtDecoder;
+        CustomJwtDecoder customJwtDecoder;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        String[] PUBLIC_ENDPOINTS = Stream.of(
-                "/auth/sign-up",
-                "/auth/verify-email-by-code",
-                "/auth/verify-email-by-token",
-                "/auth/send-email-verification",
-                "/auth/send-forgot-password",
-                "/auth/forgot-password",
-                "/auth/reset-password",
-                "/auth/sign-in",
-                "/auth/sign-out",
-                "/auth/introspect",
-                "/actuator/health",
-                "/api-docs/**",
-                "/swagger-ui/**",
-                "/swagger-ui.html",
-                "/swagger-resources/**",
-                "/media/**",
-                "/booking/cancel-booking",
-                "/booking/confirm-booking",
-                "/booking/test",
-                "/payment/making-payment",
-                "/payment/createVNPayPayment",
-                "/payment/vnPayCallback",
-                "/payment/createPayment",
-                "/payment/test",
-                "/orders"
+                String[] PUBLIC_ENDPOINTS = Stream.of(
+                                "/auth/sign-up",
+                                "/auth/verify-email-by-code",
+                                "/auth/verify-email-by-token",
+                                "/auth/send-email-verification",
+                                "/auth/send-forgot-password",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/sign-in",
+                                "/auth/sign-out",
+                                "/auth/introspect",
+                                "/actuator/health",
+                                "/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/media/**",
+                                "/booking/**",
+                                "/payment/**",
+                                "/notification**",
+                                "/orders"
 
-        ).map(s -> (
-                s.contains("api-docs") ||
-                        s.contains("swagger"))
-                ? s : API_PREFIX + s
-        ).toList().toArray(new String[0]);
+                ).map(s -> (s.contains("api-docs") ||
+                                s.contains("swagger"))
+                                                ? s
+                                                : API_PREFIX + s)
+                                .toList().toArray(new String[0]);
 
-        // Pass the request to the next filter if the request's endpoint is public
-        httpSecurity.authorizeHttpRequests(request ->
-        {
-            //log.info("Public Endpoints: " + Arrays.toString(PUBLIC_ENDPOINTS));
-            request.requestMatchers(PUBLIC_ENDPOINTS)
-                    .permitAll()
-                    .anyRequest()
-//                    .permitAll();
-                    .authenticated();
+                // Pass the request to the next filter if the request's endpoint is public
+                httpSecurity.authorizeHttpRequests(request -> {
+                        // log.info("Public Endpoints: " + Arrays.toString(PUBLIC_ENDPOINTS));
+                        request.requestMatchers(PUBLIC_ENDPOINTS)
+                                        .permitAll()
+                                        .anyRequest()
+                                        // .permitAll();
+                                        .authenticated();
 
-            log.info("Request: {}", request);
-        });
+                        log.info("Request: {}", request);
+                });
 
-        // Configure the JWT decoder and authentication converter
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(
-                jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+                // Configure the JWT decoder and authentication converter
+                httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(
+                                jwtConfigurer -> jwtConfigurer
+                                                .decoder(customJwtDecoder)
+                                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+                httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
-        return httpSecurity.build();
-    }
+                return httpSecurity.build();
+        }
 
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        @Bean
+        public CorsFilter corsFilter() {
+                CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
+                corsConfiguration.addAllowedOrigin("*");
+                corsConfiguration.addAllowedMethod("*");
+                corsConfiguration.addAllowedHeader("*");
 
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+                UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+                urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
-        return new CorsFilter(urlBasedCorsConfigurationSource);
-    }
+                return new CorsFilter(urlBasedCorsConfigurationSource);
+        }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        @Bean
+        public JwtAuthenticationConverter jwtAuthenticationConverter() {
+                JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+                jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+                JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+                jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
-        return jwtAuthenticationConverter;
-    }
+                return jwtAuthenticationConverter;
+        }
 
 }
