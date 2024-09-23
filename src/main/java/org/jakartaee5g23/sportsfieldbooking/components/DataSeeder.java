@@ -136,6 +136,7 @@ public class DataSeeder {
                         .closingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
                         .category(categories.get(faker.number().numberBetween(0, categories.size())))
                         .user(users.get(faker.number().numberBetween(0, users.size())))
+                        .rating(faker.number().randomDouble(2, 0, 5))
                         .status(getRandomEnum(SportFieldStatus.class))
                         .build();
 
@@ -148,6 +149,7 @@ public class DataSeeder {
         if (orderRepository.count() == 0) {
             List<User> users = userRepository.findAll();
             List<SportField> fields = sportFieldRepository.findAll();
+
 
             IntStream.range(0, 20).forEach(_ -> {
                 Order order = Order.builder()
@@ -192,7 +194,6 @@ public class DataSeeder {
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .sportField(fields.get(faker.number().numberBetween(0, fields.size())))
                         .comment(faker.lorem().sentence(15))
-                        .rating(faker.number().randomDouble(2, 0, 5))
                         .build();
 
                 reviewRepository.save(review);
