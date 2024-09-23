@@ -26,9 +26,6 @@ public class Review {
     @Column(nullable = false)
     String comment;
 
-    @Column(columnDefinition = "double default 0")
-    Double rating;
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "fk_reviews_users",

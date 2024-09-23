@@ -70,7 +70,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public VNPayResponse createVNPayPayment(long amount, String bankCode, String orderID, HttpServletRequest request) {
-        long vnpAmount = amount * 1L;
+        long vnpAmount = amount * 100L;
 
         Map<String, String> vnpParamsMap = vnPayConfiguration.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(vnpAmount));

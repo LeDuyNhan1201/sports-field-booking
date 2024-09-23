@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -31,6 +33,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
 @RestController
 @RequestMapping("${api.prefix}/payment")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 @Tag(name = "Payment APIs")
 public class PaymentController {
@@ -222,10 +225,9 @@ public class PaymentController {
     public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest,
             HttpServletRequest request) {
         long amount = (long) payRequest.amount();
-        String bankCode = payRequest.bankCode();
         String orderID = payRequest.orderID();
 
-        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, bankCode, orderID, request);
+        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, "NCB", orderID, request);
 
         return ResponseEntity.ok(vnPayResponse);
     }

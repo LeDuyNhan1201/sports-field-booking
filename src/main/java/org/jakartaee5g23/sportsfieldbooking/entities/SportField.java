@@ -41,6 +41,9 @@ public class SportField extends AbstractEntity {
 
     Date closingTime;
 
+    @Column(columnDefinition = "double default 0")
+    Double rating;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     SportFieldStatus status;

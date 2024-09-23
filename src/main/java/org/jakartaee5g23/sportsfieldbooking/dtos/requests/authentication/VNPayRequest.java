@@ -7,8 +7,6 @@ import java.util.Date;
 public record VNPayRequest(
         long amount,
 
-        String bankCode,
-
         String orderID
 ){
 }
