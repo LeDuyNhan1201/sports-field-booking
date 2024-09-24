@@ -15,7 +15,7 @@ public interface BookingService {
 
     CancelBookingResponse cancelBooking(CancelBookingRequest request);
 
-    List<BookingResponse> getUpcomingBookings();
+    List<BookingResponse> getUpcomingBookingsByUserId(String userId);
 
     List<BookingResponse> getBookingHistory(String userId);
 

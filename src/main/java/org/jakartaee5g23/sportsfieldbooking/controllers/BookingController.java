@@ -42,10 +42,9 @@ public class BookingController {
     }
 
     @Operation(summary = "View upcoming bookings", description = "Get list of upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/upcoming-bookings")
-    public ResponseEntity<List<BookingResponse>> getUpcomingBookings() {
-        List<BookingResponse> upcomingBookings = bookingService.getUpcomingBookings();
-        return ResponseEntity.status(HttpStatus.OK).body(upcomingBookings);
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<BookingResponse>> getUpcomingBookingsByUserId(@RequestParam String userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getUpcomingBookingsByUserId(userId));
     }
 
     @Operation(summary = "View booking history", description = "Get list of past bookings", security = @SecurityRequirement(name = "bearerAuth"))

@@ -117,8 +117,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> getUpcomingBookings() {
-        List<Order> upcomingOrders = orderRepository.findUpcomingBookings();
+    public List<BookingResponse> getUpcomingBookingsByUserId(String userId) {
+        List<Order> upcomingOrders = orderRepository.findUpcomingBookingsByUserId(userId);
         return upcomingOrders.stream()
                 .map(this::convertToBookingResponse)
                 .collect(Collectors.toList());
