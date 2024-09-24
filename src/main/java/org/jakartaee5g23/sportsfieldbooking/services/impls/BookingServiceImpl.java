@@ -60,7 +60,7 @@ public class BookingServiceImpl implements BookingService {
             SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(
                     () -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-            if (user.getStatus() == UserStatus.BANNED) {
+            if (user.getStatus().equals(UserStatus.BANNED)) {
                 throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
             } else if (sportField.getStatus() != SportFieldStatus.NONE) {
                 throw new BookingException(BookingErrorCode.SPORTFIELD_NONE, HttpStatus.NOT_FOUND);
