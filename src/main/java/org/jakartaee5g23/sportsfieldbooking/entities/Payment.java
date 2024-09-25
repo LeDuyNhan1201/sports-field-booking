@@ -18,26 +18,23 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PaymentStatus;
 @Table(name = "payments")
 public class Payment extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
 
-    @Column(nullable = false, length = 50)
-    PaymentMethod method;
+        @Column(nullable = false, length = 50)
+        PaymentMethod method;
 
-    @Column(nullable = false)
-    Double price;
+        @Column(nullable = false)
+        Double price;
 
-    @Column(nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-    PaymentStatus status;
+        @Column(nullable = false, length = 20)
+        @Enumerated(EnumType.STRING)
+        PaymentStatus status;
 
-    @OneToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_payments_orders",
-                    foreignKeyDefinition = "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false, updatable = false)
-    @JsonManagedReference
-    Order order;
+        @OneToOne
+        @JoinColumn(name = "order_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_payments_orders", foreignKeyDefinition = "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JsonManagedReference
+        Order order;
 
 }

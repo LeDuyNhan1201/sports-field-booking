@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Date;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
@@ -25,24 +27,19 @@ import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getRandomEnum;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DataSeeder {
-
     RoleRepository roleRepository;
-
     UserRepository userRepository;
-
     UserRoleRepository userRoleRepository;
-
     SportFieldRepository sportFieldRepository;
-
     CategoryRepository categoryRepository;
-
     PaymentRepository paymentRepository;
-
     OrderRepository orderRepository;
-
     ReviewRepository reviewRepository;
-
     PasswordEncoder passwordEncoder;
+    NotificationRepository notificationRepository;
+    PromotionRepository promotionRepository;
+    StatisticRepository statisticRepository;
+    FieldAvailabilityRepository fieldAvailabilityRepository;
 
     Faker faker = new Faker();
 
@@ -57,15 +54,16 @@ public class DataSeeder {
         seedOrders();
         seedPayments();
         seedReviews();
+        seedNotifications();
+        seedPromotions();
+        seedStatistics();
+        seedFieldAvailabilities();
     }
 
     private void seedRoles() {
         if (roleRepository.count() == 0) {
-
             Role admin = Role.builder().name("ADMIN").build();
-
             Role customer = Role.builder().name("CUSTOMER").build();
-
             Role fieldOwner = Role.builder().name("FIELD_OWNER").build();
 
             roleRepository.saveAll(List.of(customer, fieldOwner, admin));
@@ -82,7 +80,7 @@ public class DataSeeder {
     }
 
     private void seedUsers() {
-        if (userRoleRepository.count() == 0) {
+        if (userRepository.count() == 0) {
             IntStream.range(0, 20).forEach(_ -> {
                 User user = User.builder()
                         .username(faker.name().username())
@@ -105,7 +103,6 @@ public class DataSeeder {
     }
 
     private void seedUserRole() {
-        Faker faker = new Faker();
         if (userRoleRepository.count() == 0) {
             List<Role> roles = roleRepository.findAll();
             List<User> users = userRepository.findAll();
@@ -133,7 +130,7 @@ public class DataSeeder {
                         .pricePerHour(faker.number().numberBetween(50, 500))
                         .opacity(faker.number().numberBetween(1, 100))
                         .openingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
-                        .closingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
+                        .closingTime(faker.date().future(365 * 5, TimeUnit.DAYS)) // Updated to future
                         .category(categories.get(faker.number().numberBetween(0, categories.size())))
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .rating(faker.number().randomDouble(2, 0, 5))
@@ -150,14 +147,13 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<SportField> fields = sportFieldRepository.findAll();
 
-
             IntStream.range(0, 20).forEach(_ -> {
                 Order order = Order.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .sportField(fields.get(faker.number().numberBetween(0, fields.size())))
-                        .startTime(faker.date().past(365 * 5, TimeUnit.DAYS))
+                        .startTime(faker.date().future(30, TimeUnit.DAYS)) // Updated to future
                         .bookingHours(faker.number().randomDouble(2, 1, 5))
-                        .endTime(faker.date().past(365 * 5, TimeUnit.DAYS))
+                        .endTime(faker.date().future(30, TimeUnit.DAYS)) // Updated to future
                         .status(getRandomEnum(OrderStatus.class))
                         .build();
 
@@ -197,6 +193,93 @@ public class DataSeeder {
                         .build();
 
                 reviewRepository.save(review);
+            });
+        }
+    }
+
+    private void seedNotifications() {
+        if (notificationRepository.count() == 0) {
+            List<User> users = userRepository.findAll();
+            List<Order> orders = orderRepository.findAll();
+
+            IntStream.range(0, 20).forEach(_ -> {
+                Notification notification = Notification.builder()
+                        .user(users.get(faker.number().numberBetween(0, users.size())))
+                        .order(orders.get(faker.number().numberBetween(0, orders.size())))
+                        .type(getRandomEnum(NotificationType.class))
+                        .message(faker.lorem().sentence(10))
+                        .created(faker.date().past(365, TimeUnit.DAYS))
+                        .build();
+
+                notificationRepository.save(notification);
+            });
+        }
+    }
+
+    private void seedPromotions() {
+        if (promotionRepository.count() == 0) {
+            List<SportField> fields = sportFieldRepository.findAll();
+
+            IntStream.range(0, 10).forEach(_ -> {
+                Promotion promotion = Promotion.builder()
+                        .name(faker.commerce().promotionCode())
+                        .description(faker.lorem().sentence(20))
+                        .discountPercentage(faker.number().randomDouble(2, 5, 50))
+                        .startDate(faker.date().past(30, TimeUnit.DAYS))
+                        .endDate(faker.date().future(30, TimeUnit.DAYS))
+                        .sportField(fields.get(faker.number().numberBetween(0, fields.size())))
+                        .build();
+
+                promotionRepository.save(promotion);
+            });
+        }
+    }
+
+    private void seedStatistics() {
+        if (statisticRepository.count() == 0) {
+            IntStream.range(0, 10).forEach(_ -> {
+                Date date = Date.from(LocalDate.now().minusDays(faker.number().numberBetween(1, 30))
+                        .atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+                Statistic statistics = Statistic.builder()
+                        .date(date)
+                        .totalOrders(faker.number().numberBetween(0, 100))
+                        .totalPayments(faker.number().numberBetween(0, 100))
+                        .totalRevenue(faker.number().numberBetween(1000, 10000))
+                        .activeUsers(faker.number().numberBetween(0, 50))
+                        .build();
+
+                statisticRepository.save(statistics);
+            });
+        }
+    }
+
+    private void seedFieldAvailabilities() {
+        if (fieldAvailabilityRepository.count() == 0) {
+            List<SportField> fields = sportFieldRepository.findAll();
+
+            IntStream.range(0, 20).forEach(_ -> {
+                SportField field = fields.get(faker.number().numberBetween(0, fields.size()));
+                // Create a date that is available in the next 30 days
+                Date availableDate = faker.date().future(30, TimeUnit.DAYS);
+
+                // Generate start time between 8:00 AM and 8:00 PM
+                LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
+                        .atZone(ZoneId.systemDefault()).toInstant());
+
+                // Generate end time between 1 to 12 hours after start time
+                Date endTime = new Date(startTime.getTime() + faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
+
+                FieldAvailability availability = FieldAvailability.builder()
+                        .sportField(field)
+                        .availableDate(availableDate)
+                        .startTime(startTime)
+                        .endTime(endTime)
+                        .isAvailable(faker.bool().bool())
+                        .build();
+
+                fieldAvailabilityRepository.save(availability);
             });
         }
     }

@@ -1,6 +1,5 @@
 package org.jakartaee5g23.sportsfieldbooking.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;

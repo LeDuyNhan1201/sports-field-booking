@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
 
             if (user.getStatus() == UserStatus.BANNED) {
                 throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
-            } else if (sportField.getStatus() != SportFieldStatus.NONE) {
+            } else if (sportField.getStatus() != SportFieldStatus.CLOSED) {
                 throw new BookingException(BookingErrorCode.SPORTFIELD_NONE, HttpStatus.NOT_FOUND);
             }
             Order order = Order.builder()
@@ -80,11 +80,11 @@ public class BookingServiceImpl implements BookingService {
             Order existOrder = orderRepository.findById(createOrder.getId())
                     .orElseThrow(() -> new BookingException(BookingErrorCode.SEND_MAIL_FAILED, HttpStatus.NOT_FOUND));
 
-            sportField.setStatus(SportFieldStatus.PRE_ORDER);
+            sportField.setStatus(SportFieldStatus.OPEN);
             Notification notification = Notification.builder()
                     .user(user)
                     .order(existOrder)
-                    .type(NotificationType.INFO)
+                    .type(NotificationType.ORDER_STATUS_UPDATE)
                     .message(getLocalizedMessage("booking_confirmed"))
                     .created(new Date())
                     .build();

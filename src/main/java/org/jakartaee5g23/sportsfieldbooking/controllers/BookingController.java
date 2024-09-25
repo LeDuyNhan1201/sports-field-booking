@@ -50,22 +50,20 @@ public class BookingController {
     @Operation(summary = "View booking history", description = "Get list of past bookings", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/booking-history")
     public ResponseEntity<List<BookingResponse>> getBookingHistory(@RequestParam("userId") String userId) {
-        List<BookingResponse> bookingHistory = bookingService.getBookingHistory(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(bookingHistory);
+        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getBookingHistory(userId));
     }
 
     @Operation(summary = "Reschedule booking", description = "Reschedule an existing booking", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/reschedule-booking/{bookingId}")
     public ResponseEntity<BookingResponse> rescheduleBooking(@PathVariable String bookingId,
             @RequestBody @Valid BookingRequest newBookingRequest) {
-        BookingResponse response = bookingService.rescheduleBooking(bookingId, newBookingRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(bookingService.rescheduleBooking(bookingId, newBookingRequest));
     }
 
     @Operation(summary = "Request refund", description = "Request a refund for a booking", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/request-refund/{bookingId}")
     public ResponseEntity<BookingResponse> requestRefund(@PathVariable String bookingId) {
-        BookingResponse response = bookingService.requestRefund(bookingId);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(bookingService.requestRefund(bookingId));
     }
 }
