@@ -2,7 +2,9 @@ package org.jakartaee5g23.sportsfieldbooking.repositories;
 
 import java.util.*;
 
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.ListSportFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
+import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
@@ -22,4 +24,5 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             @Param("endDate") Date endDate);
 
     List<Order> findAll();
+    List<Order> findByStatus(OrderStatus status);
 }

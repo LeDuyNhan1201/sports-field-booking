@@ -5,15 +5,22 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
+import java.text.*;
 import java.util.*;
 
 import org.apache.tomcat.websocket.AuthenticationException;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.SportFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.SportFieldRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.ListSportFieldResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.RevenueReportResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
@@ -22,10 +29,13 @@ import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
 import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.PaymentRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
+import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
+import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -40,7 +50,19 @@ public class SportFieldServiceImpl implements SportFieldService {
     SportFieldRepository sportFieldRepository;
     OrderRepository orderRepository;
     PaymentRepository paymentRepository;
+    CategoryRepository categoryRepository;
+    UserRepository userRepository;
 
+    public Optional<Date> parseTime(String time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        try {
+            return Optional.of(formatter.parse(time));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+    
     @Override
     public List<SportField> getAllField() {
         return sportFieldRepository.findAll();
@@ -52,6 +74,11 @@ public class SportFieldServiceImpl implements SportFieldService {
         if (request.isConfirmed()) {
             SportField sportField = sportFieldRepository.findById(request.id()).orElseThrow(
                     () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
+            if(request.opacity() < 1 )
+                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Opacity must be greater than 0"));
+            if(request.pricePerHour() < 1 )
+                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Price per hour must be greater than 0"));
+            
             sportField.setOpacity(request.opacity());
             sportField.setPricePerHour(request.pricePerHour());
             sportField.setClosingTime(request.closingTime());
@@ -60,19 +87,18 @@ public class SportFieldServiceImpl implements SportFieldService {
             sportField.setName(request.name());
 
             sportFieldRepository.save(sportField);
-            return new SportFieldResponse(getLocalizedMessage("success"));
+            return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
         }
-        return new SportFieldResponse(getLocalizedMessage("update failed"));
+        return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Update failed"));
     }
 
     @Override
-    public SportFieldResponse deleteField(String id) {
+    public SportFieldResponse updateStatusField(String id, SportFieldStatus status) {
         SportField sportField = sportFieldRepository.findById(id).orElseThrow(
                     () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
-        sportField.setStatus(SportFieldStatus.BANNED);
+        sportField.setStatus(status);
         sportFieldRepository.save(sportField);            
-        return new SportFieldResponse(getLocalizedMessage("success"));
-
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
     }
 
     @Override
@@ -81,24 +107,26 @@ public class SportFieldServiceImpl implements SportFieldService {
     }
 
     @Override
-    public void updateStatusField(SportField sportField, SportFieldStatus status) {
-        sportField.setStatus(status);
-        sportFieldRepository.save(sportField);
-    }
-
-    @Override
     public List<Order> findOrderByFieldId(String id, Date beginDate, Date endDate) {
         return orderRepository.findBySportFieldIdAndStartTimeBetween(id, beginDate, endDate);
     }
 
     @Override
-    public void updateStatusOrder(Order order, OrderStatus status) {
+    public SportFieldResponse updateStatusOrder(String id, OrderStatus status) {
+        Order order = orderRepository.findById(id).orElseThrow(
+            () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
         order.setStatus(status);
         orderRepository.save(order);
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
     }
 
     @Override
-    public Double revenueReport(String id, Date beginDate, Date endDate) {
+    public ListSportFieldResponse  findOrderByStatus(OrderStatus status){
+        List<Order> orders = orderRepository.findByStatus(status);
+        return new ListSportFieldResponse(orders);
+    }
+    @Override
+    public RevenueReportResponse revenueReport(String id, Date beginDate, Date endDate) {
         Double total = 0.0;
         List<Order> orders = orderRepository.findBySportFieldIdAndStartTimeBetween(id, beginDate, endDate);
         for (Order order : orders) {
@@ -108,6 +136,34 @@ public class SportFieldServiceImpl implements SportFieldService {
                 total += payment.getPrice();
             }
         }
-        return total;
+        return new RevenueReportResponse(total, orders);
+    }
+
+    @Override
+    public SportFieldResponse addSportField(NewSportFieldRequest request) {
+
+        Date openingTime = parseTime(request.openingTime()).orElse(new Date());
+        Date closingTime = parseTime(request.closingTime()).orElse(new Date());
+
+        Category category = categoryRepository.findById(request.categoryId()).orElseThrow(
+            () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
+        
+        User user = userRepository.findById(request.userId()).orElseThrow(
+            () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "User"));
+    
+        SportField createField = SportField.builder()
+            .name(request.name())
+            .location(request.location())
+            .pricePerHour(request.pricePerHour())
+            .opacity(request.opacity())
+            .openingTime(openingTime)
+            .closingTime(closingTime)
+            .status(SportFieldStatus.NONE)
+            .category(category)
+            .user(user)
+            .build();
+        sportFieldRepository.save(createField);
+
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
     }
 }

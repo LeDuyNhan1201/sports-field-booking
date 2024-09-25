@@ -60,7 +60,11 @@ public class SecurityConfiguration {
                 "/booking/confirm-booking",
                 "/orders",
                 "/sport-field/edit-sport-field",
-                "/sport-field/delete-sport-field"
+                "/sport-field/update-status-sport-field",
+                "/sport-field/get-order-by-status",
+                "/sport-field/approve-booking",
+                "/sport-field/revenue-report",
+                "/sport-field/add-sport-field"
 
         ).map(s -> (
                 s.contains("api-docs") ||
