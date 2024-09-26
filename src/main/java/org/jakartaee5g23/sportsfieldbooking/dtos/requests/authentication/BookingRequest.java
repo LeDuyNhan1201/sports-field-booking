@@ -6,21 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 public record BookingRequest(
+        @NotNull(message = "Field avaibility ID can't be null")
 
-        @NotNull(message = "Start time can't be null")
-        Date startTime,
-
-        Double bookingHours,
-
-        @NotNull(message = "End time can't be null")
-        Date endTime,
+        int fieldAvaibilityID,
 
         @NotNull(message = "User ID can't be null")
         String idUser,
 
         @NotNull(message = "Sport field ID cannot be blank")
-        String idSportField,
-
-        boolean isConfirmed
+        String idSportField
 
 ) {}

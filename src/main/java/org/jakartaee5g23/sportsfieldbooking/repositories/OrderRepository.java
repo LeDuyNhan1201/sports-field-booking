@@ -11,7 +11,10 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findAll();
 
-    @Query("SELECT o FROM Order o WHERE o.user.id = :userId AND o.startTime > CURRENT_TIMESTAMP")
+    @Query("SELECT o FROM Order o " +
+            "JOIN o.fieldAvailability f " +
+            "WHERE o.user.id = :userId " +
+            "AND f.startTime > CURRENT_TIMESTAMP")
     List<Order> findUpcomingBookingsByUserId(String userId);
 
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId")

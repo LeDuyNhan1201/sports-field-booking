@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
+import java.time.temporal.Temporal;
 import java.util.List;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.PaymentRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.VNPayRequest;
@@ -285,7 +287,9 @@ public class PaymentController {
         List<SportField> sportFieldList = sportFieldRepository.findAll();
         for (SportField field : sportFieldList) {
             if (order.getSportField().getId().equals(field.getId())) {
-                price = field.getPricePerHour() * order.getBookingHours();
+                int hours = (int) Duration.between((Temporal) order.getFieldAvailability().getStartTime(), (Temporal) order.getFieldAvailability().getEndTime()).toHours();
+
+                price = (double) (field.getPricePerHour() * hours);
             }
         }
         model.addAttribute("price", price);

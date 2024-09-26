@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
-import org.jakartaee5g23.sportsfieldbooking.entities.Order;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
-import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
@@ -22,10 +22,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingNotFoundException;
-import org.jakartaee5g23.sportsfieldbooking.repositories.NotificationRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
+import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,55 +45,62 @@ public class BookingServiceImpl implements BookingService {
 
     SportFieldRepository sportFieldRepository;
 
+    FieldAvailabilityRepository fieldAvailabilityRepository;
+
     @Autowired
     private NotificationRepository notificationRepository;
 
     @Override
     @Transactional
     public BookingResponse getBookingConfirmation(BookingRequest request) {
-        if (request.isConfirmed()) {
-            User user = userRepository.findById(request.idUser())
-                    .orElseThrow(() -> new BookingException(BookingErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
-            SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(
-                    () -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
+        User user = userRepository.findById(request.idUser())
+                .orElseThrow(() -> new BookingException(BookingErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+        SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(
+                () -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
+        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(request.fieldAvaibilityID())
+                .orElseThrow(() -> new BookingException(BookingErrorCode.FIELD_AVAIBILITY_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-            if (user.getStatus() == UserStatus.BANNED) {
-                throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
-            } else if (sportField.getStatus() != SportFieldStatus.CLOSED) {
-                throw new BookingException(BookingErrorCode.SPORTFIELD_NONE, HttpStatus.NOT_FOUND);
-            }
-            Order order = Order.builder()
-                    .startTime(request.startTime())
-                    .bookingHours(request.bookingHours())
-                    .endTime(request.endTime())
-                    .status(OrderStatus.PENDING)
-                    .user(user)
-                    .sportField(sportField)
-                    .build();
-
-            Order createOrder = createBooking(order);
-
-            // check if createOrder is created
-            Order existOrder = orderRepository.findById(createOrder.getId())
-                    .orElseThrow(() -> new BookingException(BookingErrorCode.SEND_MAIL_FAILED, HttpStatus.NOT_FOUND));
-
-            sportField.setStatus(SportFieldStatus.OPEN);
-            Notification notification = Notification.builder()
-                    .user(user)
-                    .order(existOrder)
-                    .type(NotificationType.ORDER_STATUS_UPDATE)
-                    .message(getLocalizedMessage("booking_confirmed"))
-                    .created(new Date())
-                    .build();
-
-            notificationRepository.save(notification);
-
-            return existOrder != null
-                    ? new BookingResponse(HttpStatus.OK.value(), getLocalizedMessage("booking_success"))
-                    : new BookingResponse(HttpStatus.BAD_REQUEST.value(), getLocalizedMessage("booking_failed"));
-        } else {
-            return new BookingResponse(HttpStatus.BAD_REQUEST.value(), getLocalizedMessage("booking_failed"));
+        if (!fieldAvailability.getIsAvailable()) {
+            throw new BookingException(BookingErrorCode.FIELD_AVAIBILITY_ORDERED, HttpStatus.BAD_REQUEST);
         }
+
+        if (!sportField.getStatus().equals(SportFieldStatus.OPEN)) {
+            throw new BookingException(BookingErrorCode.SPORTFIELD_NOT_AVAILABLE, HttpStatus.BAD_REQUEST);
+        }
+
+        if (user.getStatus() == UserStatus.BANNED) {
+            throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
+        }
+
+        Order order = Order.builder()
+                .fieldAvailability(fieldAvailability)
+                .status(OrderStatus.PENDING)
+                .orderDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                .user(user)
+                .sportField(sportField)
+                .build();
+
+        Order createOrder = createBooking(order);
+
+        // check if createOrder is created
+        Order existOrder = orderRepository.findById(createOrder.getId())
+                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        sportField.setStatus(SportFieldStatus.OPEN);
+        Notification notification = Notification.builder()
+                .user(user)
+                .order(existOrder)
+                .type(NotificationType.ORDER_STATUS_UPDATE)
+                .message(getLocalizedMessage("booking_confirmed"))
+                .created(new Date())
+                .build();
+
+        notificationRepository.save(notification);
+
+        return existOrder != null
+                ? new BookingResponse(HttpStatus.OK.value(), getLocalizedMessage("booking_success"))
+                : new BookingResponse(HttpStatus.BAD_REQUEST.value(), getLocalizedMessage("booking_failed"));
+
     }
 
     @Override
@@ -152,8 +156,8 @@ public class BookingServiceImpl implements BookingService {
         Optional<Order> optionalOrder = orderRepository.findById(bookingId);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            order.setStartTime(newBookingRequest.startTime());
-            order.setEndTime(newBookingRequest.endTime());
+//            order.setStartTime(newBookingRequest.startTime());
+//            order.setEndTime(newBookingRequest.endTime());
             order.setStatus(OrderStatus.RESCHEDULED);
             orderRepository.save(order);
             return convertToBookingResponse(order);

@@ -24,14 +24,9 @@ public class Order {
         @GeneratedValue(strategy = GenerationType.UUID)
         String id;
 
-        @Column(name = "start_time", nullable = false)
-        Date startTime;
-
-        @Column(name = "booking_hours", nullable = false)
-        Double bookingHours;
-
-        @Column(name = "end_time", nullable = false)
-        Date endTime;
+        @Column(name = "order_date", nullable = false)
+        @Temporal(TemporalType.TIMESTAMP)
+        Date orderDate;
 
         @Column(nullable = false, length = 20)
         @Enumerated(EnumType.STRING)
@@ -51,4 +46,8 @@ public class Order {
         @JsonBackReference
         Payment payment;
 
+        @OneToOne
+        @JoinColumn(name = "field_availability_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_orders_field_availability", foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availability(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
+        @JsonManagedReference
+        FieldAvailability fieldAvailability;
 }
