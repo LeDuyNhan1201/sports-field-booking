@@ -24,7 +24,6 @@ import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.jakartaee5g23.sportsfieldbooking.vnpay.Utils.VNPayUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,35 +36,9 @@ import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLoca
 public class PaymentServiceImpl implements PaymentService {
     VNPayConfiguration vnPayConfiguration;
 
-    RestTemplate restTemplate;
-
     OrderRepository orderRepository;
 
     PaymentRepository paymentRepository;
-
-    @Override
-    public boolean isVerifyPayment(PaymentMethod method, Map<String, String> params) {
-        switch (method) {
-            case VN_PAY:
-                String orderId = params.get("vnp_TxnRef");
-                String secureHash = params.get("vnp_SecureHash");
-                return verifyVNPayPayment(params, orderId, secureHash);
-            case CASH:
-                // Add logic for CASH payment verification if needed
-                return true;
-            case CREDIT_CARD:
-                // Add logic for CREDIT_CARD payment verification if needed
-                return false;
-            case DEBIT_CARD:
-                // Add logic for DEBIT_CARD payment verification if needed
-                return false;
-            case PAYPAL:
-                // Add logic for PAYPAL payment verification if needed
-                return false;
-            default:
-                return false;
-        }
-    }
 
     @Override
     public VNPayResponse createVNPayPayment(long amount, String orderID, HttpServletRequest request) {
