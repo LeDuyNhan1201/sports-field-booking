@@ -67,17 +67,37 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
+//    @Override
+//    public String getBankCode(HttpServletRequest request) {
+//        // Tạo URL cho người dùng chọn hình thức thanh toán (ngân hàng)
+//        Map<String, String> vnpParamsMap = vnPayConfiguration.getVNPayConfig();
+//
+//        vnpParamsMap.put("vnp_IpAddr", VNPayUtils.getIpAddress(request)); // Lấy IP của request
+//        vnpParamsMap.put("vnp_Command", "pay");
+//        vnpParamsMap.put("vnp_OrderInfo", "Transaction for selecting bank");
+//
+//        // Tạo URL đến trang VNPay để người dùng chọn ngân hàng
+//        String queryUrl = VNPayUtils.getPaymentURL(vnpParamsMap, true);
+//        String hashData = VNPayUtils.getPaymentURL(vnpParamsMap, false);
+//        String vnpSecureHash = VNPayUtils.hmacSHA512(vnPayConfiguration.getSecretKey(), hashData);
+//        queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
+//
+//        String transactionUrl = vnPayConfiguration.getVnp_TransactionUrl() + "?" + queryUrl;
+//
+//        // Hướng người dùng đến URL chọn ngân hàng
+//        return transactionUrl;
+//    }
 
     @Override
-    public VNPayResponse createVNPayPayment(long amount, String bankCode, String orderID, HttpServletRequest request) {
+    public VNPayResponse createVNPayPayment(long amount, String orderID, HttpServletRequest request) {
         long vnpAmount = amount * 100L;
 
         Map<String, String> vnpParamsMap = vnPayConfiguration.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(vnpAmount));
 
-        if (bankCode != null && !bankCode.isEmpty()) {
-            vnpParamsMap.put("vnp_BankCode", bankCode);
-        }
+//        if (bankCode != null && !bankCode.isEmpty()) {
+//            vnpParamsMap.put("vnp_BankCode", bankCode);
+//        }
 
         vnpParamsMap.put("vnp_TxnRef", orderID);
 
@@ -109,7 +129,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Get payment status from params
         String paymentStatus = params.get("vnp_ResponseCode");
-        Double price = Double.valueOf(params.get("vnp_Amount"));
+        Double price = Double.parseDouble(params.get("vnp_Amount")) / 100;
 
         // Fetch the order using the orderId
         Order order = orderRepository.findById(orderId)

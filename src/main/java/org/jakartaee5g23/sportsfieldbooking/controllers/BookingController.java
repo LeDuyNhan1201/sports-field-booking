@@ -29,14 +29,14 @@ public class BookingController {
     BookingService bookingService;
 
     @Operation(summary = "Confirm booking", description = "Save booking's order", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/confirm-booking")
+    @PostMapping("/create-booking")
     public ResponseEntity<BookingResponse> booking(@RequestBody @Valid BookingRequest request) {
-        BookingResponse response = bookingService.getBookingConfirmation(request);
+        BookingResponse response = bookingService.createBooking(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "Cancel booking", description = "Cancel booking after ordered", security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping("/cancel-booking")
+    @PutMapping("/cancel-booking/{orderID}")
     public ResponseEntity<CancelBookingResponse> cancelBooking(@RequestBody @Valid CancelBookingRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(bookingService.cancelBooking(request));
     }

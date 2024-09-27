@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponse getBookingConfirmation(BookingRequest request) {
+    public BookingResponse createBooking(BookingRequest request) {
         User user = userRepository.findById(request.idUser())
                 .orElseThrow(() -> new BookingException(BookingErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
         SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(
@@ -80,13 +80,12 @@ public class BookingServiceImpl implements BookingService {
                 .sportField(sportField)
                 .build();
 
-        Order createOrder = createBooking(order);
+        Order createOrder = orderRepository.save(order);
 
         // check if createOrder is created
         Order existOrder = orderRepository.findById(createOrder.getId())
                 .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-        sportField.setStatus(SportFieldStatus.OPEN);
         Notification notification = Notification.builder()
                 .user(user)
                 .order(existOrder)
@@ -101,11 +100,6 @@ public class BookingServiceImpl implements BookingService {
                 ? new BookingResponse(HttpStatus.OK.value(), getLocalizedMessage("booking_success"))
                 : new BookingResponse(HttpStatus.BAD_REQUEST.value(), getLocalizedMessage("booking_failed"));
 
-    }
-
-    @Override
-    public Order createBooking(Order order) {
-        return orderRepository.save(order);
     }
 
     @Override

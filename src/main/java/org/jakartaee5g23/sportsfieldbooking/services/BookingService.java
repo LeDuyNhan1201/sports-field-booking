@@ -9,9 +9,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBooking
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
 
 public interface BookingService {
-    BookingResponse getBookingConfirmation(BookingRequest request);
-
-    Order createBooking(Order order);
+    BookingResponse createBooking(BookingRequest request);
 
     CancelBookingResponse cancelBooking(CancelBookingRequest request);
 

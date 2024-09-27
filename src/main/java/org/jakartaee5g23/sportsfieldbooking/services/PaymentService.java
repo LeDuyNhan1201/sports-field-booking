@@ -12,7 +12,7 @@ import java.util.Map;
 @Service
 public interface PaymentService {
     boolean isVerifyPayment(PaymentMethod method, Map<String, String> params);
-    VNPayResponse createVNPayPayment(long amount, String bankCode, String orderID,HttpServletRequest request);
+    VNPayResponse createVNPayPayment(long amount, String orderID,HttpServletRequest request);
     boolean verifyVNPayPayment(Map<String, String> params, String orderId, String secureHash);
 
     PaymentResponse createPayment(double amount, String orderID);
