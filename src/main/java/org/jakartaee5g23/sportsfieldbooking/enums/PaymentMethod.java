@@ -1,7 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.enums;
 
 public enum PaymentMethod {
-
     CASH,
 
     VN_PAY,

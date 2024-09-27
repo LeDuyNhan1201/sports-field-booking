@@ -23,6 +23,7 @@ public class Payment extends AbstractEntity {
         String id;
 
         @Column(nullable = false, length = 50)
+        @Enumerated(EnumType.STRING)
         PaymentMethod method;
 
         @Column(nullable = false)
