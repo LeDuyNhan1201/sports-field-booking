@@ -58,9 +58,6 @@ public class SportField extends AbstractEntity {
         @JsonManagedReference
         User user;
 
-        @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
-        @JsonBackReference
-        List<Order> orders;
 
         @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference

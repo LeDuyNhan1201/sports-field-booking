@@ -8,6 +8,8 @@ import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentMethod;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentStatus;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -28,6 +30,10 @@ public class Payment extends AbstractEntity {
 
         @Column(nullable = false)
         Double price;
+
+        @Column(name = "order_date", nullable = false)
+        @Temporal(TemporalType.TIMESTAMP)
+        Date paymentDate;
 
         @Column(nullable = false, length = 20)
         @Enumerated(EnumType.STRING)

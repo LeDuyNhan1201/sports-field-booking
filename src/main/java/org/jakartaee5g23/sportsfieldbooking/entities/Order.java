@@ -37,11 +37,6 @@ public class Order {
         @JsonManagedReference
         User user;
 
-        @ManyToOne
-        @JoinColumn(name = "sport_field_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_orders_sport_fields", foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
-        @JsonManagedReference
-        SportField sportField;
-
         @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         Payment payment;

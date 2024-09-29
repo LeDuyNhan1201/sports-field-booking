@@ -25,6 +25,7 @@ import org.jakartaee5g23.sportsfieldbooking.vnpay.Utils.VNPayUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .method(PaymentMethod.VN_PAY)
                 .price(price)
                 .order(order)
+                .paymentDate(new Date())
                 .status(paymentStatusEnum)
                 .build();
 

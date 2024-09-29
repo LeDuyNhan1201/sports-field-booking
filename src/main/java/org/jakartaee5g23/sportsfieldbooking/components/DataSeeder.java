@@ -148,15 +148,13 @@ public class DataSeeder {
     private void seedOrders() {
         if (orderRepository.count() == 0) {
             List<User> users = userRepository.findAll();
-            List<SportField> fields = sportFieldRepository.findAll();
             List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
 
-            IntStream.range(0, 20).forEach(index -> {
+            IntStream.range(0, 20).forEach(_ -> {
                 Order order = Order.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .orderDate(faker.date().past(30, TimeUnit.DAYS))
-                        .sportField(fields.get(faker.number().numberBetween(0, fields.size())))
-                        .fieldAvailability(fieldAvailabilities.get(index))
+                        .fieldAvailability(fieldAvailabilities.get(_))
                         .status(getRandomEnum(OrderStatus.class))
                         .build();
 
@@ -168,9 +166,11 @@ public class DataSeeder {
     private void seedPayments() {
         if (paymentRepository.count() == 0) {
             List<Order> orders = orderRepository.findAll();
+            List<SportField> sportFields = sportFieldRepository.findAll();
 
             IntStream.range(0, 20).forEach(i -> {
                 Order order = orders.get(i);
+                SportField sportField = sportFields.get(i);
 
                 LocalDateTime startTime = order.getFieldAvailability().getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
                 LocalDateTime endTime = order.getFieldAvailability().getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -179,8 +179,9 @@ public class DataSeeder {
 
                 Payment payment = Payment.builder()
                         .method(getRandomEnum(PaymentMethod.class))
-                        .price((double) (order.getSportField().getPricePerHour() * hours))
+                        .price((double) (sportField.getPricePerHour() * hours))
                         .order(order)
+                        .paymentDate(new Date())
                         .status(getRandomEnum(PaymentStatus.class))
                         .build();
 

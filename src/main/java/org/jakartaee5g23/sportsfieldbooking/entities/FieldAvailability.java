@@ -15,11 +15,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "field_availability")
-public class FieldAvailability {
+public class FieldAvailability extends AbstractEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
     @ManyToOne
     @JoinColumn(name = "yard_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_field_availability_sport_fields", foreignKeyDefinition = "FOREIGN KEY (yard_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)

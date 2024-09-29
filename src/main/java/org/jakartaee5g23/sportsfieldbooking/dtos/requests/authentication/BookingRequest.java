@@ -8,7 +8,7 @@ import java.util.Date;
 public record BookingRequest(
         @NotNull(message = "Field avaibility ID can't be null")
 
-        int fieldAvaibilityID,
+        String fieldAvaibilityID,
 
         @NotNull(message = "User ID can't be null")
         String idUser,

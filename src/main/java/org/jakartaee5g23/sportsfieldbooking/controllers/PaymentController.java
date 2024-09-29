@@ -17,10 +17,12 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.Payment
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.VNPayRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
 import org.jakartaee5g23.sportsfieldbooking.entities.Order;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
+import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,7 @@ public class PaymentController {
     PaymentService paymentService;
     OrderRepository orderRepository;
     SportFieldRepository sportFieldRepository;
+    FieldAvailabilityRepository fieldAvailabilityRepository;
 
 
     // Card number: 9704198526191432198
@@ -95,11 +98,15 @@ public class PaymentController {
                 .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
         Double price = 0.0;
-        List<SportField> sportFieldList = sportFieldRepository.findAll();
-        for (SportField field : sportFieldList) {
-            if (order.getSportField().getId().equals(field.getId())) {
+        List<FieldAvailability> fieldAvailabilityList = fieldAvailabilityRepository.findAll();
+        for (FieldAvailability field : fieldAvailabilityList) {
+            if (order.getFieldAvailability().getId().equals(field.getId())) {
                 int hours = (int) Duration.between((Temporal) order.getFieldAvailability().getStartTime(), (Temporal) order.getFieldAvailability().getEndTime()).toHours();
-                price = (double) (field.getPricePerHour() * hours);
+
+                SportField sportField = sportFieldRepository.findById(field.getSportField().getId())
+                        .orElseThrow(() -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+                price = (double) (sportField.getPricePerHour() * hours);
             }
         }
         return ResponseEntity.ok(Map.of("price", price, "orderID", orderID));

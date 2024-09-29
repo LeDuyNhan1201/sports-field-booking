@@ -19,6 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingNotFoundException;
@@ -72,12 +73,14 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
         }
 
+        fieldAvailability.setIsAvailable(false);
+
         Order order = Order.builder()
                 .fieldAvailability(fieldAvailability)
                 .status(OrderStatus.PENDING)
                 .orderDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
                 .user(user)
-                .sportField(sportField)
+//                .sportField(sportField)
                 .build();
 
         Order createOrder = orderRepository.save(order);
@@ -134,8 +137,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private String deriveMessage(Order order) {
-        return "Booking for " + order.getSportField().getName() + " by " + order.getUser().getUsername();
+        Optional<SportField> optionalSportField = sportFieldRepository.findById(order.getUser().getId());
+
+        if (optionalSportField.isPresent()) {
+            SportField sportField = optionalSportField.get();
+            return "Booking for " + sportField.getName() + " by " + order.getUser().getUsername();
+        } else {
+            throw new RuntimeException("SportField not found for id: " + order.getUser().getId());
+        }
     }
+
 
     @Override
     public List<BookingResponse> getBookingHistory(String userId) {
