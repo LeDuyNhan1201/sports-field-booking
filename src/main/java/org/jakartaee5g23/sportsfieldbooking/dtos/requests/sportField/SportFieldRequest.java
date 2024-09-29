@@ -12,9 +12,9 @@ public record SportFieldRequest(
 
         @NotNull(message = "Opacity can't be null") Integer pricePerHour,
 
-        Date closingTime,
+        String closingTime,
 
-        Date openingTime,
+        String openingTime,
 
         String location,
 

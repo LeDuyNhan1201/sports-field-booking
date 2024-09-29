@@ -6,6 +6,7 @@ import org.jakartaee5g23.sportsfieldbooking.entities.Order;
 
 public record RevenueReportResponse(
     Double total,
-    List<Order> orders
+    List<Order> orders,
+    String message
 ) {
 }

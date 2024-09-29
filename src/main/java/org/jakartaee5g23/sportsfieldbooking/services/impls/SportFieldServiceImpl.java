@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.text.*;
 import java.util.*;
+import java.time.*;
 
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportFieldRequest;
@@ -62,6 +63,13 @@ public class SportFieldServiceImpl implements SportFieldService {
             return Optional.empty();
         }
     }
+
+    public boolean isTimeGreater(Date openingTime, Date closingTime) {
+        LocalTime openingLocalTime = openingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime closingLocalTime = closingTime.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+        return closingLocalTime.isAfter(openingLocalTime);
+    }
     
     @Override
     public List<SportField> getAllField() {
@@ -72,24 +80,32 @@ public class SportFieldServiceImpl implements SportFieldService {
     @Transactional
     public SportFieldResponse updateField(SportFieldRequest request) {
         if (request.isConfirmed()) {
+            Date openingTime = parseTime(request.openingTime()).orElse(new Date());
+            Date closingTime = parseTime(request.closingTime()).orElse(new Date());
+
             SportField sportField = sportFieldRepository.findById(request.id()).orElseThrow(
                     () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
+
             if(request.opacity() < 1 )
-                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Opacity must be greater than 0"));
+                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("opacity_must_be_greater_than_0"));
+
             if(request.pricePerHour() < 1 )
-                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Price per hour must be greater than 0"));
+                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("price_per_hour_must_be_greater_than_0"));
             
+            if(!isTimeGreater(openingTime, closingTime)){
+                return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("opening_hours_must_not_be_greater_than_closing_hours"));
+            }
             sportField.setOpacity(request.opacity());
             sportField.setPricePerHour(request.pricePerHour());
-            sportField.setClosingTime(request.closingTime());
-            sportField.setOpeningTime(request.openingTime());
+            sportField.setClosingTime(closingTime);
+            sportField.setOpeningTime(openingTime);
             sportField.setLocation(request.location());
             sportField.setName(request.name());
 
             sportFieldRepository.save(sportField);
-            return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
+            return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("success"));
         }
-        return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("Update failed"));
+        return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("update_failed"));
     }
 
     @Override
@@ -98,7 +114,7 @@ public class SportFieldServiceImpl implements SportFieldService {
                     () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
         sportField.setStatus(status);
         sportFieldRepository.save(sportField);            
-        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("success"));
     }
 
     @Override
@@ -117,7 +133,7 @@ public class SportFieldServiceImpl implements SportFieldService {
             () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Sport"));
         order.setStatus(status);
         orderRepository.save(order);
-        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("success"));
     }
 
     @Override
@@ -127,6 +143,8 @@ public class SportFieldServiceImpl implements SportFieldService {
     }
     @Override
     public RevenueReportResponse revenueReport(String id, Date beginDate, Date endDate) {
+        if(beginDate.compareTo(endDate) > 0)    
+            return new RevenueReportResponse(0.0, null, getLocalizedMessage(""));
         Double total = 0.0;
         List<Order> orders = orderRepository.findBySportFieldIdAndStartTimeBetween(id, beginDate, endDate);
         for (Order order : orders) {
@@ -136,7 +154,7 @@ public class SportFieldServiceImpl implements SportFieldService {
                 total += payment.getPrice();
             }
         }
-        return new RevenueReportResponse(total, orders);
+        return new RevenueReportResponse(total, orders, getLocalizedMessage("success"));
     }
 
     @Override
@@ -145,6 +163,16 @@ public class SportFieldServiceImpl implements SportFieldService {
         Date openingTime = parseTime(request.openingTime()).orElse(new Date());
         Date closingTime = parseTime(request.closingTime()).orElse(new Date());
 
+        if(!isTimeGreater(openingTime, closingTime)){
+            return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("opening_hours_must_not_be_greater_than_closing_hours"));
+        }
+
+        if(request.opacity() < 1 )
+            return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("opacity_must_be_greater_than_0"));
+
+        if(request.pricePerHour() < 1 )
+            return new SportFieldResponse(HttpStatus.BAD_REQUEST.value(),getLocalizedMessage("price_per_hour_must_be_greater_than_0"));
+            
         Category category = categoryRepository.findById(request.categoryId()).orElseThrow(
             () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
         
@@ -164,6 +192,6 @@ public class SportFieldServiceImpl implements SportFieldService {
             .build();
         sportFieldRepository.save(createField);
 
-        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("Success"));
+        return new SportFieldResponse(HttpStatus.OK.value(),getLocalizedMessage("success"));
     }
 }
