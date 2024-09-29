@@ -59,6 +59,8 @@ public class SecurityConfiguration {
                                 "/booking/**",
                                 "/payment/**",
                                 "/notification**",
+                                "/reviews/**",
+                                "/sport-field/**",
                                 "/orders"
 
                 ).map(s -> (s.contains("api-docs") ||
