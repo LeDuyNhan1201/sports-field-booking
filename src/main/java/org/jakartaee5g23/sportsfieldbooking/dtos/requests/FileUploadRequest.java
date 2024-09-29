@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record FileUploadRequest (
 
-    @NotNull(message = "null_owner_id")
-    @NotBlank(message = "blank_owner_id")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
     String ownerId
 
 )

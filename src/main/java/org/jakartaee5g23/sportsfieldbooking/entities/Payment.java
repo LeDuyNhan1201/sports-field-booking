@@ -34,8 +34,11 @@ public class Payment extends AbstractEntity {
         PaymentStatus status;
 
         @OneToOne
-        @JoinColumn(name = "order_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_payments_orders", foreignKeyDefinition = "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JoinColumn(name = "booking_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_payments_bookings",
+                        foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonManagedReference
-        Order order;
+        Booking booking;
 
 }

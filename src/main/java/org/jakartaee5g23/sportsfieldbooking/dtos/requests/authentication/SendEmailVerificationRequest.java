@@ -7,12 +7,12 @@ import org.jakartaee5g23.sportsfieldbooking.enums.VerificationType;
 
 public record SendEmailVerificationRequest (
 
-        @NotNull(message = "null_email")
-        @NotBlank(message = "blank_email")
+        @NotNull(message = "null_field")
+        @NotBlank(message = "blank_field")
         @Email(message = "invalid_email")
         String email,
 
-        @NotNull(message = "null_verification_type")
+        @NotNull(message = "null_field")
         VerificationType type
 
 ) {

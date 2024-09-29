@@ -41,7 +41,6 @@ public class SportField extends AbstractEntity {
 
         Date closingTime;
 
-        @Column(columnDefinition = "double default 0")
         Double rating;
 
         @Enumerated(EnumType.STRING)
@@ -49,18 +48,24 @@ public class SportField extends AbstractEntity {
         SportFieldStatus status;
 
         @ManyToOne
-        @JoinColumn(name = "category_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_user_roles_categories", foreignKeyDefinition = "FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
+        @JoinColumn(name = "category_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_sport_fields_categories",
+                        foreignKeyDefinition = "FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false)
         @JsonManagedReference
         Category category;
 
         @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_sport_fields_users", foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
+        @JoinColumn(name = "user_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_sport_fields_users",
+                        foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false)
         @JsonManagedReference
         User user;
 
         @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
-        List<Order> orders;
+        List<Booking> bookings;
 
         @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference

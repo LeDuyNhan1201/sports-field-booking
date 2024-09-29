@@ -17,7 +17,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "reviews")
-public class Review {
+public class Review extends AbstractEntity {
 
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,17 +27,26 @@ public class Review {
         String comment;
 
         @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_reviews_users", foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JoinColumn(name = "user_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_reviews_users",
+                        foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonManagedReference
         User user;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "sport_field_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_reviews_sport_fields", foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JoinColumn(name = "sport_field_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_reviews_sport_fields",
+                        foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonBackReference
         SportField sportField;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "parent_review_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_parent_review", foreignKeyDefinition = "FOREIGN KEY (parent_review_id) REFERENCES reviews(id) ON DELETE CASCADE ON UPDATE CASCADE"), updatable = false)
+        @JoinColumn(name = "parent_review_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_parent_review",
+                        foreignKeyDefinition = "FOREIGN KEY (parent_review_id) REFERENCES reviews(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                updatable = false)
         @JsonBackReference
         Review parentReview;
 

@@ -198,8 +198,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwtID = UUID.randomUUID().toString();
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
-                .issuer("com.infinitynet")
+                .subject(user.getId())
+                .issuer("org.group23.sports-field-booking")
                 .issueTime(new Date())
                 .expirationTime(expiryTime)
                 .jwtID(jwtID)

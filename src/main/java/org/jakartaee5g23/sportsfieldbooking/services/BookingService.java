@@ -1,23 +1,29 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import java.util.List;
+import java.util.Date;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Order;
+import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
+import org.springframework.data.domain.Page;
 
 public interface BookingService {
-    BookingResponse createBooking(BookingRequest request);
 
-    CancelBookingResponse cancelBooking(CancelBookingRequest request);
+    Booking findById(String id);
 
-    List<BookingResponse> getUpcomingBookingsByUserId(String userId);
+    Booking create(Booking request);
 
-    List<BookingResponse> getBookingHistory(String userId);
+    Page<Booking> findAll(int offset, int limit);
 
-    BookingResponse rescheduleBooking(String bookingId, BookingRequest newBookingRequest);
+    Page<Booking> findAllByUser(User user, int offset, int limit);
 
-    BookingResponse requestRefund(String bookingId);
+    Page<Booking> findAllByStatus(BookingStatus status, int offset, int limit);
+
+    Page<Booking> getUpcomingBookingsByUserId(String userId, int offset, int limit);
+
+    Page<Booking> findByField(SportField sportField, Date beginDate, Date endDate, int offset, int limit);
+
+    Booking updateStatus(String bookingId, BookingStatus status);
+
 }

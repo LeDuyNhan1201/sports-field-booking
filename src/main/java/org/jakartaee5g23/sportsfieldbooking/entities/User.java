@@ -76,12 +76,15 @@ public class User extends AbstractEntity {
     List<UserRole> roles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     List<SportField> sportFields;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Order> orders;
+    @JsonBackReference
+    List<Booking> bookings;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     List<Review> reviews;
 
 }

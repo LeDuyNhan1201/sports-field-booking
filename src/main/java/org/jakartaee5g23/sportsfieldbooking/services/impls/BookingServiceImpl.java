@@ -6,170 +6,123 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
-import org.jakartaee5g23.sportsfieldbooking.enums.OrderStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingNotFoundException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
-    OrderRepository orderRepository;
 
-    UserRepository userRepository;
+    BookingRepository bookingRepository;
 
-    SportFieldRepository sportFieldRepository;
+    NotificationRepository notificationRepository;
 
-    FieldAvailabilityRepository fieldAvailabilityRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
+    @Override
+    public Booking findById(String id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Booking"));
+    }
 
     @Override
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
-        User user = userRepository.findById(request.idUser())
-                .orElseThrow(() -> new BookingException(BookingErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
-        SportField sportField = sportFieldRepository.findById(request.idSportField()).orElseThrow(
-                () -> new BookingException(BookingErrorCode.SPORTFIELD_NOT_FOUND, HttpStatus.NOT_FOUND));
-        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(request.fieldAvaibilityID())
-                .orElseThrow(() -> new BookingException(BookingErrorCode.FIELD_AVAIBILITY_NOT_FOUND, HttpStatus.NOT_FOUND));
+    public Booking create(Booking request) {
+//        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(request.fieldAvailabilityId())
+//                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field availability"));
+//
+//        if (!fieldAvailability.getIsAvailable())
+//            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!(request.getStartTime().before(new Date()) && request.getEndTime().after(new Date())))
+            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        if (!fieldAvailability.getIsAvailable()) {
-            throw new BookingException(BookingErrorCode.FIELD_AVAIBILITY_ORDERED, HttpStatus.BAD_REQUEST);
-        }
+        User user = request.getUser();
+        SportField sportField = request.getSportField();
+        if (!sportField.getStatus().equals(SportFieldStatus.OPEN))
+            throw new BookingException(BookingErrorCode.SPORT_FIELD_NOT_AVAILABLE, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        if (!sportField.getStatus().equals(SportFieldStatus.OPEN)) {
-            throw new BookingException(BookingErrorCode.SPORTFIELD_NOT_AVAILABLE, HttpStatus.BAD_REQUEST);
-        }
+        if (user.getStatus() == UserStatus.BANNED)
+            throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        if (user.getStatus() == UserStatus.BANNED) {
-            throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
-        }
-
-        Order order = Order.builder()
-                .fieldAvailability(fieldAvailability)
-                .status(OrderStatus.PENDING)
-                .orderDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+        Booking booking = Booking.builder()
+                //.fieldAvailability(fieldAvailability)
+                .status(BookingStatus.PENDING)
                 .user(user)
                 .sportField(sportField)
                 .build();
 
-        Order createOrder = orderRepository.save(order);
-
-        // check if createOrder is created
-        Order existOrder = orderRepository.findById(createOrder.getId())
-                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+        Booking createBooking = bookingRepository.save(booking);
 
         Notification notification = Notification.builder()
                 .user(user)
-                .order(existOrder)
+                .booking(createBooking)
                 .type(NotificationType.ORDER_STATUS_UPDATE)
                 .message(getLocalizedMessage("booking_confirmed"))
-                .created(new Date())
                 .build();
 
         notificationRepository.save(notification);
 
-        return existOrder != null
-                ? new BookingResponse(HttpStatus.OK.value(), getLocalizedMessage("booking_success"))
-                : new BookingResponse(HttpStatus.BAD_REQUEST.value(), getLocalizedMessage("booking_failed"));
+        return createBooking;
 
     }
 
     @Override
-    public CancelBookingResponse cancelBooking(CancelBookingRequest request) {
-        Order order = orderRepository.findById(request.orderID())
-                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.BAD_REQUEST));
-        if (order != null && order.getStatus() == OrderStatus.PENDING) {
-            order.setStatus(OrderStatus.CANCELED);
-            orderRepository.save(order);
-            return new CancelBookingResponse(getLocalizedMessage("cancel_success"));
+    public Page<Booking> findAll(int offset, int limit) {
+        return bookingRepository.findAll(PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Page<Booking> findAllByUser(User user, int offset, int limit) {
+        return bookingRepository.findAllByUser(user, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Page<Booking> findAllByStatus(BookingStatus status, int offset, int limit) {
+        return bookingRepository.findAllByStatus(status, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Page<Booking> getUpcomingBookingsByUserId(String userId, int offset, int limit) {
+        return bookingRepository.findUpcomingBookingsByUserId(userId, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Page<Booking> findByField(SportField sportField, Date beginDate, Date endDate, int offset, int limit) {
+        return bookingRepository.findBySportFieldIdAndStartTimeBetween(sportField, beginDate, endDate,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Booking updateStatus(String bookingId, BookingStatus status) {
+        Booking booking = findById(bookingId);
+        switch (status) {
+            case CANCELED:
+                if (booking.getStatus().equals(BookingStatus.PENDING)) booking.setStatus(BookingStatus.CANCELED);
+                else throw new BookingException(BookingErrorCode.CANCEL_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+                break;
+
+            case RESCHEDULED, REFUND_REQUESTED:
+                booking.setStatus(status);
         }
-        return new CancelBookingResponse(getLocalizedMessage("cancel_failed"));
+        return bookingRepository.save(booking);
     }
 
-    @Override
-    public List<BookingResponse> getUpcomingBookingsByUserId(String userId) {
-        List<Order> upcomingOrders = orderRepository.findUpcomingBookingsByUserId(userId);
-        return upcomingOrders.stream()
-                .map(this::convertToBookingResponse)
-                .collect(Collectors.toList());
-    }
-
-    private BookingResponse convertToBookingResponse(Order order) {
-        int errorCode = deriveErrorCode(order);
-        String message = deriveMessage(order);
-        return new BookingResponse(errorCode, message);
-    }
-
-    private int deriveErrorCode(Order order) {
-
-        return 0;
-    }
-
-    private String deriveMessage(Order order) {
-        return "Booking for " + order.getSportField().getName() + " by " + order.getUser().getUsername();
-    }
-
-    @Override
-    public List<BookingResponse> getBookingHistory(String userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
-        return orders.stream()
-                .map(this::convertToBookingResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public BookingResponse rescheduleBooking(String bookingId, BookingRequest newBookingRequest) {
-        Optional<Order> optionalOrder = orderRepository.findById(bookingId);
-        if (optionalOrder.isPresent()) {
-            Order order = optionalOrder.get();
-//            order.setStartTime(newBookingRequest.startTime());
-//            order.setEndTime(newBookingRequest.endTime());
-            order.setStatus(OrderStatus.RESCHEDULED);
-            orderRepository.save(order);
-            return convertToBookingResponse(order);
-        } else {
-            throw new BookingNotFoundException("Booking not found with id: " + bookingId);
-        }
-    }
-
-    @Override
-    public BookingResponse requestRefund(String bookingId) {
-        Optional<Order> optionalOrder = orderRepository.findById(bookingId);
-        if (optionalOrder.isPresent()) {
-            Order order = optionalOrder.get();
-            order.setStatus(OrderStatus.REFUND_REQUESTED);
-            orderRepository.save(order);
-            return convertToBookingResponse(order);
-        } else {
-            throw new BookingNotFoundException("Booking not found with id: " + bookingId);
-        }
-    }
 }

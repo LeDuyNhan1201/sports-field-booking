@@ -5,12 +5,12 @@ import jakarta.validation.constraints.NotNull;
 
 public record SignOutRequest (
 
-    @NotNull(message = "null_token")
-    @NotBlank(message = "blank_token")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
     String accessToken,
 
-    @NotNull(message = "null_token")
-    @NotBlank(message = "blank_token")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
     String refreshToken
 
 ) {

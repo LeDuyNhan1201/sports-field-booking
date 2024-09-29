@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.CommonResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserInfoResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
 import org.jakartaee5g23.sportsfieldbooking.services.FileService;
@@ -40,7 +40,7 @@ public class UserController {
     @Operation(summary = "Get user profile", description = "Get user profile",
             security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{userId}")
-    ResponseEntity<UserInfoResponse> getProfile(@PathVariable String userId) {
+    ResponseEntity<UserResponse> getProfile(@PathVariable String userId) {
         return ResponseEntity.status(OK).body(userService.getUserInfo(userId));
     }
 
@@ -48,7 +48,7 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/avatar")
     @ResponseStatus(OK)
-    ResponseEntity<CommonResponse<?>> uploadAvatar(@RequestPart MultipartFile avatar) {
+    ResponseEntity<CommonResponse<?, ?>> uploadAvatar(@RequestPart MultipartFile avatar) {
         SecurityContext context = SecurityContextHolder.getContext();
         User user = userService.findByEmail(context.getAuthentication().getName());
 

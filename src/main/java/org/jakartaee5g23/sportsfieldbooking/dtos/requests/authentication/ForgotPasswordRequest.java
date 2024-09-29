@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 
 public record ForgotPasswordRequest (
 
-        @NotNull(message = "null_email")
-        @NotBlank(message = "blank_email")
+        @NotNull(message = "null_field")
+        @NotBlank(message = "blank_field")
         @Email(message = "invalid_email")
         String email,
 

@@ -11,12 +11,14 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommonResponse<T> {
+public class CommonResponse<R, E> {
 
     String errorCode;
 
     String message;
 
-    T errors;
+    R results;
+
+    E errors;
 
 }

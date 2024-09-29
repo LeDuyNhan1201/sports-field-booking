@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -16,7 +18,11 @@ import java.util.Date;
 @NoArgsConstructor
 @MappedSuperclass
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractEntity {
+
+    @CreatedBy
+    String createdBy;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

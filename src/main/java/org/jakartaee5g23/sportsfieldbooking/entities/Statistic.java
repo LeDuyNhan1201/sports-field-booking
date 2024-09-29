@@ -14,7 +14,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "statistic")
-public class Statistic {
+public class Statistic extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +35,5 @@ public class Statistic {
 
     @Column(name = "active_users", nullable = false)
     Integer activeUsers;
+
 }

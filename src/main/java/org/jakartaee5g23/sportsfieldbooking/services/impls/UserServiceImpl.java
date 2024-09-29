@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserInfoResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PostAuthorize("returnObject.email == authentication.name") // CHECK OWNER
-    public UserInfoResponse getMyInfo() {
+    public UserResponse getMyInfo() {
         SecurityContext context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
         User user = findByEmail(email);
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoResponse getUserInfo(String userId) {
+    public UserResponse getUserInfo(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
         return userMapper.toUserInfoResponse(user);

@@ -8,16 +8,28 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.BookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.CancelBookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.CancelBookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.Pagination;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.order.NewBookingRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaginateResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.order.BookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
+import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
+import org.jakartaee5g23.sportsfieldbooking.services.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus.*;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("${api.prefix}/booking")
@@ -26,44 +38,102 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Booking APIs")
 public class BookingController {
+
+    BookingMapper bookingMapper = BookingMapper.INSTANCE;
+
     BookingService bookingService;
 
+    UserService userService;
+
+    SportFieldService sportFieldService;
+
     @Operation(summary = "Confirm booking", description = "Save booking's order", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/create-booking")
-    public ResponseEntity<BookingResponse> booking(@RequestBody @Valid BookingRequest request) {
-        BookingResponse response = bookingService.createBooking(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @PostMapping
+    public ResponseEntity<BookingResponse> booking(@RequestBody @Valid NewBookingRequest request) {
+        User current = userService.findById(getUserIdFromContext());
+        SportField sportField = sportFieldService.findById(request.sportFieldId());
+        Booking booking = bookingMapper.toBooking(request);
+        booking.setUser(current);
+        booking.setSportField(sportField);
+        return ResponseEntity.status(HttpStatus.OK).body(bookingMapper.toBookingResponse(bookingService.create(booking)));
     }
 
     @Operation(summary = "Cancel booking", description = "Cancel booking after ordered", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/cancel-booking/{orderID}")
-    public ResponseEntity<CancelBookingResponse> cancelBooking(@RequestBody @Valid CancelBookingRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.cancelBooking(request));
+    @DeleteMapping("/{id}")
+    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
+    public ResponseEntity<BookingResponse> cancelBooking(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, CANCELED)));
+    }
+
+    @Operation(summary = "Reschedule booking", description = "Reschedule an existing booking", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/reschedule/{id}")
+    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
+    public ResponseEntity<BookingResponse> reschedule(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, RESCHEDULED)));
+    }
+
+    @Operation(summary = "Request refund", description = "Request a refund for a booking", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/refund/{id}")
+    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
+    public ResponseEntity<BookingResponse> refund(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, REFUND_REQUESTED)));
+    }
+
+    @Operation(summary = "Approve bookings", description = "User confirm or reject booking by end user", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/approve/{id}")
+    public ResponseEntity<BookingResponse> approve(@PathVariable String id) {
+        return ResponseEntity.status(OK).body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, ACCEPTED)));
+    }
+
+    @Operation(summary = "Get order list", description = "Get order list", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PaginateResponse<BookingResponse>> getOrderList(@RequestParam(defaultValue = "0") String offset,
+                                                                          @RequestParam(defaultValue = "100") String limit) {
+        Page<Booking> bookings = bookingService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<BookingResponse>builder()
+                        .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                        .build());
+    }
+
+    @Operation(summary = "Get order by status", description = "Find order by status when user want filter", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/get-order-by-status")
+    public ResponseEntity<PaginateResponse<BookingResponse>> getOrderByStatus(@RequestParam BookingStatus status,
+                                                                   @RequestParam(defaultValue = "0") String offset,
+                                                                   @RequestParam(defaultValue = "100") String limit) {
+        Page<Booking> bookings = bookingService.findAllByStatus(status, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<BookingResponse>builder()
+                        .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                        .build());
+    }
+
+    @Operation(summary = "View booking history", description = "Get list of past bookings", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/my-bookings")
+    public ResponseEntity<PaginateResponse<BookingResponse>> getHistory(@RequestParam(defaultValue = "0") String offset,
+                                                                        @RequestParam(defaultValue = "100") String limit) {
+        User current = userService.findById(getUserIdFromContext());
+        Page<Booking> bookings = bookingService.findAllByUser(current, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<BookingResponse>builder()
+                        .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                        .build());
     }
 
     @Operation(summary = "View upcoming bookings", description = "Get list of upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/upcoming")
-    public ResponseEntity<List<BookingResponse>> getUpcomingBookingsByUserId(@RequestParam String userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getUpcomingBookingsByUserId(userId));
-    }
-
-    @Operation(summary = "View booking history", description = "Get list of past bookings", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/booking-history")
-    public ResponseEntity<List<BookingResponse>> getBookingHistory(@RequestParam("userId") String userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getBookingHistory(userId));
-    }
-
-    @Operation(summary = "Reschedule booking", description = "Reschedule an existing booking", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/reschedule-booking/{bookingId}")
-    public ResponseEntity<BookingResponse> rescheduleBooking(@PathVariable String bookingId,
-            @RequestBody @Valid BookingRequest newBookingRequest) {
+    public ResponseEntity<PaginateResponse<BookingResponse>> getUpcomingBookingsByUserId(@RequestParam(defaultValue = "0") String offset,
+                                                                             @RequestParam(defaultValue = "100") String limit) {
+        Page<Booking> bookings = bookingService.getUpcomingBookingsByUserId(getUserIdFromContext(), Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
-                .body(bookingService.rescheduleBooking(bookingId, newBookingRequest));
+                .body(PaginateResponse.<BookingResponse>builder()
+                        .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                        .build());
     }
 
-    @Operation(summary = "Request refund", description = "Request a refund for a booking", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/request-refund/{bookingId}")
-    public ResponseEntity<BookingResponse> requestRefund(@PathVariable String bookingId) {
-        return ResponseEntity.status(HttpStatus.OK).body(bookingService.requestRefund(bookingId));
-    }
 }

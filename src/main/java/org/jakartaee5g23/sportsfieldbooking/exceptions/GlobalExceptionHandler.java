@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     // Handle exceptions that are not caught by other handlers
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<CommonResponse<?>> handlingRuntimeException(RuntimeException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingRuntimeException(RuntimeException exception) {
         log.error("Exception: ", exception);
         return ResponseEntity.badRequest().body(CommonResponse.builder()
                 .message(getLocalizedMessage("uncategorized"))
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = AuthorizationDeniedException.class)
-    ResponseEntity<CommonResponse<?>> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
         log.error("Authorization Denied Exception: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(getLocalizedMessage("not_have_permission"))
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
     // Handle exceptions about messages that are not found
     @ExceptionHandler(value = NoSuchMessageException.class)
-    ResponseEntity<CommonResponse<?>> handlingNoSuchMessageException(NoSuchMessageException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingNoSuchMessageException(NoSuchMessageException exception) {
         log.error("Message Not Found Exception: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
@@ -55,9 +55,17 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(value = AppException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingAppException(AppException exception) {
+        log.error("Common error: ", exception);
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message(exception.getMessage())
+                .build());
+    }
+
     // booking exceptions
     @ExceptionHandler(value = BookingException.class)
-    ResponseEntity<CommonResponse<?>> handlingBookingException(BookingException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingBookingException(BookingException exception) {
         log.error("Booking error: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
@@ -66,7 +74,7 @@ public class GlobalExceptionHandler {
 
     // payment exceptions
     @ExceptionHandler(value = PaymentException.class)
-    ResponseEntity<CommonResponse<?>> handlingPaymentException(PaymentException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(PaymentException exception) {
         log.error("Payment error: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
@@ -75,7 +83,7 @@ public class GlobalExceptionHandler {
 
     // order exceptions
     @ExceptionHandler(value = OrderException.class)
-    ResponseEntity<CommonResponse<?>> handlingOrderException(OrderException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingOrderException(OrderException exception) {
         log.error("Order error: ", exception);
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message(exception.getMessage())
@@ -85,7 +93,7 @@ public class GlobalExceptionHandler {
 
     // Handle authentication exceptions
     @ExceptionHandler(value = AuthenticationException.class)
-    ResponseEntity<CommonResponse<?>> handlingAuthenticationExceptions(AuthenticationException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingAuthenticationExceptions(AuthenticationException exception) {
         log.error("Authentication Exception: {}", exception.toString());
         AuthenticationErrorCode errorCode = exception.getAuthenticationErrorCode();
         return ResponseEntity.status(exception.getHttpStatus()).body(CommonResponse.builder()
@@ -132,7 +140,7 @@ public class GlobalExceptionHandler {
 
     // Handle file storage exceptions
     @ExceptionHandler(value = FileStorageException.class)
-    ResponseEntity<CommonResponse<?>> handlingFileStorageExceptions(FileStorageException exception) {
+    ResponseEntity<CommonResponse<?, ?>> handlingFileStorageExceptions(FileStorageException exception) {
         log.error("File Storage Exception: {}", exception.toString());
         FileStorageErrorCode errorCode = exception.getFileStorageErrorCode();
         return ResponseEntity.status(exception.getHttpStatus()).body(CommonResponse.builder()
@@ -145,14 +153,37 @@ public class GlobalExceptionHandler {
 
     // Handle exceptions that request data is invalid (validation)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CommonResponse<?>>
+    public ResponseEntity<CommonResponse<?, ?>>
     handleMethodArgumentNotValidExceptions(MethodArgumentNotValidException e) {
         log.error("Validation Exception: ", e);
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors()
                 .forEach((error) -> {
                     String field = ((FieldError) error).getField();
-                    errors.put(field, getLocalizedMessage(error.getDefaultMessage()));
+                    String validationType = error.getCode();
+
+                    assert validationType != null;
+                    String message = switch (validationType) {
+                        case "NotBlank", "NotNull" -> getLocalizedMessage(error.getDefaultMessage(), field);
+                        case "Size" -> {
+                            Object min = getArgument((FieldError) error, 2);
+                            Object max = getArgument((FieldError) error, 3);
+                            if (min != null && max != null) {
+                                yield getLocalizedMessage(error.getDefaultMessage(), field, min, max);
+                            }
+                            yield getLocalizedMessage(error.getDefaultMessage());
+                        }
+                        case "Min", "Max" -> {
+                            Object value = getArgument((FieldError) error, 1);
+                            if (value != null) {
+                                yield getLocalizedMessage(error.getDefaultMessage(), field, value);
+                            }
+                            yield getLocalizedMessage(error.getDefaultMessage());
+                        }
+                        case "Unknown" -> getLocalizedMessage("unknown_error");
+                        default -> getLocalizedMessage(error.getDefaultMessage());
+                    };
+                    errors.put(field, message);
                 });
 
         return ResponseEntity.status(BAD_REQUEST).body(
@@ -162,6 +193,25 @@ public class GlobalExceptionHandler {
                         .errors(errors)
                         .build()
         );
+    }
+
+    private String determineValidationType(FieldError fieldError) {
+        // Lấy mã lỗi chính (ví dụ: "NotNull", "Size", "Min", "Max", ...)
+        // Có thể là getCode() hoặc getCodes()[0] tùy vào cấu hình
+        String[] codes = fieldError.getCodes();
+        if (codes != null && codes.length > 0) {
+            // Mã lỗi thường ở cuối mảng codes
+            return codes[codes.length - 1];
+        }
+        return "Unknown";
+    }
+
+    private Object getArgument(FieldError fieldError, int index) {
+        Object[] args = fieldError.getArguments();
+        if (args != null && args.length > index) {
+            return args[index];
+        }
+        return null;
     }
 
 }

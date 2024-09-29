@@ -6,18 +6,18 @@ import jakarta.validation.constraints.Size;
 
 public record ResetPasswordRequest (
 
-    @NotNull(message = "null_token")
-    @NotBlank(message = "blank_token")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
     String token,
 
-    @NotNull(message = "null_password")
-    @NotBlank(message = "blank_password")
-    @Size(min = 6, max = 20, message = "size_password")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
+    @Size(min = 6, max = 20, message = "size_field")
     String password,
 
-    @NotNull(message = "null_password")
-    @NotBlank(message = "blank_password")
-    @Size(min = 6, max = 20, message = "size_password")
+    @NotNull(message = "null_field")
+    @NotBlank(message = "blank_field")
+    @Size(min = 6, max = 20, message = "size_field")
     String passwordConfirmation
 
 ) {

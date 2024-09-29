@@ -12,25 +12,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.temporal.Temporal;
-import java.util.List;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.PaymentRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.VNPayRequest;
+
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.PaymentRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.VNPayRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Order;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
+import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
+import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
+import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
-import org.jakartaee5g23.sportsfieldbooking.repositories.OrderRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
 
 @RestController
 @RequestMapping("${api.prefix}/payment")
@@ -39,10 +34,12 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.SportFieldRepository;
 @Slf4j
 @Tag(name = "Payment APIs")
 public class PaymentController {
-    PaymentService paymentService;
-    OrderRepository orderRepository;
-    SportFieldRepository sportFieldRepository;
 
+    PaymentService paymentService;
+
+    BookingService bookingService;
+
+    BookingMapper bookingMapper= BookingMapper.INSTANCE;
 
     // Card number: 9704198526191432198
     // Owner name: NGUYEN VAN A
@@ -50,10 +47,9 @@ public class PaymentController {
     // Bank code: Base on card's type in API card: https://sandbox.vnpayment.vn/apis/vnpay-demo
     @Operation(summary = "Create VNPay Payment", description = "Create VNPay Payment")
     @PostMapping("/vnpay")
-    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest,
-                                                            HttpServletRequest request) {
-        long amount = (long) payRequest.amount();
-        String orderID = payRequest.orderID();
+    public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest, HttpServletRequest request) {
+        long amount = payRequest.amount();
+        String orderID = payRequest.orderId();
 
         VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, orderID, request);
 
@@ -63,7 +59,7 @@ public class PaymentController {
     @Operation(summary = "Create Payment", description = "Create Payment")
     @PostMapping("/createPayment")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody @Valid PaymentRequest request) {
-        double amount = (double) request.amount();
+        double amount = request.amount();
         String orderID = request.orderID();
 
         PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
@@ -88,20 +84,14 @@ public class PaymentController {
         return ResponseEntity.ok("Callback processed and payment verified");
     }
 
-    @Operation(summary = "Get sport field price & orderID", description = "Get sport field price & orderID when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/payment-info")
-    public ResponseEntity<Map<String, Object>> getPaymentInfo(@RequestParam @Valid String orderID) {
-        Order order = orderRepository.findById(orderID)
-                .orElseThrow(() -> new BookingException(BookingErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
-
-        Double price = 0.0;
-        List<SportField> sportFieldList = sportFieldRepository.findAll();
-        for (SportField field : sportFieldList) {
-            if (order.getSportField().getId().equals(field.getId())) {
-                int hours = (int) Duration.between((Temporal) order.getFieldAvailability().getStartTime(), (Temporal) order.getFieldAvailability().getEndTime()).toHours();
-                price = (double) (field.getPricePerHour() * hours);
-            }
-        }
-        return ResponseEntity.ok(Map.of("price", price, "orderID", orderID));
+    @Operation(summary = "Get sport field price & bookingId", description = "Get sport field price & bookingId when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/payment-info/{bookingId}")
+    public ResponseEntity<Map<String, Object>> getPaymentInfo(@PathVariable String bookingId) {
+        Booking booking = bookingService.findById(bookingId);
+        //int hours = (int) Duration.between((Temporal) booking.getFieldAvailability().getStartTime(), (Temporal) booking.getFieldAvailability().getEndTime()).toHours();
+        int hours = (int) Duration.between((Temporal) booking.getStartTime(), (Temporal) booking.getEndTime()).toHours();
+        double totalPrice = booking.getSportField().getPricePerHour() * hours;
+        return ResponseEntity.ok(Map.of("totalPrice", totalPrice, "bookingId", bookingMapper.toBookingResponse(booking)));
     }
+
 }

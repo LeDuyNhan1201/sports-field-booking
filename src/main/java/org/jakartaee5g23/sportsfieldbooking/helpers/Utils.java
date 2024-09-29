@@ -1,6 +1,8 @@
 package org.jakartaee5g23.sportsfieldbooking.helpers;
 
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Random;
@@ -28,6 +30,10 @@ public class Utils {
         Random random = new Random();
         int x = random.nextInt(enumClass.getEnumConstants().length);
         return enumClass.getEnumConstants()[x];
+    }
+
+    public static String getUserIdFromContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
 }

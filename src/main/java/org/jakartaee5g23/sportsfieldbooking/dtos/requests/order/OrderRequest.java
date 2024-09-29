@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.requests;
+package org.jakartaee5g23.sportsfieldbooking.dtos.requests.order;
 
 public class OrderRequest {
     private String id;

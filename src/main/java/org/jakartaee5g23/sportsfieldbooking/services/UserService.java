@@ -1,13 +1,13 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserInfoResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 
 public interface UserService {
 
-    UserInfoResponse getMyInfo();
+    UserResponse getMyInfo();
 
-    UserInfoResponse getUserInfo(String userId);
+    UserResponse getUserInfo(String userId);
 
     User findByEmail(String email);
 

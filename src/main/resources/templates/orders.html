@@ -20,14 +20,14 @@
                 <th>Status</th>
             </tr>
         </thead>
-        <tbody id="orders-body">
+        <tbody id="bookings-body">
         </tbody>
     </table>
 
     <script>
         async function fetchData() {
             try {
-                const response = await fetch('http://localhost:8888/sports-field-booking/api/v1/orders');
+                const response = await fetch('http://localhost:8888/sports-field-booking/api/v1/bookings');
 
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
@@ -35,17 +35,17 @@
 
                 const data = await response.json();
 
-                const tableBody = document.getElementById('orders-body');
+                const tableBody = document.getElementById('bookings-body');
 
-                data.forEach(order => {
+                data.forEach(booking => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${order.id}</td>
-                        <td>${order.user.username}</td>
-                        <td>${order.sportField.name}</td>
-                        <td>${order.startTime}</td>
-                        <td>${order.endTime}</td>
-                        <td>${order.status}</td>
+                        <td>${booking.id}</td>
+                        <td>${booking.user.username}</td>
+                        <td>${booking.sportField.name}</td>
+                        <td>${booking.startTime}</td>
+                        <td>${booking.endTime}</td>
+                        <td>${booking.status}</td>
                     `;
                     tableBody.appendChild(row);
                 });

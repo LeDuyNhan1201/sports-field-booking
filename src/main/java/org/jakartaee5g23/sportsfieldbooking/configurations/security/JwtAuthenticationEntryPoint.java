@@ -27,7 +27,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        CommonResponse<?> commonResponse = CommonResponse.builder()
+        CommonResponse<?, ?> commonResponse = CommonResponse.builder()
                 .errorCode(authenticationErrorCode.getCode())
                 .message(getLocalizedMessage(authenticationErrorCode.getMessage()))
                 .build();

@@ -8,9 +8,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserInfoResponse {
+public class UserResponse {
 
     String id;
+
+    String email;
 
     String username;
 

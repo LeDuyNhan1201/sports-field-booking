@@ -4,14 +4,16 @@ import lombok.Getter;
 
 @Getter
 public enum BookingErrorCode {
-    FIELD_AVAIBILITY_ORDERED("FIELD-AVAIBILITY-ORDERED", "field_avaiability_has_been_ordered"),
-    FIELD_AVAIBILITY_NOT_FOUND("FIELD-AVAIBILITY-NOT-FOUND", "field_availability_not_found"),
-    USER_NOT_FOUND("USER-NOT-FOUND", "user_not_found"),
-    SPORTFIELD_NOT_FOUND("SPORTFIELD-NOT-FOUND","sport_field_not_found"),
-    SPORTFIELD_NOT_AVAILABLE("SPORTFIELD-NOT-AVAILABLE","sport_field_not_available"),
-    PAYMENT_NOT_FOUND("PAYMENT-NOT-FOUND","payment_not_found"),
-    ORDER_NOT_FOUND("ORDER-NOT-FOUND","order_not_found"),
-    USER_BANNED("USER-BANNED", "user_is_banned"),
+
+    FIELD_AVAILABILITY_ORDERED("booking/availability-ordered", "field_availability_has_been_ordered"),
+
+    SPORT_FIELD_NOT_AVAILABLE("booking/not-available","sport_field_not_available"),
+
+    USER_BANNED("booking/user-banned", "user_is_banned"),
+
+    BOOKING_FAILED("booking/failed", "booking_failed"),
+
+    CANCEL_FAILED("booking/cancel-failed", "cancel_failed"),
     ;
 
     BookingErrorCode(String code, String message) {
