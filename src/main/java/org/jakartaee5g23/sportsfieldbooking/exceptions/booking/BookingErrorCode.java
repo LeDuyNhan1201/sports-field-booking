@@ -9,6 +9,8 @@ public enum BookingErrorCode {
 
     SPORT_FIELD_NOT_AVAILABLE("booking/not-available","sport_field_not_available"),
 
+    BOOKING_CHECK_PENDING("booking/check-pending", "booking_check_pending"),
+
     USER_BANNED("booking/user-banned", "user_is_banned"),
 
     BOOKING_FAILED("booking/failed", "booking_failed"),

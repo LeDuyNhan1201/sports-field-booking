@@ -38,13 +38,14 @@ public class LocalResolverConfiguration extends AcceptHeaderLocaleResolver imple
     public MessageSource messageSource(
             @Value("${spring.messages.basename}") String basename,
             @Value("${spring.messages.encoding}") String encoding,
-            @Value("${spring.messages.default-locale}") String defaultLocale
+            @Value("${spring.messages.default-locale}") String defaultLocale,
+            @Value("${spring.messages.cache-duration}") int cacheSeconds
     ) {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename(basename);
         messageSource.setDefaultEncoding(encoding);
         messageSource.setDefaultLocale(Locale.of(defaultLocale));
-        messageSource.setCacheSeconds(3600);
+        messageSource.setCacheSeconds(cacheSeconds);
         return messageSource;
     }
 

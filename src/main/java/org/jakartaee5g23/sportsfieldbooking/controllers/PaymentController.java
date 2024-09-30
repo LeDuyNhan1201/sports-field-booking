@@ -15,10 +15,11 @@ import java.time.temporal.Temporal;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.PaymentRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.VNPayRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.PaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
+import org.jakartaee5g23.sportsfieldbooking.mappers.PaymentMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,8 @@ public class PaymentController {
 
     BookingMapper bookingMapper= BookingMapper.INSTANCE;
 
+    PaymentMapper paymentMapper = PaymentMapper.INSTANCE;
+
     // Card number: 9704198526191432198
     // Owner name: NGUYEN VAN A
     // Date: 07/15
@@ -49,22 +52,19 @@ public class PaymentController {
     @PostMapping("/vnpay")
     public ResponseEntity<VNPayResponse> createVNPayPayment(@RequestBody @Valid VNPayRequest payRequest, HttpServletRequest request) {
         long amount = payRequest.amount();
-        String orderID = payRequest.orderId();
+        String orderId = payRequest.orderId();
 
-        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, orderID, request);
+        VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, orderId, request);
 
         return ResponseEntity.ok(vnPayResponse);
     }
 
     @Operation(summary = "Create Payment", description = "Create Payment")
-    @PostMapping("/createPayment")
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody @Valid PaymentRequest request) {
+    @PostMapping
+    public ResponseEntity<PaymentResponse> create(@RequestBody @Valid PaymentRequest request) {
         double amount = request.amount();
-        String orderID = request.orderID();
-
-        PaymentResponse paymentResponse = paymentService.createPayment(amount, orderID);
-
-        return ResponseEntity.ok(paymentResponse);
+        String orderId = request.orderId();
+        return ResponseEntity.ok(paymentMapper.toPaymentResponse(paymentService.create(amount, orderId)));
     }
 
     @Operation(summary = "VNPay Callback", description = "Handle VNPay payment callback")
@@ -88,9 +88,8 @@ public class PaymentController {
     @GetMapping("/payment-info/{bookingId}")
     public ResponseEntity<Map<String, Object>> getPaymentInfo(@PathVariable String bookingId) {
         Booking booking = bookingService.findById(bookingId);
-        //int hours = (int) Duration.between((Temporal) booking.getFieldAvailability().getStartTime(), (Temporal) booking.getFieldAvailability().getEndTime()).toHours();
-        int hours = (int) Duration.between((Temporal) booking.getStartTime(), (Temporal) booking.getEndTime()).toHours();
-        double totalPrice = booking.getSportField().getPricePerHour() * hours;
+        int hours = (int) Duration.between((Temporal) booking.getFieldAvailability().getStartTime(), (Temporal) booking.getFieldAvailability().getEndTime()).toHours();
+        double totalPrice = booking.getFieldAvailability().getSportField().getPricePerHour() * hours;
         return ResponseEntity.ok(Map.of("totalPrice", totalPrice, "bookingId", bookingMapper.toBookingResponse(booking)));
     }
 

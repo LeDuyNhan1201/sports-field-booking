@@ -28,14 +28,6 @@ public class Booking extends AbstractEntity {
         @Enumerated(EnumType.STRING)
         BookingStatus status;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(name = "start_time", nullable = false)
-        Date startTime;
-
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(name = "end_time", nullable = false)
-        Date endTime;
-
         @ManyToOne
         @JoinColumn(name = "user_id", referencedColumnName = "id",
                 foreignKey = @ForeignKey(name = "fk_bookings_users",
@@ -44,21 +36,16 @@ public class Booking extends AbstractEntity {
         @JsonManagedReference
         User user;
 
-        @ManyToOne
-        @JoinColumn(name = "sport_field_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_bookings_sport_fields",
-                        foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-                nullable = false, updatable = false)
-        @JsonManagedReference
-        SportField sportField;
-
         @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         Payment payment;
 
-//        @OneToOne
-//        @JoinColumn(name = "field_availability_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_bookings_field_availability", foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availability(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
-//        @JsonManagedReference
-//        FieldAvailability fieldAvailability;
+        @OneToOne
+        @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_bookings_field_availabilities",
+                        foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availabilities(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false)
+        @JsonManagedReference
+        FieldAvailability fieldAvailability;
 
 }

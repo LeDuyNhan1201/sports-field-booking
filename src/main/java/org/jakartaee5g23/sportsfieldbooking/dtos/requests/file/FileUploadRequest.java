@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.requests;
+package org.jakartaee5g23.sportsfieldbooking.dtos.requests.file;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

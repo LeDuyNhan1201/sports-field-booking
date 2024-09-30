@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.responses;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking;
 
 public record VNPayResponse(
         String code,

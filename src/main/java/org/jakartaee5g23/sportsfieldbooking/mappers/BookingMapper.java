@@ -1,7 +1,7 @@
 package org.jakartaee5g23.sportsfieldbooking.mappers;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.order.NewBookingRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.order.BookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.booking.NewBookingRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -18,8 +18,8 @@ public interface BookingMapper {
     BookingResponse toBookingResponse(Booking entity);
     @AfterMapping
     default void customizeDto(Booking entity, @MappingTarget BookingResponse dto) {
-        dto.setMUser(UserMapper.INSTANCE.toUserInfoResponse(entity.getUser()));
-        dto.setMSportField(SportFieldMapper.INSTANCE.toSportFieldResponse(entity.getSportField()));
+        dto.setMUser(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
+        dto.setMSportField(SportFieldMapper.INSTANCE.toSportFieldResponse(entity.getFieldAvailability().getSportField()));
     }
 
 }

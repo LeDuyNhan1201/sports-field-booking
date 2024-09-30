@@ -4,6 +4,10 @@ server:
     context-path: /sports-field-booking
     encoding:
       charset: UTF-8
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
 
 jwt:
   accessSignerKey: ${ACCESS_SIGNER_KEY}
@@ -19,6 +23,17 @@ minio:
   access-key: group23
   secret-key: gRoUp23IsThEbEsT#
   bucket-name: sports-field-booking-bucket
+
+# VNPAY
+payment:
+  vnPay:
+    url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    tmnCode: "58X4B4HP"
+    secretKey: "VRLDWNVWDNPCOEPBZUTWSEDQAGXJCNGZ"
+    returnUrl: "http://localhost:8888/sports-field-booking/api/v1/payment/vnpay/callback"
+    version: "2.1.0"
+    command: "pay"
+    orderType: "other"
 
 # Spring Boot Actuator configuration (Health, Info, Metrics, etc.)
 management:
@@ -81,6 +96,7 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
     default-locale: en
+    cache-duration: 3600
 
   mail:
     from: ${FROM_MAIL}
@@ -142,12 +158,3 @@ spring:
 
     file-consumer:
       group-id: handle-file-group
-
-#VNPAY
-payment.vnPay.url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-payment.vnPay.tmnCode: 58X4B4HP
-payment.vnPay.secretKey: VRLDWNVWDNPCOEPBZUTWSEDQAGXJCNGZ
-payment.vnPay.returnUrl: http://localhost:8888/sports-field-booking/api/v1/payment/vnpay/callback
-payment.vnPay.version: 2.1.0
-payment.vnPay.command: pay
-payment.vnPay.orderType: other

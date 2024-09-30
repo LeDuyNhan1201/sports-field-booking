@@ -3,8 +3,7 @@ package org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.jakartaee5g23.sportsfieldbooking.dtos.Tokens;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +14,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SignInResponse {
 
-    Tokens tokens;
+    TokensResponse tokensResponse;
 
     UserResponse user;
 

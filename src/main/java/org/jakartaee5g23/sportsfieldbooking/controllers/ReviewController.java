@@ -8,19 +8,24 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.ListReviewRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.RespondRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.ReviewRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ListReviewResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.RespondResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ReviewResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Review;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.mappers.ReviewMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.ReviewService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
+import org.jakartaee5g23.sportsfieldbooking.services.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 
 @RestController
 @RequestMapping("${api.prefix}/reviews")
@@ -29,25 +34,69 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Review APIs")
 public class ReviewController {
+
     ReviewService reviewService;
 
-    @Operation(summary = "Create a comment", description = "Create a comment"
-            , security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/createReview")
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request) {
-        ReviewResponse response = reviewService.createReview(request);
-        return ResponseEntity.ok(response);
+    UserService userService;
+
+    SportFieldService sportFieldService;
+
+    ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
+
+    @Operation(summary = "Create a comment", description = "Create a comment", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping
+    public ResponseEntity<ReviewResponse> create(@RequestBody @Valid ReviewRequest request) {
+        User current = userService.findById(getUserIdFromContext());
+        Review review = reviewMapper.toReview(request);
+        review.setUser(current);
+        return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
 
-    @Operation(summary = "Respond a comment", description = "Respond a comment"
-            , security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping("/respondReview")
-    public ResponseEntity<RespondResponse> respondToReview(@RequestBody RespondRequest request) {
-        RespondResponse response = reviewService.respond(request);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Respond a comment", description = "Respond a comment", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{parentId}")
+    public ResponseEntity<ReviewResponse> respond(@PathVariable String parentId, @RequestBody @Valid ReviewRequest request) {
+        User current = userService.findById(getUserIdFromContext());
+        Review parentReview = reviewService.findById(parentId);
+        Review review = reviewMapper.toReview(request);
+        review.setParentReview(parentReview);
+        review.setUser(current);
+        return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
 
 
+    @Operation(summary = "Update a review", description = "Update a review", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/{id}")
+    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
+    public ResponseEntity<ReviewResponse> update(@PathVariable String id, @RequestParam String comment) {
+        return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.updateComment(id, comment)));
+    }
 
+    @Operation(summary = "Get review list", description = "Get review list", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{sportFieldId}")
+    public ResponseEntity<PaginateResponse<ReviewResponse>> findBySportField(@PathVariable String sportFieldId,
+                                                                            @RequestParam(defaultValue = "0") String offset,
+                                                                            @RequestParam(defaultValue = "100") String limit) {
+        SportField sportField = sportFieldService.findById(sportFieldId);
+        Page<Review> reviews = reviewService.findBySportField(sportField, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<ReviewResponse>builder()
+                        .items(reviews.stream().map(reviewMapper::toReviewResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), reviews.getTotalElements()))
+                        .build());
+    }
+
+    @Operation(summary = "Get reply list", description = "Get reply list", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/replies/{parentId}")
+    public ResponseEntity<PaginateResponse<ReviewResponse>> getBookingList(@PathVariable String parentId,
+                                                                           @RequestParam(defaultValue = "0") String offset,
+                                                                           @RequestParam(defaultValue = "100") String limit) {
+        Review parentReview = reviewService.findById(parentId);
+        Page<Review> reviews = reviewService.findByParentReview(parentReview, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<ReviewResponse>builder()
+                        .items(reviews.stream().map(reviewMapper::toReviewResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), reviews.getTotalElements()))
+                        .build());
+    }
 
 }

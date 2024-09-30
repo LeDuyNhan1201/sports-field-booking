@@ -1,14 +1,19 @@
 package org.jakartaee5g23.sportsfieldbooking.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.CommonResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.order.OrderException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.review.ReviewErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.review.ReviewException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportfield.SportFieldErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportfield.SportFieldException;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -63,12 +68,27 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    // booking exceptions
-    @ExceptionHandler(value = BookingException.class)
-    ResponseEntity<CommonResponse<?, ?>> handlingBookingException(BookingException exception) {
-        log.error("Booking error: ", exception);
+    // sport field exceptions
+    @ExceptionHandler(value = SportFieldException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(SportFieldException exception) {
+        log.error("Sport field error: ", exception);
+        SportFieldErrorCode errorCode = exception.getSportFieldErrorCode();
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
-                .message(exception.getMessage())
+                .message((exception.getMoreInfo() != null)
+                        ? getLocalizedMessage(errorCode.getMessage(), exception.getMoreInfo())
+                        : getLocalizedMessage(errorCode.getMessage()))
+                .build());
+    }
+
+    // review exceptions
+    @ExceptionHandler(value = ReviewException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(ReviewException exception) {
+        log.error("Review error: ", exception);
+        ReviewErrorCode errorCode = exception.getReviewErrorCode();
+        return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
+                .message((exception.getMoreInfo() != null)
+                        ? getLocalizedMessage(errorCode.getMessage(), exception.getMoreInfo())
+                        : getLocalizedMessage(errorCode.getMessage()))
                 .build());
     }
 
@@ -76,17 +96,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = PaymentException.class)
     ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(PaymentException exception) {
         log.error("Payment error: ", exception);
+        PaymentErrorCode errorCode = exception.getPaymentErrorCode();
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
-                .message(exception.getMessage())
+                .message((exception.getMoreInfo() != null)
+                        ? getLocalizedMessage(errorCode.getMessage(), exception.getMoreInfo())
+                        : getLocalizedMessage(errorCode.getMessage()))
                 .build());
     }
 
-    // order exceptions
-    @ExceptionHandler(value = OrderException.class)
-    ResponseEntity<CommonResponse<?, ?>> handlingOrderException(OrderException exception) {
+    // booking exceptions
+    @ExceptionHandler(value = BookingException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingBookingException(BookingException exception) {
         log.error("Order error: ", exception);
+        BookingErrorCode errorCode = exception.getBookingErrorCode();
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
-                .message(exception.getMessage())
+                .message((exception.getMoreInfo() != null)
+                        ? getLocalizedMessage(errorCode.getMessage(), exception.getMoreInfo())
+                        : getLocalizedMessage(errorCode.getMessage()))
                 .build());
     }
 
@@ -160,7 +186,7 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getAllErrors()
                 .forEach((error) -> {
                     String field = ((FieldError) error).getField();
-                    String validationType = error.getCode();
+                    String validationType = determineValidationType((FieldError) error);
 
                     assert validationType != null;
                     String message = switch (validationType) {

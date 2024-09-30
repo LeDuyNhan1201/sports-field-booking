@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.responses.order;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -22,7 +22,7 @@ public class PaymentResponse {
 
     PaymentStatus status;
 
-    @JsonProperty(value = "order")
-    BookingResponse mOrder;
+    @JsonProperty(value = "booking")
+    BookingResponse mBooking;
 
 }

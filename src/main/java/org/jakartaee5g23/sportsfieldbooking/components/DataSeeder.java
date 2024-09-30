@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.time.ZoneId;
 import java.util.List;
@@ -28,6 +29,7 @@ import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getRandomEnum;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DataSeeder {
+
     RoleRepository roleRepository;
     UserRepository userRepository;
     UserRoleRepository userRoleRepository;
@@ -48,14 +50,14 @@ public class DataSeeder {
     @Transactional
     public void seed() {
         seedRoles();
-        seedCategories();
         seedUsers();
         seedUserRole();
+        seedCategories();
         seedSportFields();
-        //seedFieldAvailabilities();
-        seedOrders();
-        seedPayments();
         seedReviews();
+        seedFieldAvailabilities();
+        seedBookings();
+        seedPayments();
         seedNotifications();
         seedPromotions();
         seedStatistics();
@@ -71,15 +73,6 @@ public class DataSeeder {
         }
     }
 
-    private void seedCategories() {
-        if (categoryRepository.count() == 0) {
-            IntStream.range(0, 5).forEach(_ -> {
-                Category category = Category.builder().name(faker.team().sport()).build();
-                categoryRepository.save(category);
-            });
-        }
-    }
-
     private void seedUsers() {
         if (userRepository.count() == 0) {
             IntStream.range(0, 20).forEach(_ -> {
@@ -92,6 +85,7 @@ public class DataSeeder {
                         .lastName(faker.name().lastName())
                         .mobileNumber(faker.phoneNumber().subscriberNumber(10))
                         .birthdate(LocalDate.now().minusYears(21))
+                        .bio(faker.lorem().sentence(100))
                         .gender(getRandomEnum(Gender.class))
                         .avatar(null)
                         .status(getRandomEnum(UserStatus.class))
@@ -119,6 +113,15 @@ public class DataSeeder {
         }
     }
 
+    private void seedCategories() {
+        if (categoryRepository.count() == 0) {
+            IntStream.range(0, 5).forEach(_ -> {
+                Category category = Category.builder().name(faker.team().sport()).build();
+                categoryRepository.save(category);
+            });
+        }
+    }
+
     private void seedSportFields() {
         if (sportFieldRepository.count() == 0) {
             List<User> users = userRepository.findAll();
@@ -128,7 +131,7 @@ public class DataSeeder {
                 SportField field = SportField.builder()
                         .name(faker.team().name())
                         .location(faker.address().fullAddress())
-                        .pricePerHour(faker.number().numberBetween(50, 500))
+                        .pricePerHour(faker.number().randomDouble(2, 10, 100))
                         .opacity(faker.number().numberBetween(1, 100))
                         .openingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
                         .closingTime(faker.date().future(365 * 5, TimeUnit.DAYS)) // Updated to future
@@ -143,17 +146,47 @@ public class DataSeeder {
         }
     }
 
-    private void seedOrders() {
+    private void seedFieldAvailabilities() {
+        if (fieldAvailabilityRepository.count() == 0) {
+            List<SportField> fields = sportFieldRepository.findAll();
+
+            IntStream.range(0, 30).forEach(_ -> {
+                SportField field = fields.get(faker.number().numberBetween(0, fields.size()));
+                // Create a date that is available in the next 30 days
+                Date availableDate = faker.date().future(30, TimeUnit.DAYS);
+//
+//                // Generate start time between 8:00 AM and 8:00 PM
+                LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
+                        .atZone(ZoneId.systemDefault()).toInstant());
+
+                // Generate end time between 1 to 12 hours after start time
+                Date endTime = new Date(startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
+
+                FieldAvailability availability = FieldAvailability.builder()
+                        .sportField(field)
+                        .availableDate(availableDate)
+                        .startTime(startTime)
+                        .endTime(endTime)
+                        .isAvailable(faker.bool().bool())
+                        .build();
+
+                fieldAvailabilityRepository.save(availability);
+            });
+        }
+    }
+
+    private void seedBookings() {
         if (bookingRepository.count() == 0) {
             List<User> users = userRepository.findAll();
-            List<SportField> fields = sportFieldRepository.findAll();
-            //List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
+            List<FieldAvailability> availabilities = fieldAvailabilityRepository.findAll();
 
             IntStream.range(0, 20).forEach(index -> {
+                FieldAvailability availability = availabilities.get(index);
+
                 Booking booking = Booking.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
-                        .sportField(fields.get(faker.number().numberBetween(0, fields.size())))
-                        //.fieldAvailability(fieldAvailabilities.get(index))
+                        .fieldAvailability(availability)
                         .status(getRandomEnum(BookingStatus.class))
                         .build();
 
@@ -169,24 +202,14 @@ public class DataSeeder {
             IntStream.range(0, 20).forEach(i -> {
                 Booking booking = bookings.get(i);
 
-//                LocalDateTime startTime = booking.getFieldAvailability().getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-//                LocalDateTime endTime = booking.getFieldAvailability().getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime startTime = booking.getFieldAvailability().getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalDateTime endTime = booking.getFieldAvailability().getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-                Date availableDate = faker.date().future(30, TimeUnit.DAYS);
-                LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                // Generate start time between 8:00 AM and 8:00 PM
-                Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
-                        .atZone(ZoneId.systemDefault()).toInstant());
-                // Generate end time between 1 and 12 hours after start time
-                Date endTime = new Date(startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
-
-                int hours = (int) Duration.between(
-                        startTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                        endTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).toHours();
+                int hours = (int) Duration.between(startTime, endTime).toHours();
 
                 Payment payment = Payment.builder()
                         .method(getRandomEnum(PaymentMethod.class))
-                        .price((double) (booking.getSportField().getPricePerHour() * hours))
+                        .price(booking.getFieldAvailability().getSportField().getPricePerHour() * hours)
                         .booking(booking)
                         .status(getRandomEnum(PaymentStatus.class))
                         .build();
@@ -270,33 +293,4 @@ public class DataSeeder {
         }
     }
 
-//    private void seedFieldAvailabilities() {
-//        if (fieldAvailabilityRepository.count() == 0) {
-//            List<SportField> fields = sportFieldRepository.findAll();
-//
-//            IntStream.range(0, 20).forEach(_ -> {
-//                SportField field = fields.get(faker.number().numberBetween(0, fields.size()));
-//                // Create a date that is available in the next 30 days
-////                Date availableDate = faker.date().future(30, TimeUnit.DAYS);
-////
-////                // Generate start time between 8:00 AM and 8:00 PM
-//                LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//                Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
-//                        .atZone(ZoneId.systemDefault()).toInstant());
-//
-//                // Generate end time between 1 to 12 hours after start time
-//                Date endTime = new Date(startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
-//
-//                FieldAvailability availability = FieldAvailability.builder()
-//                        .sportField(field)
-//                        .availableDate(availableDate)
-//                        .startTime(startTime)
-//                        .endTime(endTime)
-//                        .isAvailable(faker.bool().bool())
-//                        .build();
-//
-//                fieldAvailabilityRepository.save(availability);
-//            });
-//        }
-//    }
 }

@@ -5,8 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.configurations.VNPayConfiguration;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.PaymentResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.VNPayResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
@@ -14,8 +13,8 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PaymentMethod;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.order.OrderErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.order.OrderException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.PaymentRepository;
@@ -107,12 +106,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse createPayment(double amount, String orderId) {
+    public Payment create(double amount, String orderId) {
         Booking booking = orderService.findById(orderId);
 
         if (amount <= 0) throw new PaymentException(PaymentErrorCode.PAYMENT_AMOUNT_INVALID, HttpStatus.BAD_REQUEST);
         if (booking == null) throw new PaymentException(PaymentErrorCode.PAYMENT_ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        if (booking.getStatus() != BookingStatus.PENDING) throw new OrderException(OrderErrorCode.ORDER_CHECK_PENDING, HttpStatus.BAD_REQUEST);
+        if (booking.getStatus() != BookingStatus.PENDING) throw new BookingException(BookingErrorCode.BOOKING_CHECK_PENDING, HttpStatus.BAD_REQUEST);
 
         Payment payment = Payment.builder()
                 .price(amount)
@@ -121,9 +120,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(PaymentStatus.PENDING)
                 .build();
 
-        paymentRepository.save(payment);
-
-        return new PaymentResponse(getLocalizedMessage("payment_success"), HttpStatus.OK);
+        return paymentRepository.save(payment);
     }
 
 

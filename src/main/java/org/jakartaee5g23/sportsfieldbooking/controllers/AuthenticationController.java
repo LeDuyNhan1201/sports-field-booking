@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.annotations.RateLimit;
-import org.jakartaee5g23.sportsfieldbooking.dtos.Tokens;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.TokensResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.*;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.*;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
@@ -126,8 +126,8 @@ public class AuthenticationController {
 
         return ResponseEntity.status(OK).body(
                 SignInResponse.builder()
-                        .tokens(new Tokens(accessToken, refreshToken))
-                        .user(userMapper.toUserInfoResponse(signInUser)).build()
+                        .tokensResponse(new TokensResponse(accessToken, refreshToken))
+                        .user(userMapper.toUserResponse(signInUser)).build()
         );
     }
 

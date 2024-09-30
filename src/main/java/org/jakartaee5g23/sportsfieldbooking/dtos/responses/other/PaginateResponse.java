@@ -1,9 +1,10 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.responses;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.other;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.order.BookingResponse;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,10 +13,10 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.order.BookingResponse
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RevenueReportResponse{
+public class PaginateResponse<T> {
 
-    double total;
+    List<T> items;
 
-    PaginateResponse<BookingResponse> data;
+    Pagination pagination;
 
 }

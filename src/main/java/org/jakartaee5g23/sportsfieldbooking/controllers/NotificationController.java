@@ -1,8 +1,14 @@
 package org.jakartaee5g23.sportsfieldbooking.controllers;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.NotificationResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.NotificationResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.mappers.NotificationMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.NotificationService;
+import org.jakartaee5g23.sportsfieldbooking.services.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
-import java.util.List;
+
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 
 @RestController
 @RequestMapping("${api.prefix}/notification")
@@ -25,12 +32,23 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Notification APIs")
 public class NotificationController {
+
     NotificationService notificationService;
+
+    UserService userService;
+
+    NotificationMapper notificationMapper = NotificationMapper.INSTANCE;
 
     @Operation(summary = "View my notification", description = "Get list of notification", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ResponseEntity<NotificationResponse> getListNotificationByUser(@RequestParam("userId") String userId) {
-        List<Notification> notifications = notificationService.getNotificationsByUserId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new NotificationResponse(notifications));
+    public ResponseEntity<PaginateResponse<NotificationResponse>> getMyNotification(@RequestParam(defaultValue = "0") String offset,
+                                                                  @RequestParam(defaultValue = "100") String limit) {
+        User current = userService.findById(getUserIdFromContext());
+        Page<Notification> notifications = notificationService.findByUser(current, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK).body(PaginateResponse.<NotificationResponse>builder()
+                .items(notifications.stream().map(notificationMapper::toNotificationResponse).toList())
+                .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), notifications.getTotalElements()))
+                .build());
     }
+
 }

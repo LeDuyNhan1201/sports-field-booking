@@ -22,7 +22,7 @@ public interface SportFieldMapper {
     @AfterMapping
     default void customizeDto(SportField entity, @MappingTarget SportFieldResponse dto) {
         dto.setCategoryName(entity.getCategory().getName());
-        dto.setOwner(UserMapper.INSTANCE.toUserInfoResponse(entity.getUser()));
+        dto.setOwner(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
     }
 
 }

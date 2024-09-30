@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public enum ReviewErrorCode {
-    REVIEW_NOT_FOUND("REVIEW-NOT-FOUND","review_not_found");
 
     ;
     ReviewErrorCode(String code, String message) {
@@ -15,4 +14,5 @@ public enum ReviewErrorCode {
 
     private final String code;
     private final String message;
+
 }

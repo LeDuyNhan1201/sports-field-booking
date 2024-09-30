@@ -9,8 +9,8 @@ public class BookingException extends AppException {
 
     public BookingException(BookingErrorCode bookingErrorCode, HttpStatus httpStatus) {
         super(bookingErrorCode.getMessage(), httpStatus);
-        this.fileStorageErrorCode = bookingErrorCode;
+        this.bookingErrorCode = bookingErrorCode;
     }
 
-    private final BookingErrorCode fileStorageErrorCode;
+    private final BookingErrorCode bookingErrorCode;
 }

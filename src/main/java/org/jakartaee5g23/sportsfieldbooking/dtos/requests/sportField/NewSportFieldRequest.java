@@ -43,7 +43,7 @@ public record NewSportFieldRequest (
     @NotBlank(message = "blank_field")
     String userId,
 
-    boolean isConfirmed
+    Boolean isConfirmed
 
 )
 { }

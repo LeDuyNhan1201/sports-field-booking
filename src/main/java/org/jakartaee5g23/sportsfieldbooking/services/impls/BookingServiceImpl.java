@@ -46,27 +46,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking create(Booking request) {
-//        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(request.fieldAvailabilityId())
-//                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field availability"));
-//
-//        if (!fieldAvailability.getIsAvailable())
-//            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
-        if (!(request.getStartTime().before(new Date()) && request.getEndTime().after(new Date())))
-            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
-
         User user = request.getUser();
-        SportField sportField = request.getSportField();
-        if (!sportField.getStatus().equals(SportFieldStatus.OPEN))
+        FieldAvailability fieldAvailability = request.getFieldAvailability();
+        if (!fieldAvailability.getSportField().getStatus().equals(SportFieldStatus.OPEN))
             throw new BookingException(BookingErrorCode.SPORT_FIELD_NOT_AVAILABLE, HttpStatus.UNPROCESSABLE_ENTITY);
 
         if (user.getStatus() == UserStatus.BANNED)
             throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Booking booking = Booking.builder()
-                //.fieldAvailability(fieldAvailability)
+                .fieldAvailability(fieldAvailability)
                 .status(BookingStatus.PENDING)
                 .user(user)
-                .sportField(sportField)
                 .build();
 
         Booking createBooking = bookingRepository.save(booking);
@@ -100,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<Booking> getUpcomingBookingsByUserId(String userId, int offset, int limit) {
+    public Page<Booking> getUpcomingBookings(String userId, int offset, int limit) {
         return bookingRepository.findUpcomingBookingsByUserId(userId, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 

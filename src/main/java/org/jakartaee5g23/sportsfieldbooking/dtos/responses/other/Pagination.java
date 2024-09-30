@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.other;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

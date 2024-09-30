@@ -1,13 +1,9 @@
 package org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Category;
-import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
 
 import java.util.Date;
@@ -26,7 +22,7 @@ public class SportFieldResponse {
 
     String location;
 
-    Integer pricePerHour;
+    Double pricePerHour;
 
     Integer opacity;
 

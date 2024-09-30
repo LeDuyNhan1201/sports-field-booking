@@ -58,13 +58,7 @@ public class SecurityConfiguration {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/swagger-resources/**",
-                "/media/**",
-                "/sport-field/edit-sport-field",
-                "/sport-field/update-status-sport-field",
-                "/sport-field/get-order-by-status",
-                "/sport-field/approve-booking",
-                "/sport-field/revenue-report",
-                "/sport-field/add-sport-field"
+                "/media/**"
                 ).map(s -> (s.contains("api-docs") || s.contains("swagger")) ? s : API_PREFIX + s)
                 .toList().toArray(new String[0]);
 

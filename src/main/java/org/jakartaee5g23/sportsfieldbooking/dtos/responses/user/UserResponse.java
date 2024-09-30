@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.responses;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.user;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CategoryResponse {
+public class UserResponse {
 
     String id;
 

@@ -1,10 +1,8 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.responses;
+package org.jakartaee5g23.sportsfieldbooking.dtos.responses.other;
 
-import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,8 +11,14 @@ import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class NotificationResponse {
+public class CommonResponse<R, E> {
 
-    List<Notification> notifications;
+    String errorCode;
+
+    String message;
+
+    R results;
+
+    E errors;
 
 }

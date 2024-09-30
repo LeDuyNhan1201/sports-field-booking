@@ -37,7 +37,7 @@ public record UpdateSportFieldRequest (
         @NotBlank(message = "blank_field")
         Integer categoryId,
 
-        boolean isConfirmed
+        Boolean isConfirmed
 
 )
 { }

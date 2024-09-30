@@ -1,6 +1,9 @@
 package org.jakartaee5g23.sportsfieldbooking.configurations;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.vnpay.Utils.VNPayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -12,24 +15,32 @@ import java.util.Map;
 import java.util.TimeZone;
 
 @Configuration
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class VNPayConfiguration {
     @Getter
     @Value("${payment.vnPay.url}")
-    private String vnp_PayUrl;
+    String vnp_PayUrl;
+
     @Getter
     @Value("${payment.vnPay.returnUrl}")
-    private String vnp_ReturnUrl;
+    String vnp_ReturnUrl;
+
     @Value("${payment.vnPay.tmnCode}")
-    private String vnp_TmnCode ;
+    String vnp_TmnCode ;
+
     @Getter
     @Value("${payment.vnPay.secretKey}")
-    private String secretKey;
+    String secretKey;
+
     @Value("${payment.vnPay.version}")
-    private String vnp_Version;
+    String vnp_Version;
+
     @Value("${payment.vnPay.command}")
-    private String vnp_Command;
+    String vnp_Command;
+
     @Value("${payment.vnPay.orderType}")
-    private String orderType;
+    String orderType;
 
     public Map<String, String> getVNPayConfig() {
         Map<String, String> vnpParamsMap = new HashMap<>();
@@ -58,4 +69,5 @@ public class VNPayConfiguration {
 
         return vnpParamsMap;
     }
+
 }

@@ -32,7 +32,7 @@ public class SportField extends AbstractEntity {
         String location;
 
         @Column(name = "price_per_hour", nullable = false)
-        Integer pricePerHour;
+        Double pricePerHour;
 
         Integer opacity;
 
@@ -65,7 +65,7 @@ public class SportField extends AbstractEntity {
 
         @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
-        List<Booking> bookings;
+        List<FieldAvailability> fieldAvailabilities;
 
         @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference

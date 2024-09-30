@@ -20,7 +20,7 @@ public interface BookingService {
 
     Page<Booking> findAllByStatus(BookingStatus status, int offset, int limit);
 
-    Page<Booking> getUpcomingBookingsByUserId(String userId, int offset, int limit);
+    Page<Booking> getUpcomingBookings(String userId, int offset, int limit);
 
     Page<Booking> findByField(SportField sportField, Date beginDate, Date endDate, int offset, int limit);
 

@@ -1,17 +1,21 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.ListReviewRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.RespondRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.ReviewRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.RespondResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ReviewResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Review;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-
+@Service
 public interface ReviewService {
-    List<Review> getReviewsBySportField(ListReviewRequest sportFieldID);
-    ReviewResponse createReview(ReviewRequest request);
-    RespondResponse respond(RespondRequest request);
+
+    Review findById(String id);
+
+    Page<Review> findBySportField(SportField sportField, int offset, int limit);
+
+    Page<Review> findByParentReview(Review parentReview, int offset, int limit);
+
+    Review create(Review request);
+
+    Review updateComment(String id, String comment);
+
 }

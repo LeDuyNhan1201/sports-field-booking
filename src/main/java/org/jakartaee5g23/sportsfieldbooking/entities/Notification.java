@@ -31,9 +31,9 @@ public class Notification extends AbstractEntity {
     User user;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_notifications_orders",
-                    foreignKeyDefinition = "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE"))
+    @JoinColumn(name = "booking_id", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_notifications_bookings",
+                    foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"))
     @JsonManagedReference
     Booking booking;
 

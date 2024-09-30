@@ -1,6 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.UserResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 
 public interface UserService {
