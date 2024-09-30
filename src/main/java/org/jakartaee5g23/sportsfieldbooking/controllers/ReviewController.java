@@ -47,8 +47,10 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponse> create(@RequestBody @Valid ReviewRequest request) {
         User current = userService.findById(getUserIdFromContext());
+        SportField sportField = sportFieldService.findById(request.sportFieldId());
         Review review = reviewMapper.toReview(request);
         review.setUser(current);
+        review.setSportField(sportField);
         return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
 
@@ -57,8 +59,10 @@ public class ReviewController {
     public ResponseEntity<ReviewResponse> respond(@PathVariable String parentId, @RequestBody @Valid ReviewRequest request) {
         User current = userService.findById(getUserIdFromContext());
         Review parentReview = reviewService.findById(parentId);
+        SportField sportField = parentReview.getSportField();
         Review review = reviewMapper.toReview(request);
         review.setParentReview(parentReview);
+        review.setSportField(sportField);
         review.setUser(current);
         return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
