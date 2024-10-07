@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 
@@ -27,7 +27,7 @@ public class FieldAvailabilityResponse {
     User user;
 
 
-    SportField mSportField;
+    SportsField mSportsField;
 
     @JsonProperty(value = "payment")
     Payment mPayment;

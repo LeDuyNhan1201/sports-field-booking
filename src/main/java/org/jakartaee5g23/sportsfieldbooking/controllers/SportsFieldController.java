@@ -9,17 +9,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportFieldRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.UpdateSportFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportsFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.UpdateSportsFieldRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportFieldResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
-import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
-import org.jakartaee5g23.sportsfieldbooking.mappers.SportFieldMapper;
-import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
+import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
+import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,54 +32,54 @@ import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
-@RequestMapping("${api.prefix}/sport-field")
+@RequestMapping("${api.prefix}/sports-field")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-@Tag(name = "Sport Field APIs")
-public class SportFieldController {
+@Tag(name = "Sports Field APIs")
+public class SportsFieldController {
 
-    SportFieldService sportFieldService;
+    SportsFieldService sportsFieldService;
 
     UserService userService;
 
-    SportFieldMapper sportFieldMapper = SportFieldMapper.INSTANCE;
+    SportsFieldMapper sportsFieldMapper = SportsFieldMapper.INSTANCE;
 
     @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportFieldResponse> create (@RequestBody @Valid NewSportFieldRequest request) {
+    public ResponseEntity<SportsFieldResponse> create (@RequestBody @Valid NewSportsFieldRequest request) {
         User current = userService.findById(getUserIdFromContext());
-        SportField sportField = sportFieldMapper.toSportField(request);
-        sportField.setUser(current);
-        sportField.setCategory(Category.builder().id(request.categoryId()).build());
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.create(sportField, request.isConfirmed())));
+        SportsField sportsField = sportsFieldMapper.toSportField(request);
+        sportsField.setUser(current);
+        sportsField.setCategory(Category.builder().id(request.categoryId()).build());
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.create(sportsField, request.isConfirmed())));
     }
 
 
     @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportFieldResponse> update(@RequestBody @Valid UpdateSportFieldRequest request) {
-        SportField sportField = sportFieldMapper.toSportField(request);
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.update(sportField, request.isConfirmed())));
+    public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
+        SportsField sportsField = sportsFieldMapper.toSportField(request);
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.update(sportsField, request.isConfirmed())));
     }
 
     @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportFieldStatus status) {
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.updateStatus(id, status)));
+    public ResponseEntity<SportsFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportsFieldStatus status) {
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.updateStatus(id, status)));
     }
 
     @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ResponseEntity<PaginateResponse<SportFieldResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
-                                                                     @RequestParam(defaultValue = "100") String limit) {
-        Page<SportField> sportFields = sportFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
+                                                                         @RequestParam(defaultValue = "100") String limit) {
+        Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportFieldResponse>builder()
-                        .items(sportFields.stream().map(sportFieldMapper::toSportFieldResponse).toList())
+                .body(PaginateResponse.<SportsFieldResponse>builder()
+                        .items(sportFields.stream().map(sportsFieldMapper::toSportFieldResponse).toList())
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }

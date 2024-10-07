@@ -38,6 +38,9 @@ public class Promotion extends AbstractEntity {
     Date endDate;
 
     @ManyToOne
-    @JoinColumn(name = "yard_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_promotions_sport_fields", foreignKeyDefinition = "FOREIGN KEY (yard_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
-    SportField sportField;
+    @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_promotions_sports_fields",
+                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+            nullable = false)
+    SportsField sportsField;
 }

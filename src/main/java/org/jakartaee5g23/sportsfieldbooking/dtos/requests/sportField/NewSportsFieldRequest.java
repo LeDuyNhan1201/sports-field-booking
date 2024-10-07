@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Date;
 
-public record NewSportFieldRequest (
+public record NewSportsFieldRequest(
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")

@@ -13,11 +13,11 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.requests.review.ReviewRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ReviewResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Review;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.mappers.ReviewMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.ReviewService;
-import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class ReviewController {
 
     UserService userService;
 
-    SportFieldService sportFieldService;
+    SportsFieldService sportsFieldService;
 
     ReviewMapper reviewMapper = ReviewMapper.INSTANCE;
 
@@ -47,10 +47,10 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<ReviewResponse> create(@RequestBody @Valid ReviewRequest request) {
         User current = userService.findById(getUserIdFromContext());
-        SportField sportField = sportFieldService.findById(request.sportFieldId());
+        SportsField sportsField = sportsFieldService.findById(request.sportFieldId());
         Review review = reviewMapper.toReview(request);
         review.setUser(current);
-        review.setSportField(sportField);
+        review.setSportsField(sportsField);
         return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
 
@@ -59,10 +59,10 @@ public class ReviewController {
     public ResponseEntity<ReviewResponse> respond(@PathVariable String parentId, @RequestBody @Valid ReviewRequest request) {
         User current = userService.findById(getUserIdFromContext());
         Review parentReview = reviewService.findById(parentId);
-        SportField sportField = parentReview.getSportField();
+        SportsField sportsField = parentReview.getSportsField();
         Review review = reviewMapper.toReview(request);
         review.setParentReview(parentReview);
-        review.setSportField(sportField);
+        review.setSportsField(sportsField);
         review.setUser(current);
         return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
@@ -80,8 +80,8 @@ public class ReviewController {
     public ResponseEntity<PaginateResponse<ReviewResponse>> findBySportField(@PathVariable String sportFieldId,
                                                                             @RequestParam(defaultValue = "0") String offset,
                                                                             @RequestParam(defaultValue = "100") String limit) {
-        SportField sportField = sportFieldService.findById(sportFieldId);
-        Page<Review> reviews = reviewService.findBySportField(sportField, Integer.parseInt(offset), Integer.parseInt(limit));
+        SportsField sportsField = sportsFieldService.findById(sportFieldId);
+        Page<Review> reviews = reviewService.findBySportField(sportsField, Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<ReviewResponse>builder()
                         .items(reviews.stream().map(reviewMapper::toReviewResponse).toList())

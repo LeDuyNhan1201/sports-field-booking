@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.Review;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
@@ -32,8 +32,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Page<Review> findBySportField(SportField sportField, int offset, int limit) {
-        return reviewRepository.findBySportField(sportField, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    public Page<Review> findBySportField(SportsField sportsField, int offset, int limit) {
+        return reviewRepository.findBySportsField(sportsField, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "sport_fields")
-public class SportField extends AbstractEntity {
+@Table(name = "sports_fields")
+public class SportsField extends AbstractEntity {
 
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
@@ -45,11 +45,11 @@ public class SportField extends AbstractEntity {
 
         @Enumerated(EnumType.STRING)
         @Column(nullable = false)
-        SportFieldStatus status;
+        SportsFieldStatus status;
 
         @ManyToOne
         @JoinColumn(name = "category_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_sport_fields_categories",
+                foreignKey = @ForeignKey(name = "fk_sports_fields_categories",
                         foreignKeyDefinition = "FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE ON UPDATE CASCADE"),
                 nullable = false)
         @JsonManagedReference
@@ -57,17 +57,21 @@ public class SportField extends AbstractEntity {
 
         @ManyToOne
         @JoinColumn(name = "user_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_sport_fields_users",
+                foreignKey = @ForeignKey(name = "fk_sports_fields_users",
                         foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
                 nullable = false)
         @JsonManagedReference
         User user;
 
-        @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         List<FieldAvailability> fieldAvailabilities;
 
-        @OneToMany(mappedBy = "sportField", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+        @JsonManagedReference
+        List<FileMetadata> images;
+
+        @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         List<Review> reviews;
 

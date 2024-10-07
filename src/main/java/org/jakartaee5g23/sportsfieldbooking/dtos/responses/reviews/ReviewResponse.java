@@ -3,8 +3,8 @@ package org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportFieldResponse;
 
 @Getter
 @Setter
@@ -22,6 +22,6 @@ public class ReviewResponse {
     UserResponse mUser;
 
     @JsonProperty("sportField")
-    SportFieldResponse mSportField;
+    SportsFieldResponse mSportField;
 
 }

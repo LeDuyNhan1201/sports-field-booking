@@ -1,9 +1,9 @@
-package org.jakartaee5g23.sportsfieldbooking.exceptions.sportfield;
+package org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield;
 
 import lombok.Getter;
 
 @Getter
-public enum SportFieldErrorCode {
+public enum SportsFieldErrorCode {
 
     INVALID_OPENING_CLOSING_TIME("sort-field/invalid_opening_closing_time", "opening_hours_must_not_be_greater_than_closing_hours"),
 
@@ -12,7 +12,7 @@ public enum SportFieldErrorCode {
     UPDATE_FAILED("sort-field/update_failed", "update_failed"),
     ;
 
-    SportFieldErrorCode(String code, String message) {
+    SportsFieldErrorCode(String code, String message) {
         this.code = code;
         this.message = message;
     }

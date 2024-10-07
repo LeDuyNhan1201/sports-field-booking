@@ -12,8 +12,8 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.review.ReviewErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.review.ReviewException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.sportfield.SportFieldErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.sportfield.SportFieldException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -69,10 +69,10 @@ public class GlobalExceptionHandler {
     }
 
     // sport field exceptions
-    @ExceptionHandler(value = SportFieldException.class)
-    ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(SportFieldException exception) {
+    @ExceptionHandler(value = SportsFieldException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingPaymentException(SportsFieldException exception) {
         log.error("Sport field error: ", exception);
-        SportFieldErrorCode errorCode = exception.getSportFieldErrorCode();
+        SportsFieldErrorCode errorCode = exception.getSportsFieldErrorCode();
         return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.builder()
                 .message((exception.getMoreInfo() != null)
                         ? getLocalizedMessage(errorCode.getMessage(), exception.getMoreInfo())

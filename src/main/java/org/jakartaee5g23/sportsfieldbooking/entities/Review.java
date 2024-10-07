@@ -35,12 +35,12 @@ public class Review extends AbstractEntity {
         User user;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "sport_field_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_reviews_sport_fields",
-                        foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+        @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_reviews_sports_fields",
+                        foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
                 nullable = false, updatable = false)
         @JsonBackReference
-        SportField sportField;
+        SportsField sportsField;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "parent_review_id", referencedColumnName = "id",

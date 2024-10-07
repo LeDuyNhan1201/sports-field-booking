@@ -3,7 +3,7 @@ package org.jakartaee5g23.sportsfieldbooking.services;
 import java.util.Date;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ public interface BookingService {
 
     Page<Booking> getUpcomingBookings(String userId, int offset, int limit);
 
-    Page<Booking> findByField(SportField sportField, Date beginDate, Date endDate, int offset, int limit);
+    Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit);
 
     Booking updateStatus(String bookingId, BookingStatus status);
 

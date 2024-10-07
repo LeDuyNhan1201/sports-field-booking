@@ -1,7 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +27,6 @@ public class Category extends AbstractEntity {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonBackReference
-    List<SportField> sportFields;
+    List<SportsField> sportsFields;
 
 }

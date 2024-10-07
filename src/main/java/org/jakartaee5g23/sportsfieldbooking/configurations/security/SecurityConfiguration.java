@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                 "/auth/sign-in",
                 "/auth/sign-out",
                 "/auth/introspect",
+                "/sports-field",
                 "/actuator/health",
                 "/api-docs/**",
                 "/swagger-ui/**",

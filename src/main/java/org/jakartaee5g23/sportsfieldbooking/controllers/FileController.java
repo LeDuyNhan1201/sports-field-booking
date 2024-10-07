@@ -86,17 +86,4 @@ public class FileController {
         kafkaTemplate.send(KAFKA_TOPIC_HANDLE_FILE, DELETE_PARENT_OBJECT + ":" + parentKey);
     }
 
-    @Operation(summary = "Show media", description = "Show media")
-    @GetMapping("/show-media")
-    public ResponseEntity<RedirectView> redirectToNewUrl(@RequestParam String objectKey) {
-        RedirectView redirectView = new RedirectView();
-        try {
-            redirectView.setUrl(minioClientService.getObjectUrl(objectKey));
-            return new ResponseEntity<>(redirectView, MOVED_PERMANENTLY);
-
-        } catch (Exception e) {
-            throw new FileStorageException(COULD_NOT_READ_FILE, BAD_REQUEST);
-        }
-    }
-
 }

@@ -9,7 +9,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateRespons
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.dashboard.RevenueReportResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
 import org.jakartaee5g23.sportsfieldbooking.repositories.BookingRepository;
@@ -30,9 +30,9 @@ public class DashboardServiceImpl implements DashboardService {
     BookingRepository bookingRepository;
 
     @Override
-    public RevenueReportResponse revenueReport(SportField sportField, Date beginDate, Date endDate, int offset, int limit) {
+    public RevenueReportResponse revenueReport(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit) {
         double total = 0.0;
-        Page<Booking> bookings = bookingRepository.findBySportFieldIdAndStartTimeBetween(sportField, beginDate, endDate, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        Page<Booking> bookings = bookingRepository.findBySportFieldIdAndStartTimeBetween(sportsField, beginDate, endDate, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
         for (Booking booking : bookings.stream().toList())
             if (booking.getPayment().getStatus() == PaymentStatus.COMPLETED) total += booking.getPayment().getPrice();
 
@@ -40,7 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .items(bookings.stream().map(BookingMapper.INSTANCE::toBookingResponse).toList())
                 .pagination(new Pagination(offset, limit, bookings.getTotalElements()))
                 .build();
-        return RevenueReportResponse.builder().owner(sportField.getUser().getId()).total(total).data(paginateResponse).build();
+        return RevenueReportResponse.builder().owner(sportsField.getUser().getId()).total(total).data(paginateResponse).build();
     }
 
 }

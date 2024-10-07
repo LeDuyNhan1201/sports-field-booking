@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
-import org.jakartaee5g23.sportsfieldbooking.enums.SportFieldStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking create(Booking request) {
         User user = request.getUser();
         FieldAvailability fieldAvailability = request.getFieldAvailability();
-        if (!fieldAvailability.getSportField().getStatus().equals(SportFieldStatus.OPEN))
+        if (!fieldAvailability.getSportsField().getStatus().equals(SportsFieldStatus.OPEN))
             throw new BookingException(BookingErrorCode.SPORT_FIELD_NOT_AVAILABLE, HttpStatus.UNPROCESSABLE_ENTITY);
 
         if (user.getStatus() == UserStatus.BANNED)
@@ -96,8 +96,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<Booking> findByField(SportField sportField, Date beginDate, Date endDate, int offset, int limit) {
-        return bookingRepository.findBySportFieldIdAndStartTimeBetween(sportField, beginDate, endDate,
+    public Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit) {
+        return bookingRepository.findBySportFieldIdAndStartTimeBetween(sportsField, beginDate, endDate,
                 PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 

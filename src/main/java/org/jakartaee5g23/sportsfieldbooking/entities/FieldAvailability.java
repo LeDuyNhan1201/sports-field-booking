@@ -22,12 +22,12 @@ public class FieldAvailability extends AbstractEntity {
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "sport_field_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_field_availabilities_sport_fields",
-                    foreignKeyDefinition = "FOREIGN KEY (sport_field_id) REFERENCES sport_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+    @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_field_availabilities_sports_fields",
+                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
             nullable = false, updatable = false)
     @JsonBackReference
-    SportField sportField;
+    SportsField sportsField;
 
     @OneToOne(mappedBy = "fieldAvailability", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference

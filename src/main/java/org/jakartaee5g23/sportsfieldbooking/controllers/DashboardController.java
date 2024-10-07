@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.dashboard.RevenueReportResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.services.DashboardService;
-import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class DashboardController {
 
     DashboardService dashboardService;
 
-    SportFieldService sportFieldService;
+    SportsFieldService sportsFieldService;
 
     @Operation(summary = "Revenue report", description = "Revenue report of field sport", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/revenue-report/{id}")
@@ -38,9 +38,9 @@ public class DashboardController {
                                                                @RequestParam Date beginDate, @RequestParam Date endDate,
                                                                @RequestParam(defaultValue = "0") String offset,
                                                                @RequestParam(defaultValue = "100") String limit) {
-        SportField sportField = sportFieldService.findById(id);
+        SportsField sportsField = sportsFieldService.findById(id);
         return ResponseEntity.status(OK)
-                .body(dashboardService.revenueReport(sportField, beginDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit)));
+                .body(dashboardService.revenueReport(sportsField, beginDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit)));
     }
 
 }

@@ -1,6 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.enums;
 
-public enum SportFieldStatus {
+public enum SportsFieldStatus {
 
     OPEN,
 

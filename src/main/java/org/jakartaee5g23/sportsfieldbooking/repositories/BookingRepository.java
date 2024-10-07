@@ -3,7 +3,7 @@ package org.jakartaee5g23.sportsfieldbooking.repositories;
 import java.util.*;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportField;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 import org.springframework.data.domain.Page;
@@ -19,10 +19,10 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     @Query("SELECT b FROM Booking b " +
             "JOIN b.fieldAvailability f " +
             "WHERE b.payment != NULL " +
-            "AND f.sportField = :sportField " +
+            "AND f.sportsField = :sportsField " +
             "AND f.startTime BETWEEN :beginDate AND :endDate")
     Page<Booking> findBySportFieldIdAndStartTimeBetween(
-            SportField sportField,
+            SportsField sportsField,
             Date beginDate,
             Date endDate,
             Pageable pageable);

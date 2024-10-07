@@ -37,4 +37,12 @@ public class FileMetadata extends AbstractEntity {
     @JsonBackReference
     User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_file_metadata_sports_fields",
+                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+            nullable = false, updatable = false)
+    @JsonBackReference
+    SportsField sportsField;
+
 }

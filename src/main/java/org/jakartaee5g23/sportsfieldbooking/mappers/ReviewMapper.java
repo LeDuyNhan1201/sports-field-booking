@@ -19,7 +19,7 @@ public interface ReviewMapper {
     @AfterMapping
     default void customizeDto(Review entity, @MappingTarget ReviewResponse dto) {
         dto.setMUser(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
-        dto.setMSportField(SportFieldMapper.INSTANCE.toSportFieldResponse(entity.getSportField()));
+        dto.setMSportField(SportsFieldMapper.INSTANCE.toSportFieldResponse(entity.getSportsField()));
     }
 
 }
