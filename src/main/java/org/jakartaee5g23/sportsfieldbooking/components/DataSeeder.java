@@ -91,7 +91,6 @@ public class DataSeeder {
                         .status(getRandomEnum(UserStatus.class))
                         .isActivated(true)
                         .build();
-
                 userRepository.save(user);
             });
         }
