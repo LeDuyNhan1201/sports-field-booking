@@ -85,7 +85,7 @@ public class DataSeeder {
                         .lastName(faker.name().lastName())
                         .mobileNumber(faker.phoneNumber().subscriberNumber(10))
                         .birthdate(LocalDate.now().minusYears(21))
-                        .bio(faker.lorem().sentence(100))
+                        .bio(faker.lorem().sentence(20))
                         .gender(getRandomEnum(Gender.class))
                         .avatar(null)
                         .status(getRandomEnum(UserStatus.class))
