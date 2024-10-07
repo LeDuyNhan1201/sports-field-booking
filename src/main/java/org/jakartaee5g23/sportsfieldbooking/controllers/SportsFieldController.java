@@ -72,7 +72,7 @@ public class SportsFieldController {
         return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.updateStatus(id, status)));
     }
 
-    @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
     @GetMapping
     public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
                                                                          @RequestParam(defaultValue = "100") String limit) {

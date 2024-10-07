@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.jakartaee5g23.sportsfieldbooking.configurations.VNPayConfiguration;
+import org.jakartaee5g23.sportsfieldbooking.configs.VNPayConfig;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
@@ -34,7 +34,7 @@ import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLoca
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    VNPayConfiguration vnPayConfiguration;
+    VNPayConfig vnPayConfig;
 
     OrderService orderService;
 
@@ -50,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
     public VNPayResponse createVNPayPayment(long amount, String orderId, HttpServletRequest request) {
         long vnpAmount = amount * 100L;
 
-        Map<String, String> vnpParamsMap = vnPayConfiguration.getVNPayConfig();
+        Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(vnpAmount));
 
         vnpParamsMap.put("vnp_TxnRef", orderId);
@@ -59,10 +59,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         String queryUrl = VNPayUtils.getPaymentURL(vnpParamsMap, true);
         String hashData = VNPayUtils.getPaymentURL(vnpParamsMap, false);
-        String vnpSecureHash = VNPayUtils.hmacSHA512(vnPayConfiguration.getSecretKey(), hashData);
+        String vnpSecureHash = VNPayUtils.hmacSHA512(vnPayConfig.getSecretKey(), hashData);
         queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
 
-        String paymentUrl = vnPayConfiguration.getVnp_PayUrl() + "?" + queryUrl;
+        String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
         return new VNPayResponse("ok", getLocalizedMessage("payment_success"), paymentUrl);
     }
 
@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Recalculate the hash
-        String calculatedHash = VNPayUtils.hmacSHA512(vnPayConfiguration.getSecretKey(), VNPayUtils.getPaymentURL(filteredParams, false));
+        String calculatedHash = VNPayUtils.hmacSHA512(vnPayConfig.getSecretKey(), VNPayUtils.getPaymentURL(filteredParams, false));
 
         // Compare secure hashes
         if (!calculatedHash.equals(secureHash)) {

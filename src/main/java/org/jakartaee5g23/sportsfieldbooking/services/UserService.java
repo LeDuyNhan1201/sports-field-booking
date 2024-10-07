@@ -1,13 +1,11 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.springframework.data.domain.Page;
 
 public interface UserService {
 
-    UserResponse getMyInfo();
-
-    UserResponse getUserInfo(String userId);
+    Page<User> findAll(int offset, int limit);
 
     User findByEmail(String email);
 

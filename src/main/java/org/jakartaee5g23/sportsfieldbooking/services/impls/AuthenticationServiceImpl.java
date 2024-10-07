@@ -234,11 +234,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public User refresh(String refreshToken, HttpServletRequest servletRequest) throws ParseException, JOSEException {
         SignedJWT signedJWT = verifyToken(refreshToken, true);
-        String email = signedJWT.getJWTClaimsSet().getSubject();
+        String id = signedJWT.getJWTClaimsSet().getSubject();
 
         User user;
         try {
-            user = userService.findByEmail(email);
+            user = userService.findById(id);
 
         } catch (AuthenticationException e) {
             throw new AuthenticationException(INVALID_TOKEN, BAD_REQUEST);
@@ -252,7 +252,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwtID = signedAccessTokenJWT.getJWTClaimsSet().getJWTID();
         Date expiryTime = signedAccessTokenJWT.getJWTClaimsSet().getExpirationTime();
 
-        if (!signedAccessTokenJWT.getJWTClaimsSet().getSubject().equals(email))
+        if (!signedAccessTokenJWT.getJWTClaimsSet().getSubject().equals(id))
             throw new AuthenticationException(INVALID_TOKEN, BAD_REQUEST);
 
         if (expiryTime.after(new Date())) {

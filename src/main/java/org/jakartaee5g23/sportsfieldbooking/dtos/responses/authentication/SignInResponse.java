@@ -16,6 +16,6 @@ public class SignInResponse {
 
     TokensResponse tokensResponse;
 
-    UserResponse user;
+    UserResponse userInfo;
 
 }

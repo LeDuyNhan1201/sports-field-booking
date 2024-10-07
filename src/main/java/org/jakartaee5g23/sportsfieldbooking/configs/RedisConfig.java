@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +19,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RedisConfiguration {
+public class RedisConfig {
 
     @Value("${spring.data.redis.port}")
     String redisPort;

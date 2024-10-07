@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations.security;
+package org.jakartaee5g23.sportsfieldbooking.components;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +18,7 @@ import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.Aut
 // This class is used to handle the exception when the user is not authenticated
 @Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     @Override
     public void commence(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)

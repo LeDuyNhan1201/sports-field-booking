@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -19,7 +19,7 @@ import java.util.Locale;
 // This class is used to resolve the locale of the user (multi-language support)
 @Configuration
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LocalResolverConfiguration extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
+public class LocalResolverConfig extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
 
     List<Locale> LOCALES = List.of(
             Locale.of("en"),

@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -19,7 +19,7 @@ import java.util.List;
 // this configuration is for OpenAPI 3.0
 @Configuration
 @Profile("!prod")
-public class OpenAPIConfiguration {
+public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi publicApi(@Value("${openapi.service.api-docs}") String apiDocs) {

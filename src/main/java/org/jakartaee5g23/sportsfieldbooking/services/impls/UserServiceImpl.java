@@ -5,15 +5,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
-import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode.USER_NOT_FOUND;
@@ -27,22 +25,9 @@ public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
 
-    UserMapper userMapper = UserMapper.INSTANCE;
-
     @Override
-    @PostAuthorize("returnObject.email == authentication.name") // CHECK OWNER
-    public UserResponse getMyInfo() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        String email = context.getAuthentication().getName();
-        User user = findByEmail(email);
-        return userMapper.toUserResponse(user);
-    }
-
-    @Override
-    public UserResponse getUserInfo(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
-        return userMapper.toUserResponse(user);
+    public Page<User> findAll(int offset, int limit) {
+        return userRepository.findAll(PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override

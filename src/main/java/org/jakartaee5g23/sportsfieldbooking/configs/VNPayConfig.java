@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.TimeZone;
 @Configuration
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VNPayConfiguration {
+public class VNPayConfig {
     @Getter
     @Value("${payment.vnPay.url}")
     String vnp_PayUrl;

@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @Slf4j
-public class AppConfiguration {
+public class AppConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {

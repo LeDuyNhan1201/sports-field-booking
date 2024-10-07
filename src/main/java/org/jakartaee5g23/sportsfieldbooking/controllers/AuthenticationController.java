@@ -127,7 +127,7 @@ public class AuthenticationController {
         return ResponseEntity.status(OK).body(
                 SignInResponse.builder()
                         .tokensResponse(new TokensResponse(accessToken, refreshToken))
-                        .user(userMapper.toUserResponse(signInUser)).build()
+                        .userInfo(userMapper.toUserResponse(signInUser)).build()
         );
     }
 

@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.configurations.security;
+package org.jakartaee5g23.sportsfieldbooking.configs;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.components.CustomJwtDecoder;
+import org.jakartaee5g23.sportsfieldbooking.components.JwtAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class SecurityConfiguration {
+public class SecurityConfig {
 
         @Value("${api.prefix}")
         @NonFinal
@@ -53,6 +54,7 @@ public class SecurityConfiguration {
                 "/auth/sign-in",
                 "/auth/sign-out",
                 "/auth/introspect",
+                "/users",
                 "/sports-field",
                 "/actuator/health",
                 "/api-docs/**",
