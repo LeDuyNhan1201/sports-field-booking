@@ -22,6 +22,7 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.SportFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.OK;
 
+import java.util.Date;
 
 @RestController
 @RequestMapping("${api.prefix}/sport-field")
@@ -48,40 +50,62 @@ public class SportFieldController {
     @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportFieldResponse> create (@RequestBody @Valid NewSportFieldRequest request) {
+    public ResponseEntity<SportFieldResponse> create(@RequestBody @Valid NewSportFieldRequest request) {
         User current = userService.findById(getUserIdFromContext());
         SportField sportField = sportFieldMapper.toSportField(request);
         sportField.setUser(current);
         sportField.setCategory(Category.builder().id(request.categoryId()).build());
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.create(sportField, request.isConfirmed())));
+        return ResponseEntity.status(OK).body(
+                sportFieldMapper.toSportFieldResponse(sportFieldService.create(sportField, request.isConfirmed())));
     }
-
 
     @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportFieldResponse> update(@RequestBody @Valid UpdateSportFieldRequest request) {
         SportField sportField = sportFieldMapper.toSportField(request);
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.update(sportField, request.isConfirmed())));
+        return ResponseEntity.status(OK).body(
+                sportFieldMapper.toSportFieldResponse(sportFieldService.update(sportField, request.isConfirmed())));
     }
 
     @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportFieldStatus status) {
-        return ResponseEntity.status(OK).body(sportFieldMapper.toSportFieldResponse(sportFieldService.updateStatus(id, status)));
+    public ResponseEntity<SportFieldResponse> updateStatus(@PathVariable String id,
+            @RequestParam SportFieldStatus status) {
+        return ResponseEntity.status(OK)
+                .body(sportFieldMapper.toSportFieldResponse(sportFieldService.updateStatus(id, status)));
     }
 
     @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
     public ResponseEntity<PaginateResponse<SportFieldResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
-                                                                        @RequestParam(defaultValue = "100") String limit) {
+            @RequestParam(defaultValue = "100") String limit) {
         Page<SportField> sportFields = sportFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportFieldResponse>builder()
                         .items(sportFields.stream().map(sportFieldMapper::toSportFieldResponse).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit),
+                                sportFields.getTotalElements()))
                         .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<SportFieldResponse>> searchSportFields(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date time,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(defaultValue = "1") int offset,
+            @RequestParam(defaultValue = "10") int limit) {
+        int page = (offset > 0) ? offset - 1 : 0;
+
+        Page<SportField> sportFields = sportFieldService.searchSportFields(name, location, time, minPrice, maxPrice,
+                categoryId, page, limit);
+        Page<SportFieldResponse> response = sportFields.map(sportFieldMapper::toSportFieldResponse);
+        return ResponseEntity.ok(response);
     }
 
 }

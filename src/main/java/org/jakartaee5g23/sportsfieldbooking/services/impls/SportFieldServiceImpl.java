@@ -21,6 +21,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.SportFieldService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -66,12 +67,14 @@ public class SportFieldServiceImpl implements SportFieldService {
     @Override
     @Transactional
     public SportField update(SportField request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new SportFieldException(SportFieldErrorCode.UPDATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!isConfirmed)
+            throw new SportFieldException(SportFieldErrorCode.UPDATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Date openingTime = request.getOpeningTime();
         Date closingTime = request.getClosingTime();
-        if(isTimeValid(openingTime, closingTime))
-            throw new SportFieldException(SportFieldErrorCode.INVALID_OPENING_CLOSING_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (isTimeValid(openingTime, closingTime))
+            throw new SportFieldException(SportFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
 
         SportField sportField = findById(request.getId());
         sportField.setOpacity(request.getOpacity());
@@ -92,13 +95,15 @@ public class SportFieldServiceImpl implements SportFieldService {
 
     @Override
     public SportField create(SportField request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new SportFieldException(SportFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!isConfirmed)
+            throw new SportFieldException(SportFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Date openingTime = request.getOpeningTime();
         Date closingTime = request.getClosingTime();
 
         if (isTimeValid(openingTime, closingTime))
-            throw new SportFieldException(SportFieldErrorCode.INVALID_OPENING_CLOSING_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new SportFieldException(SportFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
 
         Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
                 () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
@@ -115,6 +120,13 @@ public class SportFieldServiceImpl implements SportFieldService {
                 .user(request.getUser())
                 .build();
         return sportFieldRepository.save(createField);
+    }
+
+    @Override
+    public Page<SportField> searchSportFields(String name, String location, Date time, Double minPrice, Double maxPrice,
+            Integer categoryId, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("name").ascending());
+        return sportFieldRepository.searchSportFields(name, location, time, minPrice, maxPrice, categoryId, pageable);
     }
 
 }
