@@ -83,5 +83,5 @@ public class SportsFieldController {
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }
-    
+
 }
