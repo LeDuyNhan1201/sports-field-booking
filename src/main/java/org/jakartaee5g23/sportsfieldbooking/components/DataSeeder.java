@@ -256,8 +256,6 @@ public class DataSeeder {
 
     private void seedPromotions() {
         if (promotionRepository.count() == 0) {
-            List<SportsField> fields = sportFieldRepository.findAll();
-
             IntStream.range(0, 10).forEach(_ -> {
                 Promotion promotion = Promotion.builder()
                         .name(faker.commerce().promotionCode())
@@ -265,7 +263,7 @@ public class DataSeeder {
                         .discountPercentage(faker.number().randomDouble(2, 5, 50))
                         .startDate(faker.date().past(30, TimeUnit.DAYS))
                         .endDate(faker.date().future(30, TimeUnit.DAYS))
-                        .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
+                        .status(getRandomEnum(PromotionStatus.class))
                         .build();
 
                 promotionRepository.save(promotion);

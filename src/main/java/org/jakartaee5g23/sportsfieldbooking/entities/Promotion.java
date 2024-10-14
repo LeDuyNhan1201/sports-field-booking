@@ -6,6 +6,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
+import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
+
 @Getter
 @Setter
 @Builder
@@ -16,31 +19,28 @@ import java.util.Date;
 @Table(name = "promotions")
 public class Promotion extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        Integer id;
 
-    @Column(nullable = false, length = 100)
-    String name;
+        @Column(nullable = false, length = 100)
+        String name;
 
-    @Column(length = 255)
-    String description;
+        @Column(length = 255)
+        String description;
 
-    @Column(name = "discount_percentage", nullable = false)
-    Double discountPercentage;
+        @Column(name = "discount_percentage", nullable = false)
+        Double discountPercentage;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "start_date", nullable = false)
-    Date startDate;
+        @Temporal(TemporalType.DATE)
+        @Column(name = "start_date", nullable = false)
+        Date startDate;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "end_date", nullable = false)
-    Date endDate;
+        @Temporal(TemporalType.DATE)
+        @Column(name = "end_date", nullable = false)
+        Date endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_promotions_sports_fields",
-                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false)
-    SportsField sportsField;
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        PromotionStatus status;
 }
