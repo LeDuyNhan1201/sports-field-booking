@@ -41,7 +41,7 @@ public class PromotionController {
 
     @Operation(summary = "Create new promotion", description = "Create a new promotion when the admin wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+    @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<PromotionResponse> create (@RequestBody @Valid NewPromotionRequest request ) {
         Promotion promotion = promotionMapper.toPromotion(request);
         return ResponseEntity.status(OK).body(promotionMapper.toPromotionResponse(promotionService.create(promotion, request.isConfirmed())));
@@ -50,7 +50,7 @@ public class PromotionController {
 
     @Operation(summary = "Update promotions", description = "Update promotion when admin edit promotion information", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+    @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<PromotionResponse> update(@RequestBody @Valid UpdatePromotionRequest request) {
         Promotion promotion = promotionMapper.toPromotion(request);
         return ResponseEntity.status(OK).body(promotionMapper.toPromotionResponse(promotionService.update(promotion, request.isConfirmed())));
@@ -70,7 +70,7 @@ public class PromotionController {
 
     @Operation(summary = "Update status promotion", description = "Update status promotion when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+    @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<PromotionResponse> updateStatus (@PathVariable Integer id, @RequestParam PromotionStatus status) {
         return ResponseEntity.status(OK).body(promotionMapper.toPromotionResponse(promotionService.updateStatus(id, status)));
     }

@@ -1,6 +1,5 @@
 package org.jakartaee5g23.sportsfieldbooking.dtos.responses.promotion;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,4 +21,6 @@ public class PromotionResponse {
     Date startDate;
     Date endDate;
     PromotionStatus status;
+    String createdBy;
+
 }
