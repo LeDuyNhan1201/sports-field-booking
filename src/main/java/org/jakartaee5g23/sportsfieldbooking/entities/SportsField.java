@@ -31,9 +31,6 @@ public class SportsField extends AbstractEntity {
         @Column(nullable = false, length = 100)
         String location;
 
-        @Column(name = "price_per_hour", nullable = false)
-        Double pricePerHour;
-
         Integer opacity;
 
         @Column(name = "opening_time", nullable = false)

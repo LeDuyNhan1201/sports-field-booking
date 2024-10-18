@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 
-import java.util.Date;
 
 @Getter
 @Setter
@@ -19,7 +18,6 @@ import java.util.Date;
 @Entity
 @Table(name = "bookings")
 public class Booking extends AbstractEntity {
-
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
         String id;

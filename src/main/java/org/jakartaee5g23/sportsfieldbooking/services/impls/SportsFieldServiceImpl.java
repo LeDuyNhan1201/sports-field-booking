@@ -75,7 +75,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
         SportsField sportsField = findById(request.getId());
         sportsField.setOpacity(request.getOpacity());
-        sportsField.setPricePerHour(request.getPricePerHour());
         sportsField.setClosingTime(closingTime);
         sportsField.setOpeningTime(openingTime);
         sportsField.setLocation(request.getLocation());
@@ -106,7 +105,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         SportsField createField = SportsField.builder()
                 .name(request.getName())
                 .location(request.getLocation())
-                .pricePerHour(request.getPricePerHour())
                 .opacity(request.getOpacity())
                 .openingTime(openingTime)
                 .closingTime(closingTime)
