@@ -78,7 +78,7 @@ public class DataSeeder {
 
     private void seedUsers() {
         if (userRepository.count() == 0) {
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 20).forEach(index -> {
                 User user = User.builder()
                         .username(faker.name().username())
                         .password(passwordEncoder.encode("123456"))
@@ -117,7 +117,7 @@ public class DataSeeder {
 
     private void seedCategories() {
         if (categoryRepository.count() == 0) {
-            IntStream.range(0, 5).forEach(_ -> {
+            IntStream.range(0, 5).forEach(index -> {
                 Category category = Category.builder().name(faker.team().sport()).build();
                 categoryRepository.save(category);
             });
@@ -129,7 +129,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<Category> categories = categoryRepository.findAll();
 
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 20).forEach(index -> {
                 SportsField field = SportsField.builder()
                         .name(faker.team().name())
                         .location(faker.address().fullAddress())
@@ -151,7 +151,7 @@ public class DataSeeder {
         if (fieldAvailabilityRepository.count() == 0) {
             List<SportsField> fields = sportFieldRepository.findAll();
 
-            IntStream.range(0, 30).forEach(_ -> {
+            IntStream.range(0, 30).forEach(index -> {
                 SportsField field = fields.get(faker.number().numberBetween(0, fields.size()));
                 // Create a date that is available in the next 30 days
                 Date availableDate = faker.date().future(30, TimeUnit.DAYS);
@@ -183,8 +183,8 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<FieldAvailability> availabilities = fieldAvailabilityRepository.findAll();
 
-            IntStream.range(0, 20).forEach(_ -> {
-                FieldAvailability availability = availabilities.get(_);
+            IntStream.range(0, 20).forEach(index -> {
+                FieldAvailability availability = availabilities.get(index);
 
                 Booking booking = Booking.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
@@ -229,7 +229,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<SportsField> fields = sportFieldRepository.findAll();
 
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 20).forEach(index -> {
                 Review review = Review.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
@@ -246,7 +246,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<Booking> bookings = bookingRepository.findAll();
 
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 20).forEach(index -> {
                 Notification notification = Notification.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
                         .booking(bookings.get(faker.number().numberBetween(0, bookings.size())))
@@ -263,14 +263,14 @@ public class DataSeeder {
         if (promotionRepository.count() == 0) {
             List<SportsField> fields = sportFieldRepository.findAll();
 
-            IntStream.range(0, 10).forEach(_ -> {
+            IntStream.range(0, 10).forEach(index -> {
                 Promotion promotion = Promotion.builder()
                         .name(faker.commerce().promotionCode())
                         .description(faker.lorem().sentence(20))
                         .discountPercentage(faker.number().randomDouble(2, 5, 50))
                         .startDate(faker.date().past(30, TimeUnit.DAYS))
                         .endDate(faker.date().future(30, TimeUnit.DAYS))
-                        .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
+//                        .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
                         .build();
 
                 promotionRepository.save(promotion);
@@ -299,7 +299,7 @@ public class DataSeeder {
 
     private void seedStatistics() {
         if (statisticRepository.count() == 0) {
-            IntStream.range(0, 10).forEach(_ -> {
+            IntStream.range(0, 10).forEach(index -> {
                 Date date = Date.from(LocalDate.now().minusDays(faker.number().numberBetween(1, 30))
                         .atStartOfDay(ZoneId.systemDefault()).toInstant());
 
