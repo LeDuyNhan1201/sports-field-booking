@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
-
 @Getter
 @Setter
 @SuperBuilder
@@ -17,7 +16,8 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "booking_items")
-public class BookingItems {
+public class BookingItems extends AbstractEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -39,9 +39,10 @@ public class BookingItems {
 
     @ManyToOne
     @JoinColumn(name = "booking_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_bookingitems_booking",
+            foreignKey = @ForeignKey(name = "fk_booking_items_bookings",
                     foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"),
             nullable = false, updatable = false)
     @JsonManagedReference
     Booking booking;
+
 }

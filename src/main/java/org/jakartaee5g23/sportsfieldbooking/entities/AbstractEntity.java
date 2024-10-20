@@ -23,6 +23,7 @@ import java.util.Date;
 public abstract class AbstractEntity {
 
     @CreatedBy
+    @Column(name = "created_by")
     String createdBy;
 
     @CreationTimestamp
@@ -31,6 +32,7 @@ public abstract class AbstractEntity {
     Date createdAt;
 
     @LastModifiedBy
+    @Column(name = "updated_by")
     String updatedBy;
 
     @UpdateTimestamp

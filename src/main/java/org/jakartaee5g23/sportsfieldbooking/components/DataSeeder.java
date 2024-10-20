@@ -59,11 +59,11 @@ public class DataSeeder {
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();
+        seedBookingItems();
         seedPayments();
         seedNotifications();
         seedPromotions();
         seedStatistics();
-        seedBookingItems();
     }
 
     private void seedRoles() {
@@ -183,8 +183,8 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<FieldAvailability> availabilities = fieldAvailabilityRepository.findAll();
 
-            IntStream.range(0, 20).forEach(_ -> {
-                FieldAvailability availability = availabilities.get(_);
+            IntStream.range(0, 20).forEach(i -> {
+                FieldAvailability availability = availabilities.get(i);
 
                 Booking booking = Booking.builder()
                         .user(users.get(faker.number().numberBetween(0, users.size())))
@@ -193,6 +193,24 @@ public class DataSeeder {
                         .build();
 
                 bookingRepository.save(booking);
+            });
+        }
+    }
+
+    private void seedBookingItems() {
+        if (bookingItemRepository.count() > 0) {
+            List<BookingItems> bookingItemsList = bookingItemRepository.findAll();
+
+            bookingItemsList.forEach(bookingItems -> {
+                bookingItemRepository.save(
+                        BookingItems.builder()
+                                .booking(bookingItems.getBooking())
+                                .availableDate(bookingItems.getAvailableDate())
+                                .startTime(bookingItems.getStartTime())
+                                .endTime(bookingItems.getEndTime())
+                                .pricePerHour(bookingItems.getPricePerHour())
+                                .build()
+                );
             });
         }
     }
@@ -261,8 +279,6 @@ public class DataSeeder {
 
     private void seedPromotions() {
         if (promotionRepository.count() == 0) {
-            List<SportsField> fields = sportFieldRepository.findAll();
-
             IntStream.range(0, 10).forEach(_ -> {
                 Promotion promotion = Promotion.builder()
                         .name(faker.commerce().promotionCode())
@@ -270,32 +286,12 @@ public class DataSeeder {
                         .discountPercentage(faker.number().randomDouble(2, 5, 50))
                         .startDate(faker.date().past(30, TimeUnit.DAYS))
                         .endDate(faker.date().future(30, TimeUnit.DAYS))
-//                        .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
                         .build();
 
                 promotionRepository.save(promotion);
             });
         }
     }
-
-    private void seedBookingItems() {
-        if (bookingRepository.count() > 0) {
-            List<BookingItems> bookingItemsList = bookingItemRepository.findAll();
-
-            bookingItemsList.forEach(bookingItems -> {
-                bookingItemRepository.save(
-                        BookingItems.builder()
-                                .booking(bookingItems.getBooking())
-                                .availableDate(bookingItems.getAvailableDate())
-                                .startTime(bookingItems.getStartTime())
-                                .endTime(bookingItems.getEndTime())
-                                .pricePerHour(bookingItems.getPricePerHour())
-                                .build()
-                );
-            });
-        }
-    }
-
 
     private void seedStatistics() {
         if (statisticRepository.count() == 0) {
