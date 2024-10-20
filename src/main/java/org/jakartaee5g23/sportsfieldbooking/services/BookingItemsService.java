@@ -1,11 +1,11 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.entities.BookingItems;
+import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface BookingItemsService {
 
-    BookingItems findById(String id);
+    BookingItem findById(String id);
 
 }

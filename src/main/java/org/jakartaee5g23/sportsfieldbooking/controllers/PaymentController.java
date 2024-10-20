@@ -17,7 +17,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.PaymentRequest
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.VNPayRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.PaymentResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.BookingItems;
+import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingItemsMapper;
 import org.jakartaee5g23.sportsfieldbooking.mappers.PaymentMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
@@ -90,10 +90,10 @@ public class PaymentController {
     @Operation(summary = "Get sport field price & bookingId", description = "Get sport field price & bookingId when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/payment-info/{bookingId}")
     public ResponseEntity<Map<String, Object>> getPaymentInfo(@PathVariable String bookingItemsID) {
-        BookingItems bookingItems = bookingItemsService.findById(bookingItemsID);
-        int hours = (int) Duration.between((Temporal) bookingItems.getStartTime(), (Temporal) bookingItems.getEndTime()).toHours();
-        double totalPrice = bookingItems.getPricePerHour() * hours;
-        return ResponseEntity.ok(Map.of("totalPrice", totalPrice, "bookingId", bookingItemsMapper.toBookingItemsResponse(bookingItems)));
+        BookingItem bookingItem = bookingItemsService.findById(bookingItemsID);
+        int hours = (int) Duration.between((Temporal) bookingItem.getStartTime(), (Temporal) bookingItem.getEndTime()).toHours();
+        double totalPrice = bookingItem.getPricePerHour() * hours;
+        return ResponseEntity.ok(Map.of("totalPrice", totalPrice, "bookingId", bookingItemsMapper.toBookingItemsResponse(bookingItem)));
     }
 
 }

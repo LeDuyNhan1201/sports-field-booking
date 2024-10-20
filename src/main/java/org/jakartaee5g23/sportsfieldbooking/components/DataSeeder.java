@@ -13,7 +13,6 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -199,11 +198,11 @@ public class DataSeeder {
 
     private void seedBookingItems() {
         if (bookingItemRepository.count() > 0) {
-            List<BookingItems> bookingItemsList = bookingItemRepository.findAll();
+            List<BookingItem> bookingItemList = bookingItemRepository.findAll();
 
-            bookingItemsList.forEach(bookingItems -> {
+            bookingItemList.forEach(bookingItems -> {
                 bookingItemRepository.save(
-                        BookingItems.builder()
+                        BookingItem.builder()
                                 .booking(bookingItems.getBooking())
                                 .availableDate(bookingItems.getAvailableDate())
                                 .startTime(bookingItems.getStartTime())

@@ -16,7 +16,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "booking_items")
-public class BookingItems extends AbstractEntity {
+public class BookingItem extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

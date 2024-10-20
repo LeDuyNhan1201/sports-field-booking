@@ -10,7 +10,6 @@ import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 
 import java.util.List;
 
-
 @Getter
 @Setter
 @SuperBuilder
@@ -48,8 +47,8 @@ public class Booking extends AbstractEntity {
         @JsonManagedReference
         FieldAvailability fieldAvailability;
 
-        @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
-        List<Verification> verifications;
+        List<BookingItem> bookingItems;
 
 }
