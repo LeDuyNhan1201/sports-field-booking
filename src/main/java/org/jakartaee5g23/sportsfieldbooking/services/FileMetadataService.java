@@ -7,16 +7,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public interface FileService<T> {
+public interface FileMetadataService {
 
     FileMetadata findById(String id);
 
     String getObjectUrl(FileMetadata file);
 
-    void uploadFiles(T owner, List<MultipartFile> files);
+    void uploadFiles(List<MultipartFile> files);
 
     void deleteFile(String fileId);
-
-    void deleteFolder(T owner);
 
 }

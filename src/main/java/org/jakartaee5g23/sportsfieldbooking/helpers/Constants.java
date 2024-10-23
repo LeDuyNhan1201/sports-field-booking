@@ -27,6 +27,6 @@ public class Constants {
                     "video/mp4"
             );
 
-    public static final String LOCAL_STORAGE_ROOT_FOLDER = "temp-storage";
+    public static final String TEMP_DIR = "temp/";
 
 }

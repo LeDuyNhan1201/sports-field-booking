@@ -6,11 +6,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

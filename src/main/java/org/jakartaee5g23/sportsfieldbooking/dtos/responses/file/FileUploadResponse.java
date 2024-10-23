@@ -10,17 +10,17 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class FileResponse {
-
-    String uuid;
+public class FileUploadResponse {
 
     String objectKey;
 
-    String backupPath;
-
-    String type;
+    String contentType;
 
     long size; // in bytes
+
+    int chunkNumber;
+
+    int totalChunks;
 
     Date createdAt;
 

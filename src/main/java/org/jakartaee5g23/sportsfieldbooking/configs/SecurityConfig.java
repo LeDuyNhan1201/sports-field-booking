@@ -63,7 +63,8 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/swagger-resources/**",
-                "/media/**",
+                "/file/**",
+                "/reviews/**",
                 "/payment/**"
                 ).map(s -> (s.contains("api-docs") || s.contains("swagger")) ? s : API_PREFIX + s)
                 .toList().toArray(new String[0]);

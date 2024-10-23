@@ -3,12 +3,14 @@ package org.jakartaee5g23.sportsfieldbooking.configs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -16,6 +18,9 @@ import org.springframework.kafka.listener.KafkaListenerErrorHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Constants.KAFKA_TOPIC_HANDLE_FILE;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Constants.KAFKA_TOPIC_SEND_MAIL;
 
 @Configuration
 @Slf4j
@@ -31,13 +36,33 @@ public class KafkaConfig {
     @Value("${spring.kafka.file-consumer.group-id}")
     private String FILE_STORAGE_GROUP;
 
+    private static final String CLIENT_ID = "sports-field-booking";
+
+/*_________________________________________________TOPICS-CONFIG________________________________________________________*/
+    @Bean
+    public NewTopic handleFileTopic() {
+        return createTopic(KAFKA_TOPIC_HANDLE_FILE);
+    }
+
+    @Bean
+    public NewTopic sendMailTopic() {
+        return createTopic(KAFKA_TOPIC_SEND_MAIL);
+    }
+
+    protected NewTopic createTopic(String topicName) {
+        return TopicBuilder.name(topicName)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
 /*_________________________________________________CONTAINER-FACTORIES________________________________________________________*/
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> sendMailFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(sendMailConsumer());
         factory.setConcurrency(3);
-        factory.getContainerProperties().setClientId("sports-field-booking");
+        factory.getContainerProperties().setClientId(CLIENT_ID);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
@@ -47,7 +72,7 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(fileStorageConsumer());
         factory.setConcurrency(3);
-        factory.getContainerProperties().setClientId("sports-field-booking");
+        factory.getContainerProperties().setClientId(CLIENT_ID);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
@@ -56,7 +81,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, String> sendMailConsumer() {
         Map<String, Object> props = new HashMap<>(consumerCommonConfigs());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, FILE_STORAGE_GROUP);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, SEND_MAIL_GROUP);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }

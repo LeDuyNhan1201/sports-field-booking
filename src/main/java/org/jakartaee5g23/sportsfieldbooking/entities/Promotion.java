@@ -6,12 +6,12 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
+import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
-import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

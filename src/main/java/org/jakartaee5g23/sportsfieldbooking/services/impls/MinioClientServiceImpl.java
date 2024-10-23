@@ -3,20 +3,24 @@ package org.jakartaee5g23.sportsfieldbooking.services.impls;
 import io.minio.*;
 import io.minio.errors.MinioException;
 import io.minio.http.Method;
-import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileException;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode.*;
+import static org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileErrorCode.*;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Constants.TEMP_DIR;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.isMedia;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -39,43 +43,19 @@ public class MinioClientServiceImpl implements MinioClientService {
     }
 
     @Override
-    public void storeObject(MultipartFile file, String objectKey) throws Exception {
-        if (file.isEmpty()) throw new FileStorageException(EMPTY_FILE, BAD_REQUEST);
-
-        if (!isMedia(file)) throw new FileStorageException(INVALID_FILE_TYPE, BAD_REQUEST);
-
-        float fileSizeInMegabytes = (float) file.getSize() / 1_000_000;
-
-        if (fileSizeInMegabytes > 10.0f) throw new FileStorageException(FILE_TOO_LARGE, BAD_REQUEST);
-
-        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
-
-        try (InputStream inputStream = file.getInputStream()) {
-            minioClient.putObject(PutObjectArgs.builder()
-                .bucket(bucketName)
-                .object(objectKey + "." + fileExtension)
-                .stream(inputStream, file.getSize(), -1)
-                .contentType(file.getContentType())
-                .build());
-
-        } catch (MinioException e) {
-            throw new FileStorageException(CAN_NOT_STORE_FILE, BAD_REQUEST);
-        }
+    public FileMetadata uploadChunk(MultipartFile file, String fileName, int chunkNumber, int totalChunks) throws Exception {
+        return null;
     }
 
     @Override
-    public void storeObject(InputStream file, long size, String contentType, String objectKey) throws Exception {
-        try {
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(objectKey)
-                    .stream(file, size, -1)
-                    .contentType(contentType)
-                    .build());
-
-        } catch (MinioException e) {
-            throw new FileStorageException(CAN_NOT_STORE_FILE, BAD_REQUEST);
-        }
+    public void storeObject(File file, String fileName, String contentType) throws Exception {
+        ensureBucketExists(bucketName);
+        minioClient.putObject(PutObjectArgs.builder()
+                .bucket(bucketName)
+                .object(fileName)
+                .stream(Files.newInputStream(file.toPath()), file.length(), -1)
+                .contentType(contentType)
+                .build());
     }
 
     @Override
@@ -88,30 +68,7 @@ public class MinioClientServiceImpl implements MinioClientService {
                     .build());
 
         } catch (MinioException e) {
-            throw new FileStorageException(COULD_NOT_READ_FILE, BAD_REQUEST);
-        }
-    }
-
-    @Override
-    public List<String> loadAllFromParent(String parentKey) throws Exception {
-        try {
-            Iterable<Result<Item>> results = minioClient.listObjects(
-                    ListObjectsArgs.builder()
-                            .bucket(bucketName)
-                            .prefix(parentKey)
-                            .recursive(true)
-                            .build()
-            );
-
-            List<String> objectKeys = new ArrayList<>();
-            for (Result<Item> result : results) {
-                Item item = result.get();
-                objectKeys.add(getObjectUrl(item.objectName()));
-            }
-
-            return objectKeys;
-        } catch (MinioException e) {
-            throw new FileStorageException(COULD_NOT_READ_FILE, BAD_REQUEST);
+            throw new FileException(COULD_NOT_READ_FILE, BAD_REQUEST);
         }
     }
 
@@ -121,7 +78,7 @@ public class MinioClientServiceImpl implements MinioClientService {
                 .bucket(bucketName)
                 .object(objectKey)
                 .build());
-        if (response == null) throw new FileStorageException(FILE_NOT_FOUND, BAD_REQUEST);
+        if (response == null) throw new FileException(FILE_NOT_FOUND, BAD_REQUEST);
 
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -130,32 +87,36 @@ public class MinioClientServiceImpl implements MinioClientService {
                 .build());
 
         } catch (MinioException e) {
-            throw new FileStorageException(CAN_NOT_DELETE_FILE, BAD_REQUEST);
+            throw new FileException(CAN_NOT_DELETE_FILE, BAD_REQUEST);
         }
     }
 
-    @Override
-    public void deleteParentObject(String parentKey) throws Exception {
-        try {
-            Iterable<Result<Item>> results = minioClient.listObjects(
-                ListObjectsArgs.builder()
-                    .bucket(bucketName)
-                    .prefix(parentKey)
-                    .recursive(true)
-                    .build()
-            );
+    private void ensureBucketExists(String bucketName) throws Exception {
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if (!found) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            log.info("Bucket '{}' created.", bucketName);
+        }
+    }
 
-            for (Result<Item> result : results) {
-                Item item = result.get();
-                minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(item.objectName())
-                    .build());
+    private boolean isUploadComplete(boolean[] uploadStatus) {
+        for (boolean status : uploadStatus) {
+            if (!status) {
+                return false;
             }
-
-        } catch (MinioException e) {
-            throw new FileStorageException(CAN_NOT_DELETE_FOLDER, BAD_REQUEST);
         }
+        return true;
     }
 
+    private void combineChunks(String fileName, int totalChunks) throws Exception {
+        File outputFile = new File(TEMP_DIR + fileName);
+        try (FileOutputStream fos = new FileOutputStream(outputFile, true)) {
+            for (int i = 0; i < totalChunks; i++) {
+                Path chunkPath = Paths.get(TEMP_DIR + fileName + "_" + i);
+                byte[] chunkBytes = Files.readAllBytes(chunkPath);
+                fos.write(chunkBytes);
+                Files.delete(chunkPath); // Xóa chunk sau khi kết hợp
+            }
+        }
+    }
 }

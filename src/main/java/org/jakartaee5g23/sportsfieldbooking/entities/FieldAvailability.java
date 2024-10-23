@@ -6,10 +6,11 @@ import lombok.experimental.FieldDefaults;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

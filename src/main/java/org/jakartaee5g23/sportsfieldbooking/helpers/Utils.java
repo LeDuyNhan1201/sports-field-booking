@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.helpers;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +35,16 @@ public class Utils {
 
     public static String getUserIdFromContext() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    public static String getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return "anonymous";
+        }
+
+        return authentication.getName();
     }
 
 }

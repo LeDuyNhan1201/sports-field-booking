@@ -6,8 +6,8 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.Authentica
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.filestorage.FileStorageException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.payment.PaymentException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.review.ReviewErrorCode;
@@ -165,10 +165,10 @@ public class GlobalExceptionHandler {
     }
 
     // Handle file storage exceptions
-    @ExceptionHandler(value = FileStorageException.class)
-    ResponseEntity<CommonResponse<?, ?>> handlingFileStorageExceptions(FileStorageException exception) {
+    @ExceptionHandler(value = FileException.class)
+    ResponseEntity<CommonResponse<?, ?>> handlingFileStorageExceptions(FileException exception) {
         log.error("File Storage Exception: {}", exception.toString());
-        FileStorageErrorCode errorCode = exception.getFileStorageErrorCode();
+        FileErrorCode errorCode = exception.getFileErrorCode();
         return ResponseEntity.status(exception.getHttpStatus()).body(CommonResponse.builder()
                 .errorCode(errorCode.getCode())
                 .message((exception.getMoreInfo() != null)

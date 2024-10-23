@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getCurrentUser;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -40,8 +42,43 @@ public abstract class AbstractEntity {
     @Column(name = "updated_at")
     Date updatedAt;
 
+    @Column(name = "is_deleted", nullable = false)
+    Boolean isDeleted = false;
+
+    @Column(name = "deleted_by")
+    String deletedBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deleted_at")
+    Date deletedAt;
+
     @Version
     @Column(name = "version")
     Long version;
+
+    @PrePersist
+    protected void onPrePersist() {
+        if (this.isDeleted == null) {
+            this.isDeleted = false;
+        }
+
+        if (this.createdBy == null) {
+            this.createdBy = getCurrentUser();
+        }
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        if (this.updatedBy == null) {
+            this.updatedBy = getCurrentUser();
+        }
+    }
+
+    // Hàm thực hiện xóa mềm
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedBy = getCurrentUser();
+        this.deletedAt = new Date(); // Lấy thời gian hiện tại
+    }
 
 }

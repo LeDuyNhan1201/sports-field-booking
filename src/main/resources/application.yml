@@ -89,6 +89,7 @@ spring:
 
   servlet:
     multipart:
+      enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
 
@@ -132,9 +133,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
 
   # Redis configuration
 #  cache:

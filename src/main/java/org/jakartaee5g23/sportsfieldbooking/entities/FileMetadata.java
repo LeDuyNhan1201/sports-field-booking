@@ -36,16 +36,24 @@ public class FileMetadata extends AbstractEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "fk_file_metadata_users",
                     foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false, updatable = false)
+            updatable = false)
     @JsonBackReference
     User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sports_field_id_thumbnail", referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "fk_file_metadata_sports_fields",
-                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false, updatable = false)
+                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id_thumbnail) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+            updatable = false)
     @JsonBackReference
-    SportsField sportsField;
+    SportsField sportsFieldThumbnail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sports_field_id_image", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_file_metadatas_sports_fields",
+                    foreignKeyDefinition = "FOREIGN KEY (sports_field_id_image) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+            updatable = false)
+    @JsonBackReference
+    SportsField sportsFieldImage;
 
 }
