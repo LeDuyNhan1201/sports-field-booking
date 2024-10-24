@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.services;
 
 import java.util.Date;
 
+import java.util.List;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
@@ -26,4 +27,5 @@ public interface BookingService {
 
     Booking updateStatus(String bookingId, BookingStatus status);
 
+    Page<Booking> findBookingHistoryByUser(User user, List<BookingStatus> statuses, int offset, int limit);
 }
