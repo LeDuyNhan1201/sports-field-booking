@@ -67,7 +67,7 @@ public class SportsFieldController {
 
     @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
-    @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportsFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportsFieldStatus status) {
         return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.updateStatus(id, status)));
     }
@@ -83,5 +83,11 @@ public class SportsFieldController {
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }
-
+    
+    @Operation(summary = "Get sport field by id", description = "Get sport field detail when user have id ", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{id}")
+    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+    public ResponseEntity<SportsFieldResponse> findById (@PathVariable String id) {
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.findById(id)));
+    }
 }
