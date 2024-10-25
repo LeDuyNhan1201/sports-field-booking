@@ -5,16 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.jakartaee5g23.sportsfieldbooking.dtos.events.HandleFileEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaListenerErrorHandler;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,13 +72,39 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> fileStorageFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(fileStorageConsumer());
+    public ConcurrentKafkaListenerContainerFactory<String, HandleFileEvent> handleFileContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, HandleFileEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(handleFileConsumer());
         factory.setConcurrency(3);
         factory.getContainerProperties().setClientId(CLIENT_ID);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.getContainerProperties().setObservationEnabled(true);
         return factory;
+    }
+
+/*_________________________________________________PRODUCER-FACTORIES________________________________________________________*/
+    @Bean
+    public ProducerFactory<String, HandleFileEvent> handleFileProducer() {
+        Map<String, Object> props = new HashMap<>(producerCommonConfigs());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, HandleFileEvent> handleFileTemplate() {
+        return new KafkaTemplate<>(handleFileProducer());
+    }
+
+    @Bean
+    public ProducerFactory<String, String> sendMailProducer() {
+        Map<String, Object> props = new HashMap<>(producerCommonConfigs());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> sendMailTemplate() {
+        return new KafkaTemplate<>(sendMailProducer());
     }
 
 /*_________________________________________________CONSUMER-FACTORIES________________________________________________________*/
@@ -87,10 +117,11 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, String> fileStorageConsumer() {
+    public ConsumerFactory<String, HandleFileEvent> handleFileConsumer() {
         Map<String, Object> props = new HashMap<>(consumerCommonConfigs());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, FILE_STORAGE_GROUP);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -111,6 +142,12 @@ public class KafkaConfig {
         props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return props;
+    }
+
+    private Map<String, Object> producerCommonConfigs() {
+        Map<String, Object> props = new HashMap<>(commonConfigs());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return props;
     }
 

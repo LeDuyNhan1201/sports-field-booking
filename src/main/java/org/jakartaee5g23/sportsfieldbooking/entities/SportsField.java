@@ -64,13 +64,11 @@ public class SportsField extends AbstractEntity {
         @JsonBackReference
         List<FieldAvailability> fieldAvailabilities;
 
-        @OneToOne(mappedBy = "sportsFieldThumbnail", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-        @JsonManagedReference
-        FileMetadata thumbnail;
+        String thumbnail;
 
-        @OneToMany(mappedBy = "sportsFieldImage", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
-        List<FileMetadata> images;
+        List<AppFileMetadata> images;
 
         @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference

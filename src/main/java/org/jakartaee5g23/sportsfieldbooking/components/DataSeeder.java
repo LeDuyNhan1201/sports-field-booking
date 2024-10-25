@@ -34,6 +34,7 @@ public class DataSeeder {
     UserRepository userRepository;
     UserRoleRepository userRoleRepository;
     SportsFieldRepository sportFieldRepository;
+    FileMetadataRepository fileMetadataRepository;
     CategoryRepository categoryRepository;
     PaymentRepository paymentRepository;
     BookingRepository bookingRepository;
@@ -55,6 +56,7 @@ public class DataSeeder {
         seedUserRole();
         seedCategories();
         seedSportFields();
+        //seedFieldImages();
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();
@@ -149,6 +151,26 @@ public class DataSeeder {
 
                 sportFieldRepository.save(field);
             });
+        }
+    }
+
+    private void seedFieldImages() {
+        if (sportFieldRepository.count() * 2 == fileMetadataRepository.count()) {
+            List<SportsField> fields = sportFieldRepository.findAll();
+            List<AppFileMetadata> images = fileMetadataRepository.findAll();
+
+            int imageIndex = 0;
+            for (SportsField field : fields) {
+
+                for (int i = 0; i < 2; i++) { // Thêm 2 hình ảnh cho mỗi sports field
+                    AppFileMetadata image = images.get(imageIndex);
+                    image.setCreatedBy(field.getUser().getId());
+                    image.setSportsField(field);
+                    fileMetadataRepository.save(image); // Lưu lại hình ảnh với createdBy là người sở hữu sports field
+                    imageIndex++;
+                }
+            }
+
         }
     }
 

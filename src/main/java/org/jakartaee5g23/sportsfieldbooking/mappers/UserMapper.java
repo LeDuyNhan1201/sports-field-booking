@@ -10,6 +10,8 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.stream.Collectors;
 
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Constants.DEFAULT_AVATAR_URL;
+
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
@@ -21,6 +23,7 @@ public interface UserMapper {
     @AfterMapping
     default void customizeDto(User entity, @MappingTarget UserResponse dto) {
         dto.setMRoles(entity.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.toList()));
+        dto.setMAvatar(entity.getAvatar() != null ? entity.getAvatar().getUrl() : DEFAULT_AVATAR_URL);
     }
 
 }

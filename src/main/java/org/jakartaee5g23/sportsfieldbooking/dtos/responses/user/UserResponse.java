@@ -27,6 +27,9 @@ public class UserResponse {
 
     String middleName;
 
+    @JsonProperty("avatar")
+    String mAvatar;
+
     @JsonProperty("roles")
     List<String> mRoles;
 

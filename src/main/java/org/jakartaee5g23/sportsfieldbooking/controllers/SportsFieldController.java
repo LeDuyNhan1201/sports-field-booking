@@ -50,10 +50,10 @@ public class SportsFieldController {
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportsFieldResponse> create (@RequestBody @Valid NewSportsFieldRequest request) {
         User current = userService.findById(getUserIdFromContext());
-        SportsField sportsField = sportsFieldMapper.toSportField(request);
+        SportsField sportsField = sportsFieldMapper.toSportsField(request);
         sportsField.setUser(current);
         sportsField.setCategory(Category.builder().id(request.categoryId()).build());
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.create(sportsField, request.isConfirmed())));
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.create(sportsField, request.isConfirmed())));
     }
 
 
@@ -61,15 +61,15 @@ public class SportsFieldController {
     @PutMapping
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
-        SportsField sportsField = sportsFieldMapper.toSportField(request);
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.update(sportsField, request.isConfirmed())));
+        SportsField sportsField = sportsFieldMapper.toSportsField(request);
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.update(sportsField, request.isConfirmed())));
     }
 
     @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
     @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportsFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportsFieldStatus status) {
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportFieldResponse(sportsFieldService.updateStatus(id, status)));
+        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.updateStatus(id, status)));
     }
 
     @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
@@ -79,7 +79,7 @@ public class SportsFieldController {
         Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sportsFieldMapper::toSportFieldResponse).toList())
+                        .items(sportFields.stream().map(sportsFieldMapper::toSportsFieldResponse).toList())
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }

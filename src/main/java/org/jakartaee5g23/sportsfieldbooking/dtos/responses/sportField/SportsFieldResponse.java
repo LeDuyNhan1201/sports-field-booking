@@ -7,6 +7,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,8 +23,6 @@ public class SportsFieldResponse {
 
     String location;
 
-    Double pricePerHour;
-
     Integer opacity;
 
     Date openingTime;
@@ -38,5 +37,8 @@ public class SportsFieldResponse {
     String categoryName;
 
     UserResponse owner;
+
+    @JsonProperty(value = "images")
+    List<String> mImages;
 
 }

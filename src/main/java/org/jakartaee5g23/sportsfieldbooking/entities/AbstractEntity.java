@@ -24,7 +24,7 @@ import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getCurrentUser;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractEntity {
 
-    @CreatedBy
+    //@CreatedBy
     @Column(name = "created_by")
     String createdBy;
 
@@ -33,7 +33,7 @@ public abstract class AbstractEntity {
     @Column(updatable = false, name = "created_at")
     Date createdAt;
 
-    @LastModifiedBy
+    //@LastModifiedBy
     @Column(name = "updated_by")
     String updatedBy;
 

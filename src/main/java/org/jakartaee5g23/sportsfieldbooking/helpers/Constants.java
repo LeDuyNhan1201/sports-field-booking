@@ -24,9 +24,13 @@ public class Constants {
             Arrays.asList(
                     "image/jpeg",
                     "image/png",
+                    "image/gif",
+                    "image/jpg",
                     "video/mp4"
             );
 
     public static final String TEMP_DIR = "temp/";
+
+    public static String DEFAULT_AVATAR_URL;
 
 }
