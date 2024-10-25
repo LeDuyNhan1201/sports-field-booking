@@ -28,4 +28,7 @@ public interface BookingService {
     Booking updateStatus(String bookingId, BookingStatus status);
 
     Page<Booking> findBookingHistoryByUser(User user, List<BookingStatus> statuses, int offset, int limit);
+
+    Booking cancelBooking(String bookingId);
+
 }
