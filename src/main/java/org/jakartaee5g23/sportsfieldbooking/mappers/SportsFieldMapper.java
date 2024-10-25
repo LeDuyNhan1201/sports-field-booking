@@ -10,6 +10,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -26,7 +27,7 @@ public interface SportsFieldMapper {
     default void customizeDto(SportsField entity, @MappingTarget SportsFieldResponse dto) {
         dto.setCategoryName(entity.getCategory().getName());
         dto.setOwner(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
-        dto.setMImages(entity.getImages().stream().map(AppFileMetadata::getUrl).collect(Collectors.toList()));
+        dto.setMImages(entity.getImages() != null ? entity.getImages().stream().map(AppFileMetadata::getUrl).collect(Collectors.toList()) : new ArrayList<>());
     }
 
 }
