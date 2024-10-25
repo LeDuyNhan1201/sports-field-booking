@@ -10,16 +10,18 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
-
     BookingMapper INSTANCE = Mappers.getMapper(BookingMapper.class);
 
     Booking toBooking(NewBookingRequest dto);
 
     BookingResponse toBookingResponse(Booking entity);
+
     @AfterMapping
     default void customizeDto(Booking entity, @MappingTarget BookingResponse dto) {
         dto.setMUser(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
-        dto.setMSportField(SportsFieldMapper.INSTANCE.toSportFieldResponse(entity.getFieldAvailability().getSportsField()));
+        dto.setMSportField(
+                SportsFieldMapper.INSTANCE.toSportFieldResponse(entity.getFieldAvailability().getSportsField()));
+        dto.setMFieldAvailability(
+                FieldAvailabilityMapper.INSTANCE.toFieldAvailabilityResponse(entity.getFieldAvailability()));
     }
-
 }
