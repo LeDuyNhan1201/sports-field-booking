@@ -140,4 +140,12 @@ public class BookingServiceImpl implements BookingService {
                 PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
+    @Override
+    public Booking cancelBooking(String bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus(BookingStatus.CANCELED);
+        return bookingRepository.save(booking);
+    }
+
 }
