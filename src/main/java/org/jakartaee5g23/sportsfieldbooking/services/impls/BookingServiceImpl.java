@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
@@ -87,12 +88,14 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<Booking> findAllByStatus(BookingStatus status, int offset, int limit) {
-        return bookingRepository.findAllByStatus(status, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        return bookingRepository.findAllByStatus(status,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override
     public Page<Booking> getUpcomingBookings(String userId, int offset, int limit) {
-        return bookingRepository.findUpcomingBookingsByUserId(userId, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        return bookingRepository.findUpcomingBookingsByUserId(userId,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override
@@ -106,13 +109,42 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = findById(bookingId);
         switch (status) {
             case CANCELED:
-                if (booking.getStatus().equals(BookingStatus.PENDING)) booking.setStatus(BookingStatus.CANCELED);
-                else throw new BookingException(BookingErrorCode.CANCEL_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+                if (booking.getStatus().equals(BookingStatus.PENDING))
+                    booking.setStatus(BookingStatus.CANCELED);
+                else
+                    throw new BookingException(BookingErrorCode.CANCEL_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
                 break;
 
             case RESCHEDULED, REFUND_REQUESTED:
                 booking.setStatus(status);
+                break;
+
+            case ACCEPTED:
+                booking.setStatus(BookingStatus.ACCEPTED);
+                break;
+
+            case PENDING:
+                booking.setStatus(BookingStatus.PENDING);
+                break;
+
+            case REJECTED:
+                booking.setStatus(BookingStatus.REJECTED);
+                break;
         }
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Page<Booking> findBookingHistoryByUser(User user, List<BookingStatus> statuses, int offset, int limit) {
+        return bookingRepository.findAllByUserAndStatusIn(user, statuses,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
+
+    @Override
+    public Booking cancelBooking(String bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus(BookingStatus.CANCELED);
         return bookingRepository.save(booking);
     }
 

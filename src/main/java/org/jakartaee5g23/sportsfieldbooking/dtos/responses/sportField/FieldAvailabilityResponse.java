@@ -1,6 +1,8 @@
 package org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
@@ -26,7 +28,6 @@ public class FieldAvailabilityResponse {
 
     User user;
 
-
     SportsField mSportsField;
 
     @JsonProperty(value = "payment")
@@ -35,4 +36,11 @@ public class FieldAvailabilityResponse {
     @JsonProperty(value = "fieldAvailability")
     FieldAvailabilityResponse mFieldAvailability;
 
+    @JsonProperty(value = "startTime")
+    @Column(name = "start_time")
+    Date startTime;
+
+    @JsonProperty(value = "endTime")
+    @Column(name = "end_time")
+    Date endTime;
 }
