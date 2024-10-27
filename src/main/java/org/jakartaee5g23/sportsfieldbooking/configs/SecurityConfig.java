@@ -54,7 +54,7 @@ public class SecurityConfig {
                 "/auth/sign-in",
                 "/auth/sign-out",
                 "/auth/introspect",
-                "/users",
+                "/users/**",
                 "/sports-field/**",
                 "/promotions/**",
                 "/status",

@@ -27,6 +27,8 @@ public class UserResponse {
 
     String middleName;
 
+    String mobileNumber;
+
     @JsonProperty("avatar")
     String mAvatar;
 

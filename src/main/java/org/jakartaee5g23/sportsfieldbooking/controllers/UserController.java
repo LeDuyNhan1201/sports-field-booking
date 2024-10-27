@@ -35,7 +35,7 @@ public class UserController {
 
     @Operation(summary = "Get user profile", description = "Get user profile", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{userId}")
-    @PostAuthorize("returnObject.body.email == authentication.name")
+    // @PostAuthorize("returnObject.b ody.email == authentication.name")
     ResponseEntity<UserResponse> getProfile(@PathVariable String userId) {
         return ResponseEntity.status(OK).body(userMapper.toUserResponse(userService.findById(userId)));
     }
