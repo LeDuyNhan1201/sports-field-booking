@@ -36,6 +36,11 @@ public class FieldAvailabilityResponse {
     @JsonProperty(value = "fieldAvailability")
     FieldAvailabilityResponse mFieldAvailability;
 
+    // price_per_hour
+    @JsonProperty(value = "pricePerHour")
+    @Column(name = "price_per_hour")
+    Double pricePerHour;
+
     @JsonProperty(value = "startTime")
     @Column(name = "start_time")
     Date startTime;
