@@ -233,16 +233,30 @@ public class DataSeeder {
             List<Booking> bookings = bookingRepository.findAll();
 
             bookings.forEach(booking -> {
-                BookingItem bookingItem = BookingItem.builder()
-                        .booking(booking)
-                        .availableDate(booking.getFieldAvailability().getAvailableDate())
-                        .startTime(booking.getFieldAvailability().getStartTime())
-                        .endTime(booking.getFieldAvailability().getEndTime())
-                        .pricePerHour(booking.getFieldAvailability().getPricePerHour())
-                        .createdBy(booking.getUser().getId())
-                        .build();
 
-                bookingItemRepository.save(bookingItem);
+                int itemCount = faker.number().numberBetween(1, 5);
+
+                for (int i = 0; i < itemCount; i++) {
+                    Date availableDate = faker.date().past(30, TimeUnit.DAYS);
+                    LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                    Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
+                            .atZone(ZoneId.systemDefault()).toInstant());
+
+                    Date endTime = new Date(
+                            startTime.getTime() + (long) faker.number().numberBetween(1, 3) * 60 * 60 * 1000);
+
+                    BookingItem bookingItem = BookingItem.builder()
+                            .booking(booking)
+                            .availableDate(availableDate)
+                            .startTime(startTime)
+                            .endTime(endTime)
+                            .pricePerHour(booking.getFieldAvailability().getPricePerHour())
+                            .createdBy(booking.getUser().getId())
+                            .build();
+
+                    bookingItemRepository.save(bookingItem);
+                }
             });
         }
     }
