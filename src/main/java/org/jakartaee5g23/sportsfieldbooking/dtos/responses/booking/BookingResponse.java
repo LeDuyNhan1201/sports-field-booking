@@ -9,6 +9,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFiel
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,4 +33,7 @@ public class BookingResponse {
 
     @JsonProperty(value = "fieldAvailability")
     FieldAvailabilityResponse mFieldAvailability;
+
+    @JsonProperty(value = "bookingItems")
+    List<BookingItemResponse> mBookingItems;
 }
