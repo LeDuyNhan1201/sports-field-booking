@@ -34,8 +34,8 @@ public class BookingItem extends AbstractEntity {
     @Column(name = "end_time", nullable = false)
     Date endTime;
 
-    @Column(name = "price_per_hour", nullable = false)
-    Double pricePerHour;
+    @Column(name = "price", nullable = false)
+    Double price;
 
     @ManyToOne
     @JoinColumn(name = "booking_id", referencedColumnName = "id",

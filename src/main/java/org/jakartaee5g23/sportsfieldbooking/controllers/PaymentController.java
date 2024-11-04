@@ -90,9 +90,7 @@ public class PaymentController {
     @GetMapping("/payment-info/{bookingId}")
     public ResponseEntity<Map<String, Object>> getPaymentInfo(@PathVariable String bookingItemsID) {
         BookingItem bookingItem = bookingItemsService.findById(bookingItemsID);
-        int hours = (int) Duration.between((Temporal) bookingItem.getStartTime(), (Temporal) bookingItem.getEndTime())
-                .toHours();
-        double totalPrice = bookingItem.getPricePerHour() * hours;
+        double totalPrice = bookingItem.getPrice();
         return ResponseEntity.ok(
                 Map.of("totalPrice", totalPrice, "bookingId", bookingItemMapper.toBookingItemResponse(bookingItem)));
     }

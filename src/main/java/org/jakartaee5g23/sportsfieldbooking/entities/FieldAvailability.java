@@ -30,8 +30,8 @@ public class FieldAvailability extends AbstractEntity {
     @JsonBackReference
     SportsField sportsField;
 
-    @Column(name = "price_per_hour", nullable = false)
-    Double pricePerHour;
+    @Column(name = "price", nullable = false)
+    Double price;
 
     @OneToOne(mappedBy = "fieldAvailability", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference

@@ -196,7 +196,7 @@ public class DataSeeder {
                         .sportsField(field)
                         .availableDate(availableDate)
                         .startTime(startTime)
-                        .pricePerHour(faker.number().randomDouble(2, 10, 100))
+                        .price(faker.number().randomDouble(2, 10, 100))
                         .endTime(endTime)
                         .isAvailable(faker.bool().bool())
                         .createdBy(field.getUser().getId())
@@ -251,7 +251,7 @@ public class DataSeeder {
                             .availableDate(availableDate)
                             .startTime(startTime)
                             .endTime(endTime)
-                            .pricePerHour(booking.getFieldAvailability().getPricePerHour())
+                            .price(booking.getFieldAvailability().getPrice())
                             .createdBy(booking.getUser().getId())
                             .build();
 
@@ -270,16 +270,9 @@ public class DataSeeder {
                 Booking booking = bookings.get(i);
                 FieldAvailability fieldAvailability = fieldAvailabilities.get(i);
 
-                LocalDateTime startTime = booking.getFieldAvailability().getStartTime().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime endTime = booking.getFieldAvailability().getEndTime().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-                int hours = (int) Duration.between(startTime, endTime).toHours();
-
                 Payment payment = Payment.builder()
                         .method(getRandomEnum(PaymentMethod.class))
-                        .price(fieldAvailability.getPricePerHour() * hours)
+                        .price(fieldAvailability.getPrice())
                         .booking(booking)
                         .status(getRandomEnum(PaymentStatus.class))
                         .createdBy(booking.getUser().getId())

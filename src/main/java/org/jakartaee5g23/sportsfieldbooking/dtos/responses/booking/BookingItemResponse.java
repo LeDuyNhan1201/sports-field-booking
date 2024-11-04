@@ -22,7 +22,7 @@ public class BookingItemResponse {
 
     Date endTime;
 
-    double pricePerHour;
+    double price;
 
     @JsonProperty(value = "createdBy")
     String createdBy;

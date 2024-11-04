@@ -22,6 +22,7 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -74,9 +75,11 @@ public class SportsFieldController {
 
     @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
     @GetMapping
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam String colSort,
+                                                                         @RequestParam Integer sortDirection,
+                                                                         @RequestParam(defaultValue = "0") String offset,
                                                                          @RequestParam(defaultValue = "100") String limit) {
-        Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+        Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportsFieldResponse>builder()
                         .items(sportFields.stream().map(sportsFieldMapper::toSportsFieldResponse).toList())
@@ -90,5 +93,24 @@ public class SportsFieldController {
     public ResponseEntity<SportsFieldResponse> findById (@PathVariable String id) {
         return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.findById(id)));
     }
+
+    @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
+
+    @GetMapping("/search/{text}")
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> searchByText(@PathVariable String text,
+                                                                            @RequestParam String colSort,
+                                                                            @RequestParam Integer sortDirection,
+                                                                            @RequestParam(defaultValue = "0") String offset,
+                                                                            @RequestParam(defaultValue = "100") String limit) {
+        Page<SportsField> sportFields = sportsFieldService.searchByText(text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
+        
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<SportsFieldResponse>builder()
+                        .items(sportFields.stream().map(sportsFieldMapper::toSportsFieldResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
+                        .build());
+    }
+
+
 
 }

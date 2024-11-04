@@ -8,7 +8,7 @@ public interface SportsFieldService {
 
     SportsField findById(String id);
 
-    Page<SportsField> findAll(int offset, int limit);
+    Page<SportsField> findAll(int offset, int limit, String colSort, int sortDirection);
 
     SportsField create(SportsField request, Boolean isConfirmed);
 
@@ -16,4 +16,5 @@ public interface SportsFieldService {
 
     SportsField updateStatus(String id, SportsFieldStatus status);
 
+    Page<SportsField> searchByText(String text, int offset, int limit, String colSort, int sortDirection);
 }
