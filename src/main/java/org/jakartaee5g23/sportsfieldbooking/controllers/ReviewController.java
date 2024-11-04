@@ -46,7 +46,7 @@ public class ReviewController {
     @Operation(summary = "Create a comment", description = "Create a comment", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ResponseEntity<ReviewResponse> create(@RequestBody @Valid ReviewRequest request) {
-        User current = userService.findById(getUserIdFromContext());
+        User current = userService.findById(request.userID());
         SportsField sportsField = sportsFieldService.findById(request.sportFieldId());
         Review review = reviewMapper.toReview(request);
         review.setUser(current);
@@ -57,13 +57,14 @@ public class ReviewController {
     @Operation(summary = "Respond a comment", description = "Respond a comment", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{parentId}")
     public ResponseEntity<ReviewResponse> respond(@PathVariable String parentId, @RequestBody @Valid ReviewRequest request) {
-        User current = userService.findById(getUserIdFromContext());
+        User current = userService.findById(request.userID());
         Review parentReview = reviewService.findById(parentId);
         SportsField sportsField = parentReview.getSportsField();
         Review review = reviewMapper.toReview(request);
         review.setParentReview(parentReview);
         review.setSportsField(sportsField);
         review.setUser(current);
+
         return ResponseEntity.ok(reviewMapper.toReviewResponse(reviewService.create(review)));
     }
 

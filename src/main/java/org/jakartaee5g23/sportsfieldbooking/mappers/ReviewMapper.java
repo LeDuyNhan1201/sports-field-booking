@@ -5,6 +5,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ReviewRespons
 import org.jakartaee5g23.sportsfieldbooking.entities.Review;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
@@ -15,6 +16,7 @@ public interface ReviewMapper {
 
     Review toReview(ReviewRequest request);
 
+    @Mapping(target = "parentReview", source = "parentReview")
     ReviewResponse toReviewResponse(Review entity);
     @AfterMapping
     default void customizeDto(Review entity, @MappingTarget ReviewResponse dto) {
