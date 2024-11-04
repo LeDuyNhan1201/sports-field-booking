@@ -2,10 +2,10 @@ package org.jakartaee5g23.sportsfieldbooking.enums;
 
 public enum Gender {
 
-    MALE,
+    Male,
 
-    FEMALE,
+    Female,
 
-    OTHER
+    Other
 
 }

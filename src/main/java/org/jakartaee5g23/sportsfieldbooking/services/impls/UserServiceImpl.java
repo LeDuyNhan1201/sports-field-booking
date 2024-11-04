@@ -67,4 +67,28 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        User existingUser = userRepository.findById(user.getId()).orElseThrow(() ->
+                new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
+
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setMobileNumber(user.getMobileNumber());
+        existingUser.setBirthdate(user.getBirthdate());
+        existingUser.setGender(user.getGender());
+//        existingUser.setAvatar(user.getAvatar());
+
+        userRepository.save(existingUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(String id) {
+        User user = findById(id);
+        userRepository.delete(user);
+    }
+
 }
