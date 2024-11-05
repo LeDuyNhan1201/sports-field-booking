@@ -109,7 +109,7 @@ public class SportsFieldServiceImpl implements SportsFieldService {
                 .opacity(request.getOpacity())
                 .openingTime(openingTime)
                 .closingTime(closingTime)
-                .status(SportsFieldStatus.NONE)
+                .status(SportsFieldStatus.CLOSED)
                 .category(category)
                 .user(request.getUser())
                 .build();

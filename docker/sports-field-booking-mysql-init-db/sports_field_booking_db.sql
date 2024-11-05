@@ -86,7 +86,7 @@ CREATE TABLE `booking_items` (
   `version` bigint DEFAULT NULL,
   `available_date` date NOT NULL,
   `end_time` datetime(6) NOT NULL,
-  `price_per_hour` double NOT NULL,
+  `price` double NOT NULL,
   `start_time` datetime(6) NOT NULL,
   `booking_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -140,7 +140,7 @@ CREATE TABLE `field_availabilities` (
   `available_date` date NOT NULL,
   `end_time` datetime(6) NOT NULL,
   `is_available` bit(1) NOT NULL,
-  `price_per_hour` double NOT NULL,
+  `price` double NOT NULL,
   `start_time` datetime(6) NOT NULL,
   `sports_field_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -149,7 +149,7 @@ CREATE TABLE `field_availabilities` (
 -- Đang đổ dữ liệu cho bảng `field_availabilities`
 --
 
-INSERT INTO `field_availabilities` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `available_date`, `end_time`, `is_available`, `price_per_hour`, `start_time`, `sports_field_id`) VALUES
+INSERT INTO `field_availabilities` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `available_date`, `end_time`, `is_available`, `price`, `start_time`, `sports_field_id`) VALUES
 ('05d93127-5a90-49db-9821-e6d9822fa4d3', '2024-10-25 21:47:55.672000', '33e0fa26-5765-47fa-94d3-312ecaf21ebb', NULL, NULL, b'0', '2024-10-25 21:47:55.672000', NULL, 0, '2024-11-14', '2024-11-14 21:00:00.000000', b'1', 56.61, '2024-11-14 15:00:00.000000', '869b03b5-8ad9-45fd-9949-afb33b1a7cb8'),
 ('0d3df7ef-8f56-40b8-b4ac-e5d04e180dc0', '2024-10-25 21:47:55.512000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:55.512000', NULL, 0, '2024-11-14', '2024-11-14 18:00:00.000000', b'1', 36.38, '2024-11-14 11:00:00.000000', '5e04084a-1778-4131-8f7a-7597b5c8bc77'),
 ('13450933-959c-4f08-aac1-0a4ddd21e82e', '2024-10-25 21:47:55.573000', 'ed0359c4-1960-41b0-b8b9-5d359abdb342', NULL, NULL, b'0', '2024-10-25 21:47:55.573000', NULL, 0, '2024-10-26', '2024-10-26 15:00:00.000000', b'1', 67.54, '2024-10-26 08:00:00.000000', '20ba0ccf-e0e4-4b6a-b4ca-c99a2d4833c7'),
@@ -488,7 +488,7 @@ CREATE TABLE `sports_fields` (
   `opacity` int DEFAULT NULL,
   `opening_time` datetime(6) NOT NULL,
   `rating` double DEFAULT NULL,
-  `status` enum('BANNED','CLOSED','INACTIVE','MAINTENANCE','NONE','OPEN','ORDER','PRE_ORDER') NOT NULL,
+  `status` enum('OPEN','CLOSED','MAINTENANCE','INACTIVE') NOT NULL,
   `thumbnail` varchar(255) DEFAULT NULL,
   `category_id` int NOT NULL,
   `user_id` varchar(255) NOT NULL
@@ -500,25 +500,25 @@ CREATE TABLE `sports_fields` (
 
 INSERT INTO `sports_fields` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `closing_time`, `location`, `name`, `opacity`, `opening_time`, `rating`, `status`, `thumbnail`, `category_id`, `user_id`) VALUES
 ('14e9017d-ff11-47e1-972c-0e2d5a1cc417', '2024-10-25 21:47:54.687000', '525bd993-756f-4f5a-94ab-2fa761226946', NULL, NULL, b'0', '2024-10-25 21:47:54.687000', NULL, 0, '2024-12-11 12:33:14.771000', 'Suite 005 06254 Lionel Point, West Alecstad, NM 98049', 'Ohio chimeras', 42, '2023-03-28 11:21:08.384000', 0.7, 'INACTIVE', NULL, 5, '525bd993-756f-4f5a-94ab-2fa761226946'),
-('20ba0ccf-e0e4-4b6a-b4ca-c99a2d4833c7', '2024-10-25 21:47:54.762000', 'ed0359c4-1960-41b0-b8b9-5d359abdb342', NULL, NULL, b'0', '2024-10-25 21:47:54.762000', NULL, 0, '2028-07-12 00:10:44.361000', '2551 Efrain Corners, West Marinland, RI 12275', 'Kansas vampires', 2, '2023-04-11 18:47:32.009000', 1.43, 'BANNED', NULL, 5, 'ed0359c4-1960-41b0-b8b9-5d359abdb342'),
+('20ba0ccf-e0e4-4b6a-b4ca-c99a2d4833c7', '2024-10-25 21:47:54.762000', 'ed0359c4-1960-41b0-b8b9-5d359abdb342', NULL, NULL, b'0', '2024-10-25 21:47:54.762000', NULL, 0, '2028-07-12 00:10:44.361000', '2551 Efrain Corners, West Marinland, RI 12275', 'Kansas vampires', 2, '2023-04-11 18:47:32.009000', 1.43, 'OPEN', NULL, 5, 'ed0359c4-1960-41b0-b8b9-5d359abdb342'),
 ('33b10ae9-1eb3-44d7-ae1b-877ab1be4d50', '2024-10-25 21:47:54.723000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:54.723000', NULL, 0, '2026-12-07 12:41:37.452000', 'Apt. 478 765 Friesen Mews, Todhaven, TX 82467', 'Texas foes', 2, '2023-05-20 04:27:30.436000', 1.04, 'OPEN', NULL, 5, 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
 ('3a8759a4-ffe4-48c2-a147-80d70d1cad89', '2024-10-25 21:47:54.792000', '3ccc685a-7e85-463e-9f65-84d527849e26', NULL, NULL, b'0', '2024-10-25 21:47:54.792000', NULL, 0, '2026-01-23 04:35:08.030000', 'Suite 458 434 Lourie Bypass, Yundtmouth, GA 94249', 'Louisiana penguins', 42, '2023-07-12 02:30:40.734000', 0.29, 'INACTIVE', NULL, 5, '3ccc685a-7e85-463e-9f65-84d527849e26'),
 ('541518e1-0367-494b-9582-a818ede75307', '2024-10-25 21:47:54.772000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.772000', NULL, 0, '2029-07-04 01:07:25.008000', 'Apt. 452 6562 Gibson Vista, West Fredericfurt, MI 23341', 'Louisiana foxes', 18, '2023-12-07 19:33:28.870000', 4.09, 'OPEN', NULL, 2, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
 ('5e04084a-1778-4131-8f7a-7597b5c8bc77', '2024-10-25 21:47:54.752000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.752000', NULL, 0, '2026-03-20 06:56:10.116000', '47634 Constance Mountains, South Harryside, MI 76384-0515', 'North Carolina zombies', 51, '2022-07-31 04:38:37.506000', 2.83, 'OPEN', NULL, 5, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
 ('669e5d4d-151d-4b6a-9dae-faed754f05e5', '2024-10-25 21:47:54.783000', '3ccc685a-7e85-463e-9f65-84d527849e26', NULL, NULL, b'0', '2024-10-25 21:47:54.783000', NULL, 0, '2026-08-02 23:38:25.330000', '40091 Yu Groves, Norbertview, IA 07470-8813', 'New Jersey conspirators', 50, '2021-12-27 08:22:49.214000', 0.81, 'MAINTENANCE', NULL, 4, '3ccc685a-7e85-463e-9f65-84d527849e26'),
-('6827740c-5bfe-4fbe-8574-3eeff12470f8', '2024-10-25 21:47:54.849000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:54.849000', NULL, 0, '2027-05-03 02:10:55.441000', 'Suite 028 35307 Kellee Lakes, Arnoldstad, IL 67091-9887', 'Maryland lycanthropes', 62, '2021-11-13 13:22:11.909000', 0.06, 'NONE', NULL, 2, '194e724a-8438-4fe9-bfdb-49f888e62811'),
+('6827740c-5bfe-4fbe-8574-3eeff12470f8', '2024-10-25 21:47:54.849000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:54.849000', NULL, 0, '2027-05-03 02:10:55.441000', 'Suite 028 35307 Kellee Lakes, Arnoldstad, IL 67091-9887', 'Maryland lycanthropes', 62, '2021-11-13 13:22:11.909000', 0.06, 'OPEN', NULL, 2, '194e724a-8438-4fe9-bfdb-49f888e62811'),
 ('837db666-9cdf-4074-aeb5-22fc0bc1a326', '2024-10-25 21:47:54.717000', '61626200-36a4-40d3-b598-9071f9e7a87f', NULL, NULL, b'0', '2024-10-25 21:47:54.717000', NULL, 0, '2029-09-28 00:05:16.021000', 'Suite 146 24471 Justin Radial, East Rafaelhaven, IL 48478-9742', 'Connecticut ducks', 12, '2023-06-17 07:57:50.338000', 0.99, 'CLOSED', NULL, 2, '61626200-36a4-40d3-b598-9071f9e7a87f'),
-('869b03b5-8ad9-45fd-9949-afb33b1a7cb8', '2024-10-25 21:47:54.695000', '33e0fa26-5765-47fa-94d3-312ecaf21ebb', NULL, NULL, b'0', '2024-10-25 21:47:54.695000', NULL, 0, '2025-12-10 19:38:31.479000', 'Apt. 351 945 Greenfelder Crescent, West Alvinside, PA 23614', 'Arkansas lions', 25, '2023-03-08 12:31:09.170000', 0.68, 'PRE_ORDER', NULL, 3, '33e0fa26-5765-47fa-94d3-312ecaf21ebb'),
-('a1ba8ad9-e448-4d16-81a1-b28d25663495', '2024-10-25 21:47:54.737000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:54.737000', NULL, 0, '2025-06-30 11:44:38.971000', '05419 Willie Burgs, Lake Val, NC 38765', 'Oklahoma oracles', 43, '2021-02-28 16:39:46.778000', 3.13, 'BANNED', NULL, 5, '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
+('869b03b5-8ad9-45fd-9949-afb33b1a7cb8', '2024-10-25 21:47:54.695000', '33e0fa26-5765-47fa-94d3-312ecaf21ebb', NULL, NULL, b'0', '2024-10-25 21:47:54.695000', NULL, 0, '2025-12-10 19:38:31.479000', 'Apt. 351 945 Greenfelder Crescent, West Alvinside, PA 23614', 'Arkansas lions', 25, '2023-03-08 12:31:09.170000', 0.68, 'OPEN', NULL, 3, '33e0fa26-5765-47fa-94d3-312ecaf21ebb'),
+('a1ba8ad9-e448-4d16-81a1-b28d25663495', '2024-10-25 21:47:54.737000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:54.737000', NULL, 0, '2025-06-30 11:44:38.971000', '05419 Willie Burgs, Lake Val, NC 38765', 'Oklahoma oracles', 43, '2021-02-28 16:39:46.778000', 3.13, 'OPEN', NULL, 5, '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
 ('a774c2c1-41d9-4cbe-95b9-dfd6cd5c35e2', '2024-10-25 21:47:54.832000', 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8', NULL, NULL, b'0', '2024-10-25 21:47:54.832000', NULL, 0, '2028-06-20 07:49:52.142000', '6352 Stoltenberg Fall, Cronaside, PA 03658-2091', 'New Mexico witches', 28, '2023-08-03 01:38:16.734000', 4.06, 'INACTIVE', NULL, 5, 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8'),
-('af367cef-5f88-4fd9-b6d6-756516ead131', '2024-10-25 21:47:54.813000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:54.813000', NULL, 0, '2029-03-22 15:05:58.886000', 'Suite 723 848 Miller Plain, South Hugo, WY 86507-9221', 'Missouri chickens', 16, '2023-08-18 02:32:19.217000', 1.69, 'BANNED', NULL, 2, '194e724a-8438-4fe9-bfdb-49f888e62811'),
-('b88751f2-c9f5-46e1-811e-5e0a38905240', '2024-10-25 21:47:54.711000', '3ccc685a-7e85-463e-9f65-84d527849e26', NULL, NULL, b'0', '2024-10-25 21:47:54.711000', NULL, 0, '2026-09-28 06:24:28.629000', 'Apt. 258 09378 Roosevelt Summit, Port Linneamouth, CO 92583-0185', 'Maine lions', 58, '2023-12-14 08:35:31.224000', 0.67, 'ORDER', NULL, 3, '3ccc685a-7e85-463e-9f65-84d527849e26'),
-('c4283fc0-e055-4d5a-9d50-16eb759145dc', '2024-10-25 21:47:54.744000', '6c20a29b-2faf-406b-9a8c-bf050f1be819', NULL, NULL, b'0', '2024-10-25 21:47:54.744000', NULL, 0, '2026-10-26 14:14:22.918000', '014 Mee Meadow, West Burl, OR 85028-2575', 'Ohio druids', 24, '2020-04-19 14:35:42.974000', 0.44, 'BANNED', NULL, 5, '6c20a29b-2faf-406b-9a8c-bf050f1be819'),
-('cfb872b6-77a3-480e-8b2f-812139fa0188', '2024-10-25 21:47:54.802000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.802000', NULL, 0, '2027-05-30 19:45:36.921000', 'Suite 636 254 Mac Run, Heidenreichfort, SC 66105', 'New Mexico zebras', 51, '2024-09-03 14:33:45.561000', 2.17, 'PRE_ORDER', NULL, 3, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
+('af367cef-5f88-4fd9-b6d6-756516ead131', '2024-10-25 21:47:54.813000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:54.813000', NULL, 0, '2029-03-22 15:05:58.886000', 'Suite 723 848 Miller Plain, South Hugo, WY 86507-9221', 'Missouri chickens', 16, '2023-08-18 02:32:19.217000', 1.69, 'OPEN', NULL, 2, '194e724a-8438-4fe9-bfdb-49f888e62811'),
+('b88751f2-c9f5-46e1-811e-5e0a38905240', '2024-10-25 21:47:54.711000', '3ccc685a-7e85-463e-9f65-84d527849e26', NULL, NULL, b'0', '2024-10-25 21:47:54.711000', NULL, 0, '2026-09-28 06:24:28.629000', 'Apt. 258 09378 Roosevelt Summit, Port Linneamouth, CO 92583-0185', 'Maine lions', 58, '2023-12-14 08:35:31.224000', 0.67, 'OPEN', NULL, 3, '3ccc685a-7e85-463e-9f65-84d527849e26'),
+('c4283fc0-e055-4d5a-9d50-16eb759145dc', '2024-10-25 21:47:54.744000', '6c20a29b-2faf-406b-9a8c-bf050f1be819', NULL, NULL, b'0', '2024-10-25 21:47:54.744000', NULL, 0, '2026-10-26 14:14:22.918000', '014 Mee Meadow, West Burl, OR 85028-2575', 'Ohio druids', 24, '2020-04-19 14:35:42.974000', 0.44, 'OPEN', NULL, 5, '6c20a29b-2faf-406b-9a8c-bf050f1be819'),
+('cfb872b6-77a3-480e-8b2f-812139fa0188', '2024-10-25 21:47:54.802000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.802000', NULL, 0, '2027-05-30 19:45:36.921000', 'Suite 636 254 Mac Run, Heidenreichfort, SC 66105', 'New Mexico zebras', 51, '2024-09-03 14:33:45.561000', 2.17, 'OPEN', NULL, 3, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
 ('cfe98404-9f6c-49aa-b88f-203a915ad68f', '2024-10-25 21:47:54.840000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:54.840000', NULL, 0, '2027-11-08 11:35:55.868000', '615 Cummings Bridge, Leuschkestad, AL 40514', 'Minnesota exorcists', 71, '2020-12-12 02:11:56.005000', 2.62, 'CLOSED', NULL, 2, '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
-('d91aa10c-9a11-4fc6-87df-edebda96cf63', '2024-10-25 21:47:54.822000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.822000', NULL, 0, '2028-08-05 18:39:53.318000', '84751 Rex Trail, Cummerataton, RI 58174', 'Maryland enchanters', 40, '2020-11-14 01:39:35.117000', 0.98, 'NONE', NULL, 2, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
+('d91aa10c-9a11-4fc6-87df-edebda96cf63', '2024-10-25 21:47:54.822000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:54.822000', NULL, 0, '2028-08-05 18:39:53.318000', '84751 Rex Trail, Cummerataton, RI 58174', 'Maryland enchanters', 40, '2020-11-14 01:39:35.117000', 0.98, 'OPEN', NULL, 2, '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
 ('e0b7b8f2-829c-4d15-856d-dd4a78043b7e', '2024-10-25 21:47:54.730000', '3ccc685a-7e85-463e-9f65-84d527849e26', NULL, NULL, b'0', '2024-10-25 21:47:54.730000', NULL, 0, '2027-04-02 03:35:27.660000', 'Apt. 633 1880 Hermann Orchard, Templeburgh, NV 94643-4834', 'Nevada geese', 80, '2023-08-08 03:18:44.556000', 2.67, 'MAINTENANCE', NULL, 1, '3ccc685a-7e85-463e-9f65-84d527849e26'),
-('f684fe6b-7748-47a0-b6f1-14e35eb42f33', '2024-10-25 21:47:54.703000', 'ac4df3c2-98c6-4ac5-8603-9a5ada8129a5', NULL, NULL, b'0', '2024-10-25 21:47:54.703000', NULL, 0, '2024-11-04 05:38:37.850000', 'Suite 111 08881 Elvin Junctions, New Laurine, SD 64352', 'Louisiana crows', 49, '2022-05-11 09:06:57.729000', 0.59, 'BANNED', NULL, 2, 'ac4df3c2-98c6-4ac5-8603-9a5ada8129a5');
+('f684fe6b-7748-47a0-b6f1-14e35eb42f33', '2024-10-25 21:47:54.703000', 'ac4df3c2-98c6-4ac5-8603-9a5ada8129a5', NULL, NULL, b'0', '2024-10-25 21:47:54.703000', NULL, 0, '2024-11-04 05:38:37.850000', 'Suite 111 08881 Elvin Junctions, New Laurine, SD 64352', 'Louisiana crows', 49, '2022-05-11 09:06:57.729000', 0.59, 'OPEN', NULL, 2, 'ac4df3c2-98c6-4ac5-8603-9a5ada8129a5');
 
 -- --------------------------------------------------------
 
@@ -902,6 +902,7 @@ ALTER TABLE `user_role`
 ALTER TABLE `verifications`
   ADD CONSTRAINT `fk_verifications_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
