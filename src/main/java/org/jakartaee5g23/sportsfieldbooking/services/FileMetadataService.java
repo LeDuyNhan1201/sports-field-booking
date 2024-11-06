@@ -1,15 +1,15 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
-import org.jakartaee5g23.sportsfieldbooking.entities.AppFileMetadata;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface FileMetadataService {
 
-    AppFileMetadata findById(String id);
+    FileMetadata findById(String id);
 
-    AppFileMetadata create(AppFileMetadata item);
+    FileMetadata create(FileMetadata item);
 
-    void delete(AppFileMetadata item);
+    void delete(FileMetadata item);
 
 }

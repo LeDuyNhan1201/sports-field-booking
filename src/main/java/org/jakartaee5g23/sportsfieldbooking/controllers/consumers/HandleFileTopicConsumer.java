@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.events.HandleFileEvent;
-import org.jakartaee5g23.sportsfieldbooking.entities.AppFileMetadata;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
@@ -59,7 +59,7 @@ public class HandleFileTopicConsumer {
 
         User user;
         SportsField sportsField;
-        AppFileMetadata fileMetadata = fileMetadataMapper.toFileMetadata(message);
+        FileMetadata fileMetadata = fileMetadataMapper.toFileMetadata(message);
 
         if (message.getType() != null) {
             switch (message.getType()) {
@@ -86,7 +86,7 @@ public class HandleFileTopicConsumer {
             case UPLOAD -> fileMetadataService.create(fileMetadata);
 
             case DELETE -> {
-                AppFileMetadata fileMetadataToDelete = fileMetadataService.findById(fileMetadata.getId());
+                FileMetadata fileMetadataToDelete = fileMetadataService.findById(fileMetadata.getId());
                 fileMetadataService.delete(fileMetadataToDelete);
             }
         }

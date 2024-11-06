@@ -80,7 +80,7 @@ public class MinioClientServiceImpl implements MinioClientService {
         boolean[] uploadStatus = uploadStatusMap.get(fileName);
 
         // Nếu chunk đã upload trước đó thì bỏ qua
-        if (uploadStatus[chunkNumber]) return getLocalizedMessage("chunk_already_exists");
+        if (uploadStatus[chunkNumber]) throw new FileException(CHUNK_ALREADY_EXISTS, OK);
 
         // Tạo thư mục tạm nếu chưa có
         Path tempDir = Paths.get(TEMP_DIR);
@@ -89,7 +89,7 @@ public class MinioClientServiceImpl implements MinioClientService {
                 Files.createDirectories(tempDir);
             } catch (IOException e) {
                 log.error("Error creating temp directory", e);
-                throw new FileException(FileErrorCode.CAN_NOT_INIT_BACKUP_FOLDER, INTERNAL_SERVER_ERROR);
+                throw new FileException(FileErrorCode.CAN_NOT_INIT_BACKUP_FOLDER, BAD_REQUEST);
             }
         }
 
@@ -100,7 +100,7 @@ public class MinioClientServiceImpl implements MinioClientService {
 
         } catch (IOException e) {
             log.error("Error writing chunk to disk", e);
-            throw new FileException(FileErrorCode.COULD_NOT_WRITE_CHUNK, INTERNAL_SERVER_ERROR);
+            throw new FileException(FileErrorCode.COULD_NOT_WRITE_CHUNK, BAD_REQUEST);
         }
 
         // Đánh dấu chunk này đã được upload
@@ -112,31 +112,33 @@ public class MinioClientServiceImpl implements MinioClientService {
                 combineChunks(fileName, totalChunks);
             } catch (Exception e) {
                 log.error("Error combining chunks", e);
-                throw new FileException(FileErrorCode.COULD_NOT_COMBINE_CHUNKS, INTERNAL_SERVER_ERROR);
+                throw new FileException(FileErrorCode.COULD_NOT_COMBINE_CHUNKS, BAD_REQUEST);
             }
 
             File fileAfterCombine = new File(TEMP_DIR + fileName);
-            String newFileName = generateFileName(contentType.split("/")[0], contentType.split("/")[1]);
+            //String newFileName = generateFileName(contentType.split("/")[0], contentType.split("/")[1]);
             try {
-                storeObject(fileAfterCombine, newFileName, contentType);
+                storeObject(fileAfterCombine, fileName, contentType);
                 Files.delete(fileAfterCombine.toPath()); // Xóa file sau khi upload hoàn thành
             } catch (Exception e) {
                 log.error("Error storing file", e);
-                throw new FileException(FileErrorCode.CAN_NOT_STORE_FILE, INTERNAL_SERVER_ERROR);
+                throw new FileException(FileErrorCode.CAN_NOT_STORE_FILE, BAD_REQUEST);
             }
             // Xóa trạng thái sau khi upload hoàn thành
             uploadStatusMap.remove(fileName);
 
             fileStorageTemplate.send(KAFKA_TOPIC_HANDLE_FILE, HandleFileEvent.builder()
-                .objectKey(newFileName)
+                .objectKey(fileName)
                 .size(fileAfterCombine.length())
                 .contentType(contentType)
-                .url(getObjectUrl(newFileName))
+                .url(getObjectUrl(fileName))
                 .action(HandleFileAction.UPLOAD)
                 .build());
+
+            return "file_upload_success";
         }
 
-        return getLocalizedMessage("chunk_uploaded");
+        return "chunk_uploaded";
     }
 
     @Override

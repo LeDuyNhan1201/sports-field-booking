@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.entities.AppFileMetadata;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FileMetadataRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FileMetadataService;
@@ -23,20 +23,20 @@ public class FileMetadataServiceImpl implements FileMetadataService {
     FileMetadataRepository fileMetadataRepository;
 
     @Override
-    public AppFileMetadata findById(String id) {
+    public FileMetadata findById(String id) {
         return fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new FileException(COULD_NOT_READ_FILE, BAD_REQUEST));
     }
 
     @Override
     @Transactional
-    public AppFileMetadata create(AppFileMetadata item) {
+    public FileMetadata create(FileMetadata item) {
         return fileMetadataRepository.save(item);
     }
 
     @Override
     @Transactional
-    public void delete(AppFileMetadata item) {
+    public void delete(FileMetadata item) {
         fileMetadataRepository.delete(item);
     }
 

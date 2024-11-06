@@ -68,7 +68,7 @@ public class SportsField extends AbstractEntity {
 
         @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
-        List<AppFileMetadata> images;
+        List<FileMetadata> images;
 
         @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference

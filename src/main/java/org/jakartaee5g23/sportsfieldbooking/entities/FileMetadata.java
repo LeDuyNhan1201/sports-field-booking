@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "file_metadata")
-public class AppFileMetadata extends AbstractEntity {
+public class FileMetadata extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

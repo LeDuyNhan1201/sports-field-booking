@@ -26,7 +26,8 @@ public class Constants {
                     "image/png",
                     "image/gif",
                     "image/jpg",
-                    "video/mp4"
+                    "video/mp4",
+                    "video/x-matroska"
             );
 
     public static final String TEMP_DIR = "temp/";
