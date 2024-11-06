@@ -48,4 +48,8 @@ public class FieldAvailabilityResponse {
     @JsonProperty(value = "endTime")
     @Column(name = "end_time")
     Date endTime;
+
+    @JsonProperty(value = "is_available")
+    @Column(name = "is_available")
+    Boolean isAvailable;
 }

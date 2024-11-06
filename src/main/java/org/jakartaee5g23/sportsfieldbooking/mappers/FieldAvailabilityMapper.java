@@ -10,4 +10,6 @@ public interface FieldAvailabilityMapper {
     FieldAvailabilityMapper INSTANCE = Mappers.getMapper(FieldAvailabilityMapper.class);
 
     FieldAvailabilityResponse toFieldAvailabilityResponse(FieldAvailability entity);
+
+
 }
