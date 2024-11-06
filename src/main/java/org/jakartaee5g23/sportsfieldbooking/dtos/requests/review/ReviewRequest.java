@@ -11,7 +11,13 @@ public record ReviewRequest (
 
         @NotNull(message = "null_field")
         @NotBlank(message = "blank_field")
-        String comment
+        String comment,
+
+        @NotNull(message = "null_field")
+        @NotBlank(message = "blank_field")
+        String userID,
+
+        String parentReviewID
 
 )
 { }

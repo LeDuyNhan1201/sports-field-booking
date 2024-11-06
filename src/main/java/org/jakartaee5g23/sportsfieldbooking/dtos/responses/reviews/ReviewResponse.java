@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.Review;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class ReviewResponse {
 
     String comment;
 
+    Review parentReview;
     @JsonProperty("user")
     UserResponse mUser;
 

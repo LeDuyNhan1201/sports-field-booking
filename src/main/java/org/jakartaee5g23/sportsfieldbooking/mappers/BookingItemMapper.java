@@ -1,22 +1,20 @@
 package org.jakartaee5g23.sportsfieldbooking.mappers;
 
-import java.util.stream.Collectors;
-
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.booking.NewBookingRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingItemResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
+import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface BookingMapper {
-        BookingMapper INSTANCE = Mappers.getMapper(BookingMapper.class);
+public interface BookingItemMapper {
 
-        Booking toBooking(NewBookingRequest dto);
+        BookingItemMapper INSTANCE = Mappers.getMapper(BookingItemMapper.class);
 
-        BookingResponse toBookingResponse(Booking entity);
+        BookingItemResponse toBookingItemResponse(BookingItem entity);
 
         @AfterMapping
         default void customizeDto(Booking entity, @MappingTarget BookingResponse dto) {
@@ -27,8 +25,5 @@ public interface BookingMapper {
                 dto.setMFieldAvailability(
                                 FieldAvailabilityMapper.INSTANCE
                                                 .toFieldAvailabilityResponse(entity.getFieldAvailability()));
-                dto.setMBookingItems(entity.getBookingItems().stream()
-                                .map(BookingItemMapper.INSTANCE::toBookingItemResponse)
-                                .collect(Collectors.toList()));
         }
 }

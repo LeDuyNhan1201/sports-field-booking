@@ -28,10 +28,7 @@ public class Booking extends AbstractEntity {
         BookingStatus status;
 
         @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_bookings_users",
-                        foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-                nullable = false, updatable = false)
+        @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_bookings_users", foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
         @JsonManagedReference
         User user;
 
@@ -40,15 +37,11 @@ public class Booking extends AbstractEntity {
         Payment payment;
 
         @OneToOne
-        @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_bookings_field_availabilities",
-                        foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availabilities(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-                nullable = false)
+        @JoinColumn(name = "field_availability_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_bookings_field_availabilities", foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availabilities(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false)
         @JsonManagedReference
         FieldAvailability fieldAvailability;
 
         @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         List<BookingItem> bookingItems;
-
 }

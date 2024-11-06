@@ -19,4 +19,7 @@ public interface UserService {
 
     void activateUser(User user);
 
+    void updateUser(User user);
+
+    void deleteUser(String id);
 }

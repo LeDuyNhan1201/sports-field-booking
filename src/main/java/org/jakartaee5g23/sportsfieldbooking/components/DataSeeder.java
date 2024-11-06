@@ -56,7 +56,7 @@ public class DataSeeder {
         seedUserRole();
         seedCategories();
         seedSportFields();
-        //seedFieldImages();
+        // seedFieldImages();
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();
@@ -182,20 +182,21 @@ public class DataSeeder {
                 SportsField field = fields.get(faker.number().numberBetween(0, fields.size()));
                 // Create a date that is available in the next 30 days
                 Date availableDate = faker.date().future(30, TimeUnit.DAYS);
-//
-//                // Generate start time between 8:00 AM and 8:00 PM
+                //
+                // // Generate start time between 8:00 AM and 8:00 PM
                 LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
                         .atZone(ZoneId.systemDefault()).toInstant());
 
                 // Generate end time between 1 to 12 hours after start time
-                Date endTime = new Date(startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
+                Date endTime = new Date(
+                        startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
 
                 FieldAvailability availability = FieldAvailability.builder()
                         .sportsField(field)
                         .availableDate(availableDate)
                         .startTime(startTime)
-                        .pricePerHour(faker.number().randomDouble(2, 10, 100))
+                        .price(faker.number().randomDouble(2, 10, 100))
                         .endTime(endTime)
                         .isAvailable(faker.bool().bool())
                         .createdBy(field.getUser().getId())
@@ -228,20 +229,34 @@ public class DataSeeder {
     }
 
     private void seedBookingItems() {
-        if (bookingItemRepository.count() > 0) {
+        if (bookingItemRepository.count() == 0) {
             List<Booking> bookings = bookingRepository.findAll();
 
             bookings.forEach(booking -> {
-                BookingItem bookingItem = BookingItem.builder()
-                        .booking(booking)
-                        .availableDate(booking.getFieldAvailability().getAvailableDate())
-                        .startTime(booking.getFieldAvailability().getStartTime())
-                        .endTime(booking.getFieldAvailability().getEndTime())
-                        .pricePerHour(booking.getFieldAvailability().getPricePerHour())
-                        .createdBy(booking.getUser().getId())
-                        .build();
 
-                bookingItemRepository.save(bookingItem);
+                int itemCount = faker.number().numberBetween(1, 5);
+
+                for (int i = 0; i < itemCount; i++) {
+                    Date availableDate = faker.date().past(30, TimeUnit.DAYS);
+                    LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                    Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
+                            .atZone(ZoneId.systemDefault()).toInstant());
+
+                    Date endTime = new Date(
+                            startTime.getTime() + (long) faker.number().numberBetween(1, 3) * 60 * 60 * 1000);
+
+                    BookingItem bookingItem = BookingItem.builder()
+                            .booking(booking)
+                            .availableDate(availableDate)
+                            .startTime(startTime)
+                            .endTime(endTime)
+                            .price(booking.getFieldAvailability().getPrice())
+                            .createdBy(booking.getUser().getId())
+                            .build();
+
+                    bookingItemRepository.save(bookingItem);
+                }
             });
         }
     }
@@ -255,14 +270,9 @@ public class DataSeeder {
                 Booking booking = bookings.get(i);
                 FieldAvailability fieldAvailability = fieldAvailabilities.get(i);
 
-                LocalDateTime startTime = booking.getFieldAvailability().getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                LocalDateTime endTime = booking.getFieldAvailability().getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-                int hours = (int) Duration.between(startTime, endTime).toHours();
-
                 Payment payment = Payment.builder()
                         .method(getRandomEnum(PaymentMethod.class))
-                        .price(fieldAvailability.getPricePerHour() * hours)
+                        .price(fieldAvailability.getPrice())
                         .booking(booking)
                         .status(getRandomEnum(PaymentStatus.class))
                         .createdBy(booking.getUser().getId())
@@ -296,7 +306,8 @@ public class DataSeeder {
                         .user(createdBy)
                         .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
                         .comment(faker.lorem().sentence(15))
-                        .parentReview(reviewRepository.findAll().get(faker.number().numberBetween(0, reviewRepository.findAll().size())))
+                        .parentReview(reviewRepository.findAll()
+                                .get(faker.number().numberBetween(0, reviewRepository.findAll().size())))
                         .createdBy(createdBy.getId())
                         .build();
 

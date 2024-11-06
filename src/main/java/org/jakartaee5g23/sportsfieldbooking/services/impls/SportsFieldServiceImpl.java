@@ -19,9 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldEx
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportsFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +57,11 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     }
 
     @Override
-    public Page<SportsField> findAll(int offset, int limit) {
-        return sportsFieldRepository.findAll(PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    public Page<SportsField> findAll(int offset, int limit , String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1) 
+            ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+            : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+        return sportsFieldRepository.findAll(PageRequest.of(offset, limit, sort));
     }
 
     @Override
@@ -108,11 +109,20 @@ public class SportsFieldServiceImpl implements SportsFieldService {
                 .opacity(request.getOpacity())
                 .openingTime(openingTime)
                 .closingTime(closingTime)
-                .status(SportsFieldStatus.NONE)
+                .status(SportsFieldStatus.CLOSED)
                 .category(category)
                 .user(request.getUser())
                 .build();
         return sportsFieldRepository.save(createField);
     }
 
+    @Override
+    public Page<SportsField> searchByText(String text, int offset, int limit, String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1) 
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+    
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        return sportsFieldRepository.searchByText(text, pageable);
+    }
 }

@@ -10,12 +10,5 @@ public enum SportsFieldStatus {
 
     INACTIVE,
 
-    PRE_ORDER,
-
-    ORDER,
-
-    NONE,
-
-    BANNED
 
 }
