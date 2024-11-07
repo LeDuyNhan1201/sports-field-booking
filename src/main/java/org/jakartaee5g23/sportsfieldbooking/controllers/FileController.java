@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,19 +30,25 @@ public class FileController {
 
     @Operation(summary = "Upload chunk file", description = "Upload chunk file")
     @PostMapping("/upload-chunk")
-    ResponseEntity<CommonResponse<String, ?>> uploadChunk(@RequestPart(name = "file") MultipartFile file,
-                                               @RequestPart(name = "request") @Valid FileUploadRequest request) {
+    ResponseEntity<CommonResponse<Long, ?>> uploadChunk(@RequestPart(name = "file") MultipartFile file,
+                                                        @RequestPart(name = "request") @Valid FileUploadRequest request) {
 
-        String message = minioClientService.uploadChunk(
+        long uploadedSize = minioClientService.uploadChunk(
                 file,
-                request.fileName(),
-                request.chunkNumber(),
-                request.totalChunks(),
+                request.fileMetadataId(),
+                request.chunkHash(),
+                request.startByte(),
+                request.totalSize(),
                 request.contentType());
-        return ResponseEntity.status(CREATED).body(
-                CommonResponse.<String, Object>builder()
+
+        HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
+
+        String message = uploadedSize == request.totalSize() ? "file_upload_success" : "chunk_uploaded";
+
+        return ResponseEntity.status(httpStatus).body(
+                CommonResponse.<Long, Object>builder()
                         .message(getLocalizedMessage(message))
-                        .results(message.equals("file_upload_success") ? "uploaded" : "uploading")
+                        .results(uploadedSize)
                         .build()
         );
     }

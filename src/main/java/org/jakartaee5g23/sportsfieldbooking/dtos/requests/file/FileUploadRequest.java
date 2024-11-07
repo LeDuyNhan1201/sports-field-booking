@@ -7,11 +7,13 @@ public record FileUploadRequest (
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")
-    String fileName,
+    String fileMetadataId,
 
-    int chunkNumber,
+    String chunkHash,
 
-    int totalChunks,
+    long startByte,
+
+    long totalSize,
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")

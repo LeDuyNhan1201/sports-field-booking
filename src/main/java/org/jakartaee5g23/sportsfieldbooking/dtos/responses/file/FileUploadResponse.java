@@ -12,16 +12,6 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileUploadResponse {
 
-    String objectKey;
-
-    String contentType;
-
-    long size; // in bytes
-
-    int chunkNumber;
-
-    int totalChunks;
-
-    Date createdAt;
+    long uploadedChunksSize;
 
 }

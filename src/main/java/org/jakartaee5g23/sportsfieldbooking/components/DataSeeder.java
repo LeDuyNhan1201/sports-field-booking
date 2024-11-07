@@ -56,7 +56,7 @@ public class DataSeeder {
         seedUserRole();
         seedCategories();
         seedSportFields();
-        // seedFieldImages();
+        //seedFieldImages();
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();

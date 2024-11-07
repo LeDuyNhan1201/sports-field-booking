@@ -23,6 +23,7 @@ minio:
   access-key: group23
   secret-key: gRoUp23IsThEbEsT#
   bucket-name: sports-field-booking-bucket
+  temp-bucket-name: sports-field-booking-temp-bucket
 
 # VNPAY
 payment:

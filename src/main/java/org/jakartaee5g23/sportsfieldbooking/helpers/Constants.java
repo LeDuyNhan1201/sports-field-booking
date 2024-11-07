@@ -32,6 +32,10 @@ public class Constants {
 
     public static final String TEMP_DIR = "temp/";
 
+    public static final long MAX_CHUNK_SIZE = 1024 * 1024 * 10; // 10MB
+
+    public static final int MAX_FILE_SIZE = 1024 * 1024 * 1000; // 1GB
+
     public static String DEFAULT_AVATAR_URL;
 
 }
