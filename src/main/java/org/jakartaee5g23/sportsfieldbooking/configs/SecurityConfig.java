@@ -66,7 +66,9 @@ public class SecurityConfig {
                 "/file/**",
                 "/reviews/**",
                 "/payment/**",
-                "/field-availability/**"
+                "/field-availability/**",
+                "/booking/**",
+                "/booking-items/**"
                 ).map(s -> (s.contains("api-docs") || s.contains("swagger")) ? s : API_PREFIX + s)
                 .toList().toArray(new String[0]);
 

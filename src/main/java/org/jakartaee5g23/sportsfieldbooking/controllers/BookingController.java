@@ -59,12 +59,11 @@ public class BookingController {
 
                 Booking booking = Booking.builder()
                                 .user(current)
-                                .fieldAvailability(fieldAvailability)
                                 .build();
 
-                if (fieldAvailabilityService.isAlreadyOrdered(booking))
-                        throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED,
-                                        HttpStatus.UNPROCESSABLE_ENTITY);
+//                if (fieldAvailabilityService.isAlreadyOrdered(booking))
+//                        throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED,
+//                                        HttpStatus.UNPROCESSABLE_ENTITY);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(bookingMapper.toBookingResponse(bookingService.create(booking)));
@@ -155,21 +154,21 @@ public class BookingController {
                                                 .build());
         }
 
-        @Operation(summary = "View upcoming bookings", description = "Get list of upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
-        @GetMapping("/upcoming/{userId}")
-        public ResponseEntity<PaginateResponse<BookingResponse>> getUpcomingBookings(@PathVariable String userId,
-                        @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit) {
-                Page<Booking> bookings = bookingService.getUpcomingBookings(userId, Integer.parseInt(offset),
-                                Integer.parseInt(limit));
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(PaginateResponse.<BookingResponse>builder()
-                                                .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
-                                                .pagination(new Pagination(Integer.parseInt(offset),
-                                                                Integer.parseInt(limit),
-                                                                bookings.getTotalElements()))
-                                                .build());
-        }
+//        @Operation(summary = "View upcoming bookings", description = "Get list of upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
+//        @GetMapping("/upcoming/{userId}")
+//        public ResponseEntity<PaginateResponse<BookingResponse>> getUpcomingBookings(@PathVariable String userId,
+//                        @RequestParam(defaultValue = "0") String offset,
+//                        @RequestParam(defaultValue = "100") String limit) {
+//                Page<Booking> bookings = bookingService.getUpcomingBookings(userId, Integer.parseInt(offset),
+//                                Integer.parseInt(limit));
+//                return ResponseEntity.status(HttpStatus.OK)
+//                                .body(PaginateResponse.<BookingResponse>builder()
+//                                                .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
+//                                                .pagination(new Pagination(Integer.parseInt(offset),
+//                                                                Integer.parseInt(limit),
+//                                                                bookings.getTotalElements()))
+//                                                .build());
+//        }
 
         @Operation(summary = "View my upcoming bookings", description = "Get list of my upcoming bookings", security = @SecurityRequirement(name = "bearerAuth"))
         @GetMapping("/my-upcoming")

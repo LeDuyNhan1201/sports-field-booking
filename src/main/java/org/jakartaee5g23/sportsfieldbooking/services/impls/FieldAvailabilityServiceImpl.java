@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.List;
 
@@ -38,10 +39,10 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
         return fieldAvailability;
     }
 
-    @Override
-    public boolean isAlreadyOrdered(Booking booking) {
-        return fieldAvailabilityRepository.findByBooking(booking).isPresent();
-    }
+//    @Override
+//    public boolean isAlreadyOrdered(Booking booking) {
+//        return fieldAvailabilityRepository.findByBooking(booking).isPresent();
+//    }
 
     @Override
     public FieldAvailability create(FieldAvailability request) {
@@ -61,6 +62,11 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
                 fieldAvailabilityRepository.save(fieldAvailability);
             }
         }
+    }
+
+    @Override
+    public void update(FieldAvailability fieldAvailability) {
+        fieldAvailabilityRepository.save(fieldAvailability);
     }
 
 }

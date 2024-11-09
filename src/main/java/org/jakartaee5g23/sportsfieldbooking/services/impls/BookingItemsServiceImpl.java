@@ -26,4 +26,9 @@ public class BookingItemsServiceImpl implements BookingItemsService {
                 .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Booking Items"));
     }
 
+    @Override
+    public BookingItem create(BookingItem item) {
+        return bookingItemsRepository.save(item);
+    }
+
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentMethod;
 import org.jakartaee5g23.sportsfieldbooking.enums.PaymentStatus;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
@@ -24,5 +25,4 @@ public class PaymentResponse {
 
     @JsonProperty(value = "booking")
     BookingResponse mBooking;
-
 }

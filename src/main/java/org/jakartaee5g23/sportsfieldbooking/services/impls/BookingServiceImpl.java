@@ -48,15 +48,15 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public Booking create(Booking request) {
         User user = request.getUser();
-        FieldAvailability fieldAvailability = request.getFieldAvailability();
-        if (!fieldAvailability.getSportsField().getStatus().equals(SportsFieldStatus.OPEN))
-            throw new BookingException(BookingErrorCode.SPORT_FIELD_NOT_AVAILABLE, HttpStatus.UNPROCESSABLE_ENTITY);
+//        FieldAvailability fieldAvailability = request.getFieldAvailability();
+//        if (!fieldAvailability.getSportsField().getStatus().equals(SportsFieldStatus.OPEN))
+//            throw new BookingException(BookingErrorCode.SPORT_FIELD_NOT_AVAILABLE, HttpStatus.UNPROCESSABLE_ENTITY);
 
         if (user.getStatus() == UserStatus.BANNED)
             throw new BookingException(BookingErrorCode.USER_BANNED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Booking booking = Booking.builder()
-                .fieldAvailability(fieldAvailability)
+//                .fieldAvailability(fieldAvailability)
                 .status(BookingStatus.PENDING)
                 .user(user)
                 .build();
@@ -92,17 +92,17 @@ public class BookingServiceImpl implements BookingService {
                 PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
-    @Override
-    public Page<Booking> getUpcomingBookings(String userId, int offset, int limit) {
-        return bookingRepository.findUpcomingBookingsByUserId(userId,
-                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
-    }
+//    @Override
+//    public Page<Booking> getUpcomingBookings(String userId, int offset, int limit) {
+//        return bookingRepository.findUpcomingBookingsByUserId(userId,
+//                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+//    }
 
-    @Override
-    public Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit) {
-        return bookingRepository.findBySportFieldIdAndStartTimeBetween(sportsField, beginDate, endDate,
-                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
-    }
+//    @Override
+//    public Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit) {
+//        return bookingRepository.findBySportFieldIdAndStartTimeBetween(sportsField, beginDate, endDate,
+//                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+//    }
 
     @Override
     public Booking updateStatus(String bookingId, BookingStatus status) {

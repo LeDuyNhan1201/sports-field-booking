@@ -33,9 +33,9 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "price", nullable = false)
     Double price;
 
-    @OneToOne(mappedBy = "fieldAvailability", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
-    Booking booking;
+//    @OneToOne(mappedBy = "fieldAvailability", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonBackReference
+//    Booking booking;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "available_date", nullable = false)
@@ -51,5 +51,4 @@ public class FieldAvailability extends AbstractEntity {
 
     @Column(name = "is_available", nullable = false)
     Boolean isAvailable;
-
 }

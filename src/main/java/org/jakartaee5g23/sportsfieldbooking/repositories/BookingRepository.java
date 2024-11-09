@@ -16,22 +16,22 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, String> {
 
-        @Query("SELECT b FROM Booking b " +
-                        "JOIN b.fieldAvailability f " +
-                        "WHERE b.payment != NULL " +
-                        "AND f.sportsField = :sportsField " +
-                        "AND f.startTime BETWEEN :beginDate AND :endDate")
-        Page<Booking> findBySportFieldIdAndStartTimeBetween(
-                        SportsField sportsField,
-                        Date beginDate,
-                        Date endDate,
-                        Pageable pageable);
+//        @Query("SELECT b FROM Booking b " +
+//                        "JOIN b.fieldAvailability f " +
+//                        "WHERE b.payment != NULL " +
+//                        "AND f.sportsField = :sportsField " +
+//                        "AND f.startTime BETWEEN :beginDate AND :endDate")
+//        Page<Booking> findBySportFieldIdAndStartTimeBetween(
+//                        SportsField sportsField,
+//                        Date beginDate,
+//                        Date endDate,
+//                        Pageable pageable);
 
-        @Query("SELECT b FROM Booking b " +
-                        "JOIN b.fieldAvailability f " +
-                        "WHERE b.user.id = :userId " +
-                        "AND f.startTime > CURRENT_TIMESTAMP")
-        Page<Booking> findUpcomingBookingsByUserId(String userId, Pageable pageable);
+//        @Query("SELECT b FROM Booking b " +
+//                        "JOIN b.fieldAvailability f " +
+//                        "WHERE b.user.id = :userId " +
+//                        "AND f.startTime > CURRENT_TIMESTAMP")
+//        Page<Booking> findUpcomingBookingsByUserId(String userId, Pageable pageable);
 
         Page<Booking> findAllByUser(User user, Pageable pageable);
 

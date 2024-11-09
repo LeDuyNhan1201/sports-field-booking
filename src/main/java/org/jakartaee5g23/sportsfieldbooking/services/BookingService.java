@@ -21,9 +21,9 @@ public interface BookingService {
 
     Page<Booking> findAllByStatus(BookingStatus status, int offset, int limit);
 
-    Page<Booking> getUpcomingBookings(String userId, int offset, int limit);
+//    Page<Booking> getUpcomingBookings(String userId, int offset, int limit);
 
-    Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit);
+//    Page<Booking> findByField(SportsField sportsField, Date beginDate, Date endDate, int offset, int limit);
 
     Booking updateStatus(String bookingId, BookingStatus status);
 

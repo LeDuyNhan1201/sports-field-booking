@@ -95,6 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .price(price)
                 .booking(booking)
                 .status(paymentStatusEnum)
+                .createdBy(booking.getUser().getId())
                 .build();
 
         paymentRepository.save(payment);
@@ -118,6 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .booking(booking)
                 .method(PaymentMethod.CASH)
                 .status(PaymentStatus.PENDING)
+                .createdBy(booking.getUser().getId())
                 .build();
 
         return paymentRepository.save(payment);
