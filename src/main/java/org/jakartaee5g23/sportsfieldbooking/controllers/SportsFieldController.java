@@ -19,14 +19,17 @@ import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
+import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.OK;
@@ -43,6 +46,8 @@ public class SportsFieldController {
     SportsFieldService sportsFieldService;
 
     UserService userService;
+
+    MinioClientService minioClientService;
 
     SportsFieldMapper sportsFieldMapper = SportsFieldMapper.INSTANCE;
 
@@ -82,7 +87,11 @@ public class SportsFieldController {
         Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sportsFieldMapper::toSportsFieldResponse).toList())
+                        .items(sportFields.stream().map(sf -> {
+                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
+                            setSportsFieldImages(sportsFieldResponse, sf);
+                            return sportsFieldResponse;
+                        }).toList())
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }
@@ -91,7 +100,10 @@ public class SportsFieldController {
     @GetMapping("/{id}")
     // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
     public ResponseEntity<SportsFieldResponse> findById (@PathVariable String id) {
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.findById(id)));
+        SportsField sportsField = sportsFieldService.findById(id);
+        SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sportsField);
+        setSportsFieldImages(sportsFieldResponse, sportsField);
+        return ResponseEntity.status(OK).body(sportsFieldResponse);
     }
 
     @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
@@ -106,11 +118,20 @@ public class SportsFieldController {
         
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sportsFieldMapper::toSportsFieldResponse).toList())
+                        .items(sportFields.stream().map(sf -> {
+                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
+                            setSportsFieldImages(sportsFieldResponse, sf);
+                            return sportsFieldResponse;
+                        }).toList())
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
                         .build());
     }
 
-
+    private void setSportsFieldImages(SportsFieldResponse sportsFieldResponse, SportsField sportsField) {
+        sportsFieldResponse.setMImages(sportsField.getImages() != null
+                ? sportsField.getImages().stream().map(fileMetadata ->
+                minioClientService.getObjectUrl(fileMetadata.getObjectKey())).collect(Collectors.toList())
+                : new ArrayList<>());
+    }
 
 }
