@@ -78,7 +78,7 @@ public class MinioClientServiceImpl implements MinioClientService {
 
     @PostConstruct
     public void initDefaultUrls() {
-        DEFAULT_AVATAR_URL = getObjectUrl("user-info.png", bucketName);
+        DEFAULT_AVATAR_URL = getObjectUrl("user-info.png");
     }
 
 //    @PostConstruct
@@ -185,7 +185,6 @@ public class MinioClientServiceImpl implements MinioClientService {
                 .objectKey(newFileName)
                 .size(fileAfterCombine.length())
                 .contentType(contentType)
-                .url(getObjectUrl(newFileName, bucketName))
                 .action(HandleFileAction.UPLOAD)
                 .build());
 
@@ -214,7 +213,7 @@ public class MinioClientServiceImpl implements MinioClientService {
     }
 
     @Override
-    public String getObjectUrl(String objectKey, String bucketName) {
+    public String getObjectUrl(String objectKey) {
         try {
             return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                     .method(Method.GET)

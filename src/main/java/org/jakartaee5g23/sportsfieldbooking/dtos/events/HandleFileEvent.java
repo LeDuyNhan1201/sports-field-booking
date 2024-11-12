@@ -19,8 +19,6 @@ public class HandleFileEvent {
 
     String contentType;
 
-    String url;
-
     String ownerId;
 
     HandleFileAction action;

@@ -13,7 +13,7 @@ public interface MinioClientService {
 
     void storeObject(File file, String fileName, String contentType, String bucketName);
 
-    String getObjectUrl(String objectKey, String bucketName);
+    String getObjectUrl(String objectKey);
 
     void deleteObject(String objectKey, String bucketName);
 

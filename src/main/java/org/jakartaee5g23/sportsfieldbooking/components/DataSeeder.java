@@ -13,9 +13,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.time.ZoneId;
 import java.util.List;
@@ -56,7 +54,7 @@ public class DataSeeder {
         seedUserRole();
         seedCategories();
         seedSportFields();
-        //seedFieldImages();
+//        seedFieldImages();
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();

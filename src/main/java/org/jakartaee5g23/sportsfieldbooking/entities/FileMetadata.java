@@ -29,9 +29,6 @@ public class FileMetadata extends AbstractEntity {
     @Column(nullable = false)
     long size;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    String url;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "fk_file_metadata_users",
