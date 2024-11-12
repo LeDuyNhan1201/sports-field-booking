@@ -8,4 +8,6 @@ public interface BookingItemsService {
 
     BookingItem findById(String id);
 
+    BookingItem create(BookingItem item);
+
 }

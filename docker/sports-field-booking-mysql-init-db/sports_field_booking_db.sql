@@ -38,7 +38,6 @@ CREATE TABLE `bookings` (
   `updated_by` varchar(255) DEFAULT NULL,
   `version` bigint DEFAULT NULL,
   `status` enum('ACCEPTED','CANCELED','PENDING','REFUND_REQUESTED','REJECTED','RESCHEDULED') NOT NULL,
-  `field_availability_id` varchar(255) NOT NULL,
   `user_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -46,27 +45,27 @@ CREATE TABLE `bookings` (
 -- Đang đổ dữ liệu cho bảng `bookings`
 --
 
-INSERT INTO `bookings` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `status`, `field_availability_id`, `user_id`) VALUES
-('0b96e171-fd58-4e4b-96e6-eabc7a946b8f', '2024-10-25 21:47:56.017000', '2a3e56c9-1f94-4c92-8e9a-6e521837fec0', NULL, NULL, b'0', '2024-10-25 21:47:56.017000', NULL, 0, 'ACCEPTED', '56b858d3-5d81-43b7-b80b-ae433dcfc7c5', '2a3e56c9-1f94-4c92-8e9a-6e521837fec0'),
-('185337bc-a645-4572-b2ca-7933099fd284', '2024-10-25 21:47:55.958000', 'b1b7af8b-9ad3-4e25-85b7-9a3704cce607', NULL, NULL, b'0', '2024-10-25 21:47:55.958000', NULL, 0, 'PENDING', '13450933-959c-4f08-aac1-0a4ddd21e82e', 'b1b7af8b-9ad3-4e25-85b7-9a3704cce607'),
-('21e6e7ff-d6a5-4b22-82ea-217ba42b4f69', '2024-10-25 21:47:56.001000', '6c20a29b-2faf-406b-9a8c-bf050f1be819', NULL, NULL, b'0', '2024-10-25 21:47:56.001000', NULL, 0, 'REFUND_REQUESTED', '54fef968-09d7-4ef9-a50c-086321d75776', '6c20a29b-2faf-406b-9a8c-bf050f1be819'),
-('2bcac4bd-9f23-4394-b820-4fce66acddb8', '2024-10-25 21:47:56.073000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:56.073000', NULL, 0, 'ACCEPTED', 'a1feb35e-67e7-4314-afdc-bec78ccee4ff', '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
-('5e93a871-fb65-4cac-8063-8f34d4530b93', '2024-10-25 21:47:56.025000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:56.025000', NULL, 0, 'ACCEPTED', '661b7f2e-f87b-4cca-ab17-fa2cd9b02a17', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
-('68cfd8a5-fe49-443a-a0f2-531360a0ed59', '2024-10-25 21:47:56.081000', 'c73542de-4c9f-476c-add0-72e3c8cf7754', NULL, NULL, b'0', '2024-10-25 21:47:56.081000', NULL, 0, 'ACCEPTED', 'ae31e916-aa43-40e7-898c-449a477d5363', 'c73542de-4c9f-476c-add0-72e3c8cf7754'),
-('71988c47-5a90-4e5d-9c1e-90cfd182f638', '2024-10-25 21:47:55.969000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:55.969000', NULL, 0, 'ACCEPTED', '1cea8b38-b2a1-4f61-8557-239658c37f2d', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
-('781d8722-b708-4994-9861-9e82c9b60047', '2024-10-25 21:47:55.985000', '525bd993-756f-4f5a-94ab-2fa761226946', NULL, NULL, b'0', '2024-10-25 21:47:55.985000', NULL, 0, 'PENDING', '333f93d6-715c-402c-9252-1d13583fdc0c', '525bd993-756f-4f5a-94ab-2fa761226946'),
-('7d3e3117-6f8d-4c57-9a43-6d80a97b97b0', '2024-10-25 21:47:56.049000', '525bd993-756f-4f5a-94ab-2fa761226946', NULL, NULL, b'0', '2024-10-25 21:47:56.049000', NULL, 0, 'REJECTED', '81a411bc-3156-4ff6-a805-db0971e8052e', '525bd993-756f-4f5a-94ab-2fa761226946'),
-('7dddfc1c-517d-467d-9026-0db4a96a3cde', '2024-10-25 21:47:55.952000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:55.952000', NULL, 0, 'RESCHEDULED', '0d3df7ef-8f56-40b8-b4ac-e5d04e180dc0', '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
-('82b86a1d-283f-4368-931f-e27d1e698d7d', '2024-10-25 21:47:56.058000', 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8', NULL, NULL, b'0', '2024-10-25 21:47:56.058000', NULL, 0, 'CANCELED', '88dc341a-2af8-4fa7-9b70-68e0e962eed9', 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8'),
-('974cfd3a-ae69-4c27-bbf8-87d4455f555b', '2024-10-25 21:47:56.034000', '33e0fa26-5765-47fa-94d3-312ecaf21ebb', NULL, NULL, b'0', '2024-10-25 21:47:56.034000', NULL, 0, 'PENDING', '67c1cff3-a194-468a-b14f-4a85d14edb63', '33e0fa26-5765-47fa-94d3-312ecaf21ebb'),
-('9a7c8567-6b7f-4c01-9dda-1858d38058a1', '2024-10-25 21:47:55.976000', '6b6ad2ee-83c9-431c-a768-81ce2aec7756', NULL, NULL, b'0', '2024-10-25 21:47:55.976000', NULL, 0, 'ACCEPTED', '20cfa303-6f90-41c2-bb23-6b3669cba9a3', '6b6ad2ee-83c9-431c-a768-81ce2aec7756'),
-('b1b7b08f-0847-4b49-93d6-8721c95325da', '2024-10-25 21:47:56.009000', 'ed0359c4-1960-41b0-b8b9-5d359abdb342', NULL, NULL, b'0', '2024-10-25 21:47:56.009000', NULL, 0, 'RESCHEDULED', '563f1c3e-c6ea-4792-bea3-b1098947171d', 'ed0359c4-1960-41b0-b8b9-5d359abdb342'),
-('b4376e8d-8cfe-461c-b7d6-865a60943566', '2024-10-25 21:47:56.088000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:56.088000', NULL, 0, 'PENDING', 'ae5a97e2-8d7f-4ca7-ab45-737bd284d62b', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
-('b8ccf81e-5cf9-4e3e-98a5-f795193843ac', '2024-10-25 21:47:55.945000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:55.945000', NULL, 0, 'REJECTED', '05d93127-5a90-49db-9821-e6d9822fa4d3', '194e724a-8438-4fe9-bfdb-49f888e62811'),
-('cdd8a014-f036-4da1-ba8f-4ef459496f2d', '2024-10-25 21:47:55.964000', '89e7dc5e-2b07-4a96-9384-9c58170019bd', NULL, NULL, b'0', '2024-10-25 21:47:55.964000', NULL, 0, 'CANCELED', '1aa22fa8-4ad6-4ec9-bce6-583a28d0a08b', '89e7dc5e-2b07-4a96-9384-9c58170019bd'),
-('cf511958-1b23-4a7f-8893-face628c65d5', '2024-10-25 21:47:56.065000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:56.065000', NULL, 0, 'ACCEPTED', '94a8811e-e880-4f4b-9ce7-cb336666bd7c', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
-('ea632e70-9473-4088-ad41-d9301cc61126', '2024-10-25 21:47:55.992000', 'e7daba0e-1da9-42a7-a015-80bd50ba1bae', NULL, NULL, b'0', '2024-10-25 21:47:55.992000', NULL, 0, 'REJECTED', '481eb06d-9598-4691-a073-89b69169c515', 'e7daba0e-1da9-42a7-a015-80bd50ba1bae'),
-('fad25bd3-0bec-4a8a-9f2c-5753db75d1c7', '2024-10-25 21:47:56.041000', '89e7dc5e-2b07-4a96-9384-9c58170019bd', NULL, NULL, b'0', '2024-10-25 21:47:56.041000', NULL, 0, 'REJECTED', '6bca2dd3-83c1-46d7-9ba1-d83a1d41519f', '89e7dc5e-2b07-4a96-9384-9c58170019bd');
+INSERT INTO `bookings` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `status`, `user_id`) VALUES
+('0b96e171-fd58-4e4b-96e6-eabc7a946b8f', '2024-10-25 21:47:56.017000', '2a3e56c9-1f94-4c92-8e9a-6e521837fec0', NULL, NULL, b'0', '2024-10-25 21:47:56.017000', NULL, 0, 'ACCEPTED', '2a3e56c9-1f94-4c92-8e9a-6e521837fec0'),
+('185337bc-a645-4572-b2ca-7933099fd284', '2024-10-25 21:47:55.958000', 'b1b7af8b-9ad3-4e25-85b7-9a3704cce607', NULL, NULL, b'0', '2024-10-25 21:47:55.958000', NULL, 0, 'PENDING', 'b1b7af8b-9ad3-4e25-85b7-9a3704cce607'),
+('21e6e7ff-d6a5-4b22-82ea-217ba42b4f69', '2024-10-25 21:47:56.001000', '6c20a29b-2faf-406b-9a8c-bf050f1be819', NULL, NULL, b'0', '2024-10-25 21:47:56.001000', NULL, 0, 'REFUND_REQUESTED', '6c20a29b-2faf-406b-9a8c-bf050f1be819'),
+('2bcac4bd-9f23-4394-b820-4fce66acddb8', '2024-10-25 21:47:56.073000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:56.073000', NULL, 0, 'ACCEPTED', '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
+('5e93a871-fb65-4cac-8063-8f34d4530b93', '2024-10-25 21:47:56.025000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:56.025000', NULL, 0, 'ACCEPTED', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
+('68cfd8a5-fe49-443a-a0f2-531360a0ed59', '2024-10-25 21:47:56.081000', 'c73542de-4c9f-476c-add0-72e3c8cf7754', NULL, NULL, b'0', '2024-10-25 21:47:56.081000', NULL, 0, 'ACCEPTED', 'c73542de-4c9f-476c-add0-72e3c8cf7754'),
+('71988c47-5a90-4e5d-9c1e-90cfd182f638', '2024-10-25 21:47:55.969000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:55.969000', NULL, 0, 'ACCEPTED', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
+('781d8722-b708-4994-9861-9e82c9b60047', '2024-10-25 21:47:55.985000', '525bd993-756f-4f5a-94ab-2fa761226946', NULL, NULL, b'0', '2024-10-25 21:47:55.985000', NULL, 0, 'PENDING', '525bd993-756f-4f5a-94ab-2fa761226946'),
+('7d3e3117-6f8d-4c57-9a43-6d80a97b97b0', '2024-10-25 21:47:56.049000', '525bd993-756f-4f5a-94ab-2fa761226946', NULL, NULL, b'0', '2024-10-25 21:47:56.049000', NULL, 0, 'REJECTED', '525bd993-756f-4f5a-94ab-2fa761226946'),
+('7dddfc1c-517d-467d-9026-0db4a96a3cde', '2024-10-25 21:47:55.952000', '5f46f576-8aa1-4594-8f8a-7e4df74190c8', NULL, NULL, b'0', '2024-10-25 21:47:55.952000', NULL, 0, 'RESCHEDULED', '5f46f576-8aa1-4594-8f8a-7e4df74190c8'),
+('82b86a1d-283f-4368-931f-e27d1e698d7d', '2024-10-25 21:47:56.058000', 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8', NULL, NULL, b'0', '2024-10-25 21:47:56.058000', NULL, 0, 'CANCELED', 'db1c5740-4fe4-4e50-9bff-7fc41afe65a8'),
+('974cfd3a-ae69-4c27-bbf8-87d4455f555b', '2024-10-25 21:47:56.034000', '33e0fa26-5765-47fa-94d3-312ecaf21ebb', NULL, NULL, b'0', '2024-10-25 21:47:56.034000', NULL, 0, 'PENDING', '33e0fa26-5765-47fa-94d3-312ecaf21ebb'),
+('9a7c8567-6b7f-4c01-9dda-1858d38058a1', '2024-10-25 21:47:55.976000', '6b6ad2ee-83c9-431c-a768-81ce2aec7756', NULL, NULL, b'0', '2024-10-25 21:47:55.976000', NULL, 0, 'ACCEPTED', '6b6ad2ee-83c9-431c-a768-81ce2aec7756'),
+('b1b7b08f-0847-4b49-93d6-8721c95325da', '2024-10-25 21:47:56.009000', 'ed0359c4-1960-41b0-b8b9-5d359abdb342', NULL, NULL, b'0', '2024-10-25 21:47:56.009000', NULL, 0, 'RESCHEDULED', 'ed0359c4-1960-41b0-b8b9-5d359abdb342'),
+('b4376e8d-8cfe-461c-b7d6-865a60943566', '2024-10-25 21:47:56.088000', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62', NULL, NULL, b'0', '2024-10-25 21:47:56.088000', NULL, 0, 'PENDING', '1bed8435-e46f-4e30-8bde-cc3ad7b05a62'),
+('b8ccf81e-5cf9-4e3e-98a5-f795193843ac', '2024-10-25 21:47:55.945000', '194e724a-8438-4fe9-bfdb-49f888e62811', NULL, NULL, b'0', '2024-10-25 21:47:55.945000', NULL, 0, 'REJECTED', '194e724a-8438-4fe9-bfdb-49f888e62811'),
+('cdd8a014-f036-4da1-ba8f-4ef459496f2d', '2024-10-25 21:47:55.964000', '89e7dc5e-2b07-4a96-9384-9c58170019bd', NULL, NULL, b'0', '2024-10-25 21:47:55.964000', NULL, 0, 'CANCELED', '89e7dc5e-2b07-4a96-9384-9c58170019bd'),
+('cf511958-1b23-4a7f-8893-face628c65d5', '2024-10-25 21:47:56.065000', 'ac771ed5-dbee-4848-b604-d5b51b2b6517', NULL, NULL, b'0', '2024-10-25 21:47:56.065000', NULL, 0, 'ACCEPTED', 'ac771ed5-dbee-4848-b604-d5b51b2b6517'),
+('ea632e70-9473-4088-ad41-d9301cc61126', '2024-10-25 21:47:55.992000', 'e7daba0e-1da9-42a7-a015-80bd50ba1bae', NULL, NULL, b'0', '2024-10-25 21:47:55.992000', NULL, 0, 'REJECTED', 'e7daba0e-1da9-42a7-a015-80bd50ba1bae'),
+('fad25bd3-0bec-4a8a-9f2c-5753db75d1c7', '2024-10-25 21:47:56.041000', '89e7dc5e-2b07-4a96-9384-9c58170019bd', NULL, NULL, b'0', '2024-10-25 21:47:56.041000', NULL, 0, 'REJECTED', '89e7dc5e-2b07-4a96-9384-9c58170019bd');
 
 -- --------------------------------------------------------
 
@@ -88,7 +87,8 @@ CREATE TABLE `booking_items` (
   `end_time` datetime(6) NOT NULL,
   `price` double NOT NULL,
   `start_time` datetime(6) NOT NULL,
-  `booking_id` varchar(255) NOT NULL
+  `booking_id` varchar(255) NOT NULL,
+  `field_availability_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -692,7 +692,6 @@ CREATE TABLE `verifications` (
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UKrx0ovxnr02gf9t9gnbu4de3ym` (`field_availability_id`),
   ADD KEY `fk_bookings_users` (`user_id`);
 
 --
@@ -839,7 +838,6 @@ ALTER TABLE `user_role`
 -- Các ràng buộc cho bảng `bookings`
 --
 ALTER TABLE `bookings`
-  ADD CONSTRAINT `fk_bookings_field_availabilities` FOREIGN KEY (`field_availability_id`) REFERENCES `field_availabilities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_bookings_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -847,6 +845,7 @@ ALTER TABLE `bookings`
 --
 ALTER TABLE `booking_items`
   ADD CONSTRAINT `fk_booking_items_bookings` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_booking_items_field_availabilities` FOREIGN KEY (`field_availability_id`) REFERENCES `field_availabilities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `field_availabilities`

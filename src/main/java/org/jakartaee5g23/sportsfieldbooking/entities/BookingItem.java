@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -45,4 +46,9 @@ public class BookingItem extends AbstractEntity {
     @JsonManagedReference
     Booking booking;
 
+    @OneToOne
+    @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_booking_item_field_availability"))
+    @JsonManagedReference
+    FieldAvailability fieldAvailability;
 }

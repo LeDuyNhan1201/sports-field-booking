@@ -9,10 +9,11 @@ public interface FieldAvailabilityService {
 
     FieldAvailability findById(String id);
 
-    boolean isAlreadyOrdered(Booking booking);
+//    boolean isAlreadyOrdered(Booking booking);
 
     FieldAvailability create(FieldAvailability request);
 
     void updateFieldAvailabilityStatus();
 
+    void update(FieldAvailability fieldAvailability);
 }

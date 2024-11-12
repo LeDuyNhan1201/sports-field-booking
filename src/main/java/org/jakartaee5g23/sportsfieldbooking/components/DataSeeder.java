@@ -58,7 +58,7 @@ public class DataSeeder {
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();
-        seedBookingItems();
+//        seedBookingItems();
         seedPayments();
         seedNotifications();
         seedPromotions();
@@ -157,15 +157,15 @@ public class DataSeeder {
             List<SportsField> fields = sportFieldRepository.findAll();
             List<FileMetadata> images = fileMetadataRepository.findAll();
 
-            int imageIndex = 0;
+            int image_ = 0;
             for (SportsField field : fields) {
 
                 for (int i = 0; i < 2; i++) { // Thêm 2 hình ảnh cho mỗi sports field
-                    FileMetadata image = images.get(imageIndex);
+                    FileMetadata image = images.get(image_);
                     image.setCreatedBy(field.getUser().getId());
                     image.setSportsField(field);
                     fileMetadataRepository.save(image); // Lưu lại hình ảnh với createdBy là người sở hữu sports field
-                    imageIndex++;
+                    image_++;
                 }
             }
 
@@ -175,6 +175,7 @@ public class DataSeeder {
     private void seedFieldAvailabilities() {
         if (fieldAvailabilityRepository.count() == 0) {
             List<SportsField> fields = sportFieldRepository.findAll();
+            List<BookingItem> bookingItems = bookingItemRepository.findAll();
 
             IntStream.range(0, 30).forEach(_ -> {
                 SportsField field = fields.get(faker.number().numberBetween(0, fields.size()));
@@ -216,7 +217,6 @@ public class DataSeeder {
 
                 Booking booking = Booking.builder()
                         .user(createdBy)
-                        .fieldAvailability(availability)
                         .status(getRandomEnum(BookingStatus.class))
                         .createdBy(createdBy.getId())
                         .build();
@@ -229,10 +229,11 @@ public class DataSeeder {
     private void seedBookingItems() {
         if (bookingItemRepository.count() == 0) {
             List<Booking> bookings = bookingRepository.findAll();
+            List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
 
             bookings.forEach(booking -> {
 
-                int itemCount = faker.number().numberBetween(1, 5);
+                int itemCount = faker.number().numberBetween(1, 3);
 
                 for (int i = 0; i < itemCount; i++) {
                     Date availableDate = faker.date().past(30, TimeUnit.DAYS);
@@ -244,13 +245,17 @@ public class DataSeeder {
                     Date endTime = new Date(
                             startTime.getTime() + (long) faker.number().numberBetween(1, 3) * 60 * 60 * 1000);
 
+                    FieldAvailability randomFieldAvailability = fieldAvailabilities.get(
+                            faker.number().numberBetween(0, fieldAvailabilities.size()));
+
                     BookingItem bookingItem = BookingItem.builder()
                             .booking(booking)
                             .availableDate(availableDate)
                             .startTime(startTime)
                             .endTime(endTime)
-                            .price(booking.getFieldAvailability().getPrice())
+                            .price(faker.number().randomDouble(2, 10, 50))
                             .createdBy(booking.getUser().getId())
+                            .fieldAvailability(randomFieldAvailability)
                             .build();
 
                     bookingItemRepository.save(bookingItem);

@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface FieldAvailabilityRepository extends JpaRepository<FieldAvailability, String> {
 
-    Optional<FieldAvailability> findByBooking(Booking booking);
+//    Optional<FieldAvailability> findByBooking(Booking booking);
 
 }

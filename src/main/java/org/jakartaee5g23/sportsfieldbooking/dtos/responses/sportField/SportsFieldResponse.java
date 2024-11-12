@@ -41,6 +41,7 @@ public class SportsFieldResponse {
     @JsonProperty(value = "images")
     List<String> mImages;
 
+    @JsonProperty(value = "fieldAvailabilities")
     List<FieldAvailabilityResponse> fieldAvailabilities;
 
 }

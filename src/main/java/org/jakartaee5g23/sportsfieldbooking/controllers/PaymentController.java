@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.Temporal;
 
@@ -71,7 +72,7 @@ public class PaymentController {
 
     @Operation(summary = "VNPay Callback", description = "Handle VNPay payment callback")
     @GetMapping("/vnpay/callback")
-    public ResponseEntity<String> vnPayCallback(@RequestParam Map<String, String> params) {
+    public ResponseEntity<Void> vnPayCallback(@RequestParam Map<String, String> params, HttpServletRequest request) {
         log.info("VNPay Callback received with params: {}", params);
 
         String orderId = params.get("vnp_TxnRef");
@@ -79,12 +80,13 @@ public class PaymentController {
 
         boolean isVerified = paymentService.verifyVNPayPayment(params, orderId, secureHash);
 
-        if (!isVerified) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid secure hash or payment failed");
-        }
+        String status = isVerified ? "success" : "failed";
+        request.getSession().setAttribute("paymentStatus", status);
 
-        return ResponseEntity.ok("Callback processed and payment verified");
+        String redirectUrl = "http://localhost:3333/sports-field-booking/?paymentStatus=" + status;
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
+
 
     @Operation(summary = "Get sport field price & bookingId", description = "Get sport field price & bookingId when user clicks on payment form", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/payment-info/{bookingId}")
