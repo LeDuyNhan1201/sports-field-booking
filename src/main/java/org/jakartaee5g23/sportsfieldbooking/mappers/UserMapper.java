@@ -23,10 +23,10 @@ public interface UserMapper {
 
     UserResponse toUserResponse(User user);
     @AfterMapping
-    default void customizeDto(User entity, @MappingTarget UserResponse dto, @Autowired MinioClientService minioClientService) {
+    default void customizeDto(User entity, @MappingTarget UserResponse dto) {
         dto.setMRoles(entity.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.toList()));
-        dto.setMAvatar(entity.getAvatar() != null
-                ? minioClientService.getObjectUrl(entity.getAvatar().getObjectKey()) : DEFAULT_AVATAR_URL);
+//        dto.setMAvatar(entity.getAvatar() != null
+//                ? minioClientService.getObjectUrl(entity.getAvatar().getObjectKey()) : DEFAULT_AVATAR_URL);
     }
 
 }
