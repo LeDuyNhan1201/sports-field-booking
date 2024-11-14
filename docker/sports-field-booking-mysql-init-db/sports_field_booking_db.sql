@@ -92,7 +92,10 @@ CREATE TABLE `booking_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
-
+INSERT INTO `booking_items` (`id`, `created_at`, `created_by`, `deleted_at`, `deleted_by`, `is_deleted`, `updated_at`, `updated_by`, `version`, `available_date`, `end_time`, `price`, `start_time`, `booking_id`, `field_availability_id`) VALUES
+('0625941b-d758-4e4e-b00e-58afc6165ee4', '2024-11-07 11:18:05.616000', '21ff59ff-cd4f-4f67-8886-22aa674d3645', NULL, NULL, b'0', '2024-11-07 11:18:05.616000', NULL, 0, '2024-11-06', '2024-11-06 13:00:00.000000', 37.1, '2024-11-06 11:00:00.000000', 'aca9e214-53a9-42ac-9a14-0f6b67c337b8', '1258336a-b051-464c-a4d8-ed33c664e8dd'),
+('0e1c4686-bf60-473c-93a8-fce04db521de', '2024-11-07 11:18:05.243000', 'd1b7ea35-88f4-4acd-ac86-90c2bf3a49cd', NULL, NULL, b'0', '2024-11-07 11:18:05.243000', NULL, 0, '2024-10-28', '2024-10-28 19:00:00.000000', 84.16, '2024-10-28 17:00:00.000000', '0b7f4e5f-47a4-40c1-8c35-8ed25073523b', '1336619e-6260-4a7b-80a1-7a4cf322f4ed'),
+('145d6ff2-b582-4e26-974f-38b3feb839de', '2024-11-07 11:18:05.284000', 'dd3a7406-14b8-432a-9ac4-152fe76d2df0', NULL, NULL, b'0', '2024-11-07 11:18:05.284000', NULL, 0, '2024-11-06', '2024-11-06 14:00:00.000000', 68.88, '2024-11-06 13:00:00.000000', '1bf9f5b1-0b68-4c34-a4dd-cae87c96c0b2', '2799115c-daa8-4022-91cb-677e69fb9c27');
 --
 -- Cấu trúc bảng cho bảng `categories`
 --
