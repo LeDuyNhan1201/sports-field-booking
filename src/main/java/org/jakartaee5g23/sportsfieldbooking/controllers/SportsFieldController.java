@@ -109,13 +109,53 @@ public class SportsFieldController {
     @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
 
     @GetMapping("/search/{text}")
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> searchByText(@PathVariable String text,
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeyword(@PathVariable String text,
                                                                             @RequestParam String colSort,
                                                                             @RequestParam Integer sortDirection,
                                                                             @RequestParam(defaultValue = "0") String offset,
                                                                             @RequestParam(defaultValue = "100") String limit) {
-        Page<SportsField> sportFields = sportsFieldService.searchByText(text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
+        Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeyword(text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
         
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<SportsFieldResponse>builder()
+                        .items(sportFields.stream().map(sf -> {
+                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
+                            setSportsFieldImages(sportsFieldResponse, sf);
+                            return sportsFieldResponse;
+                        }).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
+                        .build());
+    }
+
+    @Operation(summary = "Get sport fields by user", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/management/{userId}")
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByUser(@PathVariable String userId,
+                                                                            @RequestParam String colSort,
+                                                                            @RequestParam Integer sortDirection,
+                                                                            @RequestParam(defaultValue = "0") String offset,
+                                                                            @RequestParam(defaultValue = "100") String limit) {
+        User user = userService.findById(userId);
+        Page<SportsField> sportFields = sportsFieldService.findByUser(user,Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<SportsFieldResponse>builder()
+                        .items(sportFields.stream().map(sf -> {
+                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
+                            setSportsFieldImages(sportsFieldResponse, sf);
+                            return sportsFieldResponse;
+                        }).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
+                        .build());
+    }
+
+    @GetMapping("/management/{userId}/search/{text}")
+    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeywordAndUserId(@PathVariable String text,
+                                                                              @PathVariable String userId,
+                                                                              @RequestParam String colSort,
+                                                                              @RequestParam Integer sortDirection,
+                                                                              @RequestParam(defaultValue = "0") String offset,
+                                                                              @RequestParam(defaultValue = "100") String limit) {
+        Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeywordAndUserId(userId, text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<SportsFieldResponse>builder()
                         .items(sportFields.stream().map(sf -> {
