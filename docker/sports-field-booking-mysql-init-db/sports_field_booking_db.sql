@@ -797,8 +797,8 @@ ALTER TABLE `field_availabilities`
 --
 ALTER TABLE `file_metadata`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `UK47spdbof5die2tuf9wtvev9q` (`object_key`),
-  ADD UNIQUE KEY `UKj37cb0xqyyo6do6ew94sek9rj` (`user_id`),
+--  ADD UNIQUE KEY `UK47spdbof5die2tuf9wtvev9q` (`object_key`),
+--  ADD UNIQUE KEY `UKj37cb0xqyyo6do6ew94sek9rj` (`user_id`),
   ADD KEY `fk_file_metadata_sports_fields` (`sports_field_id`);
 
 --

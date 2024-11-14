@@ -20,7 +20,7 @@ public class FileMetadata extends AbstractEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "object_key", unique = true, nullable = false)
+    @Column(name = "object_key", nullable = false)
     String objectKey;
 
     @Column(name = "content_type", nullable = false)
@@ -45,4 +45,15 @@ public class FileMetadata extends AbstractEntity {
     @JsonBackReference
     SportsField sportsField;
 
+    @Override
+    public String toString() {
+        return "FileMetadata{" +
+                "id='" + id + '\'' +
+                ", objectKey='" + objectKey + '\'' +
+                ", contentType='" + contentType + '\'' +
+                ", size=" + size +
+                ", user=" + user +
+                ", sportsField=" + sportsField +
+                '}';
+    }
 }

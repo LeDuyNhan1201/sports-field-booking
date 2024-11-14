@@ -17,7 +17,8 @@ public record FileUploadRequest (
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")
-    String contentType
+    String contentType,
 
+    String userId
 )
 { }
