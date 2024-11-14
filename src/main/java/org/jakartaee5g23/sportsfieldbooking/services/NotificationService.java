@@ -7,7 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface NotificationService {
+    Notification findById(Long id);
 
     Page<Notification> findByUser(User user, int offset, int limit);
 
+    void readNotification(User user, String notificationId);
+
+    void readAllNotifications(User user);
 }
