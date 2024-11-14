@@ -5,6 +5,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateRespons
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.NotificationResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.mappers.NotificationMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.NotificationService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
@@ -70,5 +71,14 @@ public class NotificationController {
         User current = userService.findById(getUserIdFromContext());
         notificationService.readAllNotifications(current);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Create new notification", description = "Create new notification", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/create")
+    public ResponseEntity<Void> createNotification(@RequestParam String bookingId, @RequestParam NotificationType type,
+            @RequestParam String message) {
+        User current = userService.findById(getUserIdFromContext());
+        notificationService.createNotification(current, bookingId, type, message);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
