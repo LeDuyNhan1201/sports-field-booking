@@ -42,5 +42,6 @@ public class Notification extends AbstractEntity {
 
         @Column(nullable = false)
         @Builder.Default
+        @JoinColumn(name = "is_read")
         boolean isRead = false;
 }
