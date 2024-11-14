@@ -1,8 +1,11 @@
 package org.jakartaee5g23.sportsfieldbooking.services.impls;
 
+import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.repositories.NotificationRepository;
+import org.jakartaee5g23.sportsfieldbooking.repositories.BookingRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.NotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +21,8 @@ import lombok.AccessLevel;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
-
     NotificationRepository notificationRepository;
+    BookingRepository bookingRepository;
 
     @Override
     public Page<Notification> findByUser(User user, int offset, int limit) {
@@ -43,5 +46,16 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void readAllNotifications(User user) {
         notificationRepository.readAllNotifications(user);
+    }
+
+    @Override
+    public void createNotification(User user, String bookingId, NotificationType type, String message) {
+        Notification notification = new Notification();
+        notification.setUser(user);
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        notification.setBooking(booking);
+        notification.setType(type);
+        notification.setMessage(message);
+        notificationRepository.save(notification);
     }
 }
