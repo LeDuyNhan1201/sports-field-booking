@@ -56,7 +56,6 @@ public class BookingController {
                 User current = userService.findById(getUserIdFromContext());
 
                 Booking booking = Booking.builder()
-
                                 .user(current)
                                 .build();
 
