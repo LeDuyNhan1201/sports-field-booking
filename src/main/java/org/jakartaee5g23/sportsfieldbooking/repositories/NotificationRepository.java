@@ -21,11 +21,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.user = :user AND n.isRead = false")
     void readAllNotifications(User user);
 
-    // find notifications by id string
     @Query("SELECT n FROM Notification n WHERE n.id = :id")
     Notification findById(String id);
 
-    // update status is read of notification
     @Modifying
     @Transactional
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.id = :id AND n.isRead = false")
