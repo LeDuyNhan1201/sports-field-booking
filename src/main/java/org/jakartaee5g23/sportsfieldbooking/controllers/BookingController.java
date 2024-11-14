@@ -49,15 +49,14 @@ public class BookingController {
 
         UserService userService;
 
-        FieldAvailabilityService fieldAvailabilityService;
 
         @Operation(summary = "Confirm booking", description = "Save booking's order", security = @SecurityRequirement(name = "bearerAuth"))
         @PostMapping("/{fieldAvailabilityId}")
         public ResponseEntity<BookingResponse> booking(@PathVariable String fieldAvailabilityId) {
                 User current = userService.findById(getUserIdFromContext());
-                FieldAvailability fieldAvailability = fieldAvailabilityService.findById(fieldAvailabilityId);
 
                 Booking booking = Booking.builder()
+
                                 .user(current)
                                 .build();
 
