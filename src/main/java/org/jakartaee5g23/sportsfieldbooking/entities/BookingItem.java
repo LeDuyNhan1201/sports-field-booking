@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,36 +18,32 @@ import java.util.List;
 @Table(name = "booking_items")
 public class BookingItem extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "available_date", nullable = false)
-    Date availableDate;
+        @Temporal(TemporalType.DATE)
+        @Column(name = "available_date", nullable = false)
+        Date availableDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "start_time", nullable = false)
-    Date startTime;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "start_time", nullable = false)
+        Date startTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end_time", nullable = false)
-    Date endTime;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "end_time", nullable = false)
+        Date endTime;
 
-    @Column(name = "price", nullable = false)
-    Double price;
+        @Column(name = "price", nullable = false)
+        Double price;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_booking_items_bookings",
-                    foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false, updatable = false)
-    @JsonManagedReference
-    Booking booking;
+        @ManyToOne
+        @JoinColumn(name = "booking_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_booking_items_bookings", foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JsonManagedReference
+        Booking booking;
 
-    @OneToOne
-    @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_booking_item_field_availability"))
-    @JsonManagedReference
-    FieldAvailability fieldAvailability;
+        @OneToOne
+        @JoinColumn(name = "field_availability_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_booking_item_field_availability"))
+        @JsonManagedReference
+        FieldAvailability fieldAvailability;
 }

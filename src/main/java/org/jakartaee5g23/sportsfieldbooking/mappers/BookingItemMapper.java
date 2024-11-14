@@ -17,13 +17,15 @@ public interface BookingItemMapper {
         BookingItemResponse toBookingItemResponse(BookingItem entity);
 
         @AfterMapping
-        default void customizeDto(Booking entity, @MappingTarget BookingResponse dto) {
-                dto.setMUser(UserMapper.INSTANCE.toUserResponse(entity.getUser()));
-//                dto.setMSportField(
-//                                SportsFieldMapper.INSTANCE
-//                                                .toSportsFieldResponse(entity.getFieldAvailability().getSportsField()));
-//                dto.setMFieldAvailability(
-//                                FieldAvailabilityMapper.INSTANCE
-//                                                .toFieldAvailabilityResponse(entity.getFieldAvailability()));
+        default void customizeDto(BookingItem entity, @MappingTarget BookingItemResponse dto) {
+                dto.setMFieldAvailability(
+                                FieldAvailabilityMapper.INSTANCE
+                                                .toFieldAvailabilityResponse(entity.getFieldAvailability()));
+                // dto.setMSportField(
+                // SportsFieldMapper.INSTANCE
+                // .toSportsFieldResponse(entity.getFieldAvailability().getSportsField()));
+                // dto.setMFieldAvailability(
+                // FieldAvailabilityMapper.INSTANCE
+                // .toFieldAvailabilityResponse(entity.getFieldAvailability()));
         }
 }
