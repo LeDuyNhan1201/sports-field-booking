@@ -67,7 +67,7 @@ public class User extends AbstractEntity {
     @JsonBackReference
     List<Verification> verifications;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     FileMetadata avatar;
 
@@ -87,4 +87,27 @@ public class User extends AbstractEntity {
     @JsonBackReference
     List<Review> reviews;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", isActivated=" + isActivated +
+                ", bio='" + bio + '\'' +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", birthdate=" + birthdate +
+                ", gender=" + gender +
+                ", status=" + status +
+                ", verifications=" + verifications +
+                ", avatar=" + avatar.getId() +
+                ", roles=" + roles +
+                ", bookings=" + bookings +
+                ", reviews=" + reviews +
+                '}';
+    }
 }

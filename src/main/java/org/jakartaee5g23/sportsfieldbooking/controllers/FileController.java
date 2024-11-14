@@ -6,10 +6,15 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
+import org.jakartaee5g23.sportsfieldbooking.services.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +33,28 @@ public class FileController {
 
     MinioClientService minioClientService;
 
+    UserService userService;
+
+    @Value("${minio.bucket-name}")
+    @NonFinal
+    String bucketName;
+
+    @Operation(summary = "Get file metadata by user ID", description = "Retrieve file metadata by user ID")
+    @GetMapping("/metadata-by-user")
+    ResponseEntity<CommonResponse<String, ?>> getFileMetadataByUserId(@RequestParam String userId) {
+        User current = userService.findById(userId);
+        FileMetadata fileMetadata = minioClientService.getFileMetadataByUser(current);
+
+        String avatarUrl = fileMetadata != null ? minioClientService.getObjectUrl(fileMetadata.getObjectKey()) : null;
+
+        return ResponseEntity.ok(
+                CommonResponse.<String, Object>builder()
+                        .message(getLocalizedMessage("file_metadata_retrieved"))
+                        .results(avatarUrl)
+                        .build()
+        );
+    }
+
     @Operation(summary = "Upload chunk file", description = "Upload chunk file")
     @PostMapping("/upload-chunk")
     ResponseEntity<CommonResponse<Long, ?>> uploadChunk(@RequestPart(name = "file") MultipartFile file,
@@ -39,7 +66,8 @@ public class FileController {
                 request.chunkHash(),
                 request.startByte(),
                 request.totalSize(),
-                request.contentType());
+                request.contentType(),
+                request.userId());
 
         HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
 
@@ -54,10 +82,30 @@ public class FileController {
     }
 
     @Operation(summary = "Delete file", description = "Delete file")
-    @DeleteMapping("/delete-file")
-    void deleteObject(@RequestParam String objectKey) {
-        //localStorageService.deleteFile(objectKey);
+    @DeleteMapping("/delete-file/{id}")
+    ResponseEntity<CommonResponse<String, Object>> deleteObject(@PathVariable String id) {
+        User current = userService.findById(id);
+        current.setAvatar(null);
+        userService.updateUser(current);
+
+        return ResponseEntity.ok(
+                CommonResponse.<String, Object>builder()
+                        .message(getLocalizedMessage("file_metadata_retrieved"))
+                        .build()
+        );
     }
+
+//    @Operation(summary = "Delete file", description = "Delete file")
+//    @DeleteMapping("/delete-file")
+//    ResponseEntity<CommonResponse<String, Object>> deleteObject(@RequestParam String objectKey) {
+//        minioClientService.deleteObject(objectKey, bucketName);
+//        return ResponseEntity.ok(
+//                CommonResponse.<String, Object>builder()
+//                        .message("File deleted successfully.")
+//                        .results(null)
+//                        .build()
+//        );
+//    }
 
 //    private boolean isUploadComplete(boolean[] uploadStatus) {
 //        for (boolean status : uploadStatus) {
