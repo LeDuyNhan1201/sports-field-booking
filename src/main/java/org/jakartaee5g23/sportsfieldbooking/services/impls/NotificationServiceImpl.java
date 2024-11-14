@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,25 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Page<Notification> findByUser(User user, int offset, int limit) {
-        return notificationRepository.findByUser(user, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        return notificationRepository.findByUser(user,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
+    @Override
+    public Notification findById(Long id) {
+        return notificationRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void readNotification(User user, String notificationId) {
+        Notification notification = notificationRepository.findById(notificationId);
+        if (notification != null && notification.getUser().getId().equals(user.getId())) {
+            notificationRepository.readNotification(notification.getId());
+        }
+    }
+
+    @Override
+    public void readAllNotifications(User user) {
+        notificationRepository.readAllNotifications(user);
+    }
 }
