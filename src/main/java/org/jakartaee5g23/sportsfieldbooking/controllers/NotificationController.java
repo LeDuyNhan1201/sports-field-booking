@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,14 +43,32 @@ public class NotificationController {
 
     @Operation(summary = "View my notification", description = "Get list of notification", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ResponseEntity<PaginateResponse<NotificationResponse>> getMyNotification(@RequestParam(defaultValue = "0") String offset,
-                                                                  @RequestParam(defaultValue = "100") String limit) {
+    public ResponseEntity<PaginateResponse<NotificationResponse>> getMyNotification(
+            @RequestParam(defaultValue = "0") String offset,
+            @RequestParam(defaultValue = "100") String limit) {
         User current = userService.findById(getUserIdFromContext());
-        Page<Notification> notifications = notificationService.findByUser(current, Integer.parseInt(offset), Integer.parseInt(limit));
+        Page<Notification> notifications = notificationService.findByUser(current, Integer.parseInt(offset),
+                Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK).body(PaginateResponse.<NotificationResponse>builder()
                 .items(notifications.stream().map(notificationMapper::toNotificationResponse).toList())
-                .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), notifications.getTotalElements()))
+                .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit),
+                        notifications.getTotalElements()))
                 .build());
     }
 
+    @Operation(summary = "Read notification", description = "Read notification", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{id}/read")
+    public ResponseEntity<Void> readNotification(@PathVariable String id) {
+        User current = userService.findById(getUserIdFromContext());
+        notificationService.readNotification(current, id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Read all notifications", description = "Mark all notifications as read for the current user", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/read-all")
+    public ResponseEntity<Void> readAllNotifications() {
+        User current = userService.findById(getUserIdFromContext());
+        notificationService.readAllNotifications(current);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }
