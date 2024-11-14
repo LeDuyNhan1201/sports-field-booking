@@ -1,6 +1,7 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.springframework.data.domain.Page;
 
@@ -16,5 +17,8 @@ public interface SportsFieldService {
 
     SportsField updateStatus(String id, SportsFieldStatus status);
 
-    Page<SportsField> searchByText(String text, int offset, int limit, String colSort, int sortDirection);
+    Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort, int sortDirection);
+
+    Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
+    Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit, String colSort, int sortDirection);
 }

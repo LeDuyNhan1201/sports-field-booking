@@ -117,12 +117,29 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     }
 
     @Override
-    public Page<SportsField> searchByText(String text, int offset, int limit, String colSort, int sortDirection) {
+    public Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1) 
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
     
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.searchByText(text, pageable);
+        return sportsFieldRepository.findSportsFieldsByKeyword(text, pageable);
+    }
+
+    @Override
+    public Page<SportsField> findByUser(User user ,int offset, int limit, String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+        return sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
+    }
+    @Override
+    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit, String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        return sportsFieldRepository.findSportsFieldsByKeywordAndUserId(UserId,text, pageable);
     }
 }
