@@ -28,7 +28,7 @@ public class FieldAvailabilityResponse {
 
     User user;
 
-    SportsField mSportsField;
+    // SportsField mSportsField;
 
     @JsonProperty(value = "payment")
     Payment mPayment;
@@ -52,4 +52,7 @@ public class FieldAvailabilityResponse {
     @JsonProperty(value = "is_available")
     @Column(name = "is_available")
     Boolean isAvailable;
+
+    @JsonProperty(value = "sportsField")
+    SportsFieldResponse mSportsField;
 }
