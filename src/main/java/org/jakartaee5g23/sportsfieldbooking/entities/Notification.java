@@ -19,30 +19,28 @@ import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 @Table(name = "notifications")
 public class Notification extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_notifications_users",
-                    foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
-            nullable = false, updatable = false)
-    @JsonBackReference
-    User user;
+        @ManyToOne
+        @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_notifications_users", foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JsonBackReference
+        User user;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_notifications_bookings",
-                    foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"))
-    @JsonManagedReference
-    Booking booking;
+        @ManyToOne
+        @JoinColumn(name = "booking_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_notifications_bookings", foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"))
+        @JsonManagedReference
+        Booking booking;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    NotificationType type;
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        NotificationType type;
 
-    @Column(nullable = false)
-    String message;
+        @Column(nullable = false)
+        String message;
 
+        @Column(nullable = false)
+        @Builder.Default
+        boolean isRead = false;
 }

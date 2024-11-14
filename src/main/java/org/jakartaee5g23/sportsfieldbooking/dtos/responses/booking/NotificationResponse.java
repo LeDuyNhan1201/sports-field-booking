@@ -24,4 +24,5 @@ public class NotificationResponse {
 
     String message;
 
+    boolean isRead;
 }

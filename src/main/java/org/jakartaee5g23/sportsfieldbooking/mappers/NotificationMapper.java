@@ -13,9 +13,10 @@ public interface NotificationMapper {
     NotificationMapper INSTANCE = Mappers.getMapper(NotificationMapper.class);
 
     NotificationResponse toNotificationResponse(Notification entity);
+
     @AfterMapping
     default void customizeDto(Notification entity, @MappingTarget NotificationResponse dto) {
         dto.setMBooking(BookingMapper.INSTANCE.toBookingResponse(entity.getBooking()));
+        dto.setRead(entity.isRead());
     }
-
 }
