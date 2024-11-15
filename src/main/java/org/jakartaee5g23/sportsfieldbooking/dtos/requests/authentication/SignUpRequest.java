@@ -46,7 +46,7 @@ public record SignUpRequest (
         LocalDate birthdate,
 
         Gender gender,
-
+                
         boolean acceptTerms
 
 ) {

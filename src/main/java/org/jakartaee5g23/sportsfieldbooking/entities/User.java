@@ -26,7 +26,7 @@ public class User extends AbstractEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(name = "email", unique = true, nullable = false, length = 100)
     String email;
 
     @Column(nullable = false)
@@ -37,7 +37,7 @@ public class User extends AbstractEntity {
 
     String bio;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name="username", nullable = false, unique = true, length = 50)
     String username;
 
     @Column(name = "first_name", nullable = false, length = 50)
@@ -55,7 +55,7 @@ public class User extends AbstractEntity {
     @Column(name = "birthdate")
     LocalDate birthdate;
 
-    @Column(length = 20)
+    @Column(name = "gender", length = 20)
     @Enumerated(EnumType.STRING)
     Gender gender;
 

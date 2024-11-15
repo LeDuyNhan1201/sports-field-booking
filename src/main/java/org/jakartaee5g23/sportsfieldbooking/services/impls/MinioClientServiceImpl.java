@@ -299,7 +299,6 @@ public class MinioClientServiceImpl implements MinioClientService {
     public void deleteFileMetadata(String id) {
         FileMetadata fileMetadata = fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("File metadata not found"));
-        System.out.println("test id: "+id);
         fileMetadataRepository.delete(fileMetadata);
         fileMetadataRepository.flush();
     }
