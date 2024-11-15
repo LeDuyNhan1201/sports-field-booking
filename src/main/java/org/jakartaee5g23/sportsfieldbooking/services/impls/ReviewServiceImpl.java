@@ -39,27 +39,40 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Page<Review> findBySportField(SportsField sportsField, int offset, int limit) {
-        return reviewRepository.findBySportsField(sportsField, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        return reviewRepository.findBySportsField(sportsField,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override
     public Page<Review> findByParentReview(Review parentReview, int offset, int limit) {
-        return reviewRepository.findByParentReview(parentReview, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+        return reviewRepository.findByParentReview(parentReview,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override
     public Review create(Review request) {
-        if (request.getUser().getStatus().equals(UserStatus.BANNED)) throw new AppException(CommonErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
+        if (request.getUser().getStatus().equals(UserStatus.BANNED))
+            throw new AppException(CommonErrorCode.USER_BANNED, HttpStatus.NOT_FOUND);
+
+        Review review = Review.builder()
+                .sportsField(request.getSportsField())
+                .user(request.getUser())
+                .parentReview(request.getParentReview())
+                .comment(request.getComment())
+                .build();
+
+        Review createReview = reviewRepository.save(review);
 
         Notification notification = Notification.builder()
                 .user(request.getParentReview().getUser())
                 .booking(null)
+                .review(createReview)
                 .type(NotificationType.COMMENT_FEEDBACK)
                 .message(getLocalizedMessage("message_confirmed"))
                 .build();
 
         notificationRepository.save(notification);
-        return reviewRepository.save(request);
+        return createReview;
     }
 
     @Override
