@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -40,6 +41,8 @@ public class UserController {
     UserService userService;
 
     AuthenticationService authenticationService;
+
+    PasswordEncoder passwordEncoder;
 
     UserMapper userMapper = UserMapper.INSTANCE;
 
@@ -96,6 +99,48 @@ public class UserController {
                         .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), users.getTotalElements()))
                         .build());
     }
+
+    @Operation(summary = "Change user password", description = "Change the user's password", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/{userId}/change-password")
+    public ResponseEntity<String> changePassword(
+            @PathVariable String userId,
+            @RequestBody String password) {
+
+        User existingUser = userService.findById(userId);
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if (password.startsWith("\"") && password.endsWith("\"")) {
+            password = password.substring(1, password.length() - 1);
+        }
+        userService.updatePassword(existingUser, password);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Password updated successfully");
+    }
+
+    @Operation(summary = "Verify user password", description = "Verify the user's current password", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/{userId}/verify-password")
+    public ResponseEntity<String> verifyPassword(
+            @PathVariable String userId,
+            @RequestBody String currentPassword) {
+        User existingUser = userService.findById(userId);
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if (currentPassword.startsWith("\"") && currentPassword.endsWith("\"")) {
+            currentPassword = currentPassword.substring(1, currentPassword.length() - 1);
+        }
+
+        if (!passwordEncoder.matches(currentPassword, existingUser.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect current password");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Password verified");
+    }
+
+
+
 
 /*    @Operation(summary = "Upload avatar", description = "Upload avatar", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/avatar")

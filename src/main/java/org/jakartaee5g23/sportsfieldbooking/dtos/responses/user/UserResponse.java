@@ -32,6 +32,8 @@ public class UserResponse {
 
     String mobileNumber;
 
+    String password;
+
     LocalDate birthdate;
 
     @JsonProperty("avatar")

@@ -104,7 +104,6 @@ public class User extends AbstractEntity {
                 ", gender=" + gender +
                 ", status=" + status +
                 ", verifications=" + verifications +
-                ", avatar=" + avatar.getId() +
                 ", roles=" + roles +
                 ", bookings=" + bookings +
                 ", reviews=" + reviews +

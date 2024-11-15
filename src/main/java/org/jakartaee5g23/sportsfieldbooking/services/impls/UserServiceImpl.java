@@ -12,6 +12,7 @@ import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode.USER_NOT_FOUND;
@@ -24,6 +25,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
+
+    PasswordEncoder passwordEncoder;
 
     @Override
     public Page<User> findAll(int offset, int limit) {
@@ -55,10 +58,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updatePassword(User user, String password) {
-        user.setPassword(password);
+    public void updatePassword(User user, String newPassword) {
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(hashedPassword);
         userRepository.save(user);
     }
+
 
     @Override
     @Transactional
