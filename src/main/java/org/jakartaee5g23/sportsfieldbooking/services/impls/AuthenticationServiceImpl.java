@@ -14,6 +14,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.entities.Verification;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.VerificationType;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.VerificationRepository;
@@ -112,11 +113,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AuthenticationException(TERMS_NOT_ACCEPTED, BAD_REQUEST);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivated(false);
+        user.setActivated(true);
+        user.setStatus(UserStatus.ACTIVE);
         try {
             userService.createUser(user);
         } catch (DataIntegrityViolationException exception) {
-            throw new AuthenticationException(EMAIL_ALREADY_IN_USE, CONFLICT);
+            throw new AuthenticationException(CREATE_USER_FAILED, CONFLICT);
         }
     }
 

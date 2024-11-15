@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum CommonErrorCode {
     USER_BANNED("USER-BANNED", "user_banned"),
     OBJECT_NOT_FOUND("OBJECT-NOT-FOUND", "object_not_found"),
+    ROLE_NOT_FOUND("ROLE-NOT-FOUND", "role_not_found")
     ;
 
     CommonErrorCode(String code, String message) {

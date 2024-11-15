@@ -77,7 +77,7 @@ public class AuthenticationController {
         authenticationService.signUp(user, request.passwordConfirmation(), request.acceptTerms());
 
         return ResponseEntity.status(CREATED).body(
-                new SignUpResponse(getLocalizedMessage("sign_up_success")));
+                new SignUpResponse(getLocalizedMessage("sign_up_success"), user.getId()));
     }
 
     @Operation(summary = "Send email verification", description = "Send email verification")

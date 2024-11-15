@@ -46,6 +46,11 @@ public class BookingItemController {
         Booking booking = bookingService.findById(bookingItemRequest.orderId());
         FieldAvailability fieldAvailability = fieldAvailabilityService.findById(bookingItemRequest.fieldAvailabilityId());
 
+        if (fieldAvailability.getAvailableDate().equals(bookingItemRequest.availableDate())) {
+            fieldAvailability.setIsAvailable(false);
+            fieldAvailabilityService.update(fieldAvailability);
+        }
+
         BookingItem bookingItem = BookingItem.builder()
                 .booking(booking)
                 .fieldAvailability(fieldAvailability)
@@ -54,9 +59,6 @@ public class BookingItemController {
                 .endTime(bookingItemRequest.endTime())
                 .price(bookingItemRequest.price())
                 .build();
-
-        fieldAvailability.setIsAvailable(false);
-        fieldAvailabilityService.update(fieldAvailability);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(bookingItemMapper.toBookingItemResponse(bookingItemsService.create(bookingItem)));
