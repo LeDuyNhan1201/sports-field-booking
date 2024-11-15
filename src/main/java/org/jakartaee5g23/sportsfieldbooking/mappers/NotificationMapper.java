@@ -18,5 +18,6 @@ public interface NotificationMapper {
     default void customizeDto(Notification entity, @MappingTarget NotificationResponse dto) {
         dto.setMBooking(BookingMapper.INSTANCE.toBookingResponse(entity.getBooking()));
         dto.setRead(entity.isRead());
+        dto.setMReview(ReviewMapper.INSTANCE.toReviewResponse(entity.getReview()));
     }
 }

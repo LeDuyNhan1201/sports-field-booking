@@ -33,6 +33,12 @@ public class Notification extends AbstractEntity {
         @JsonManagedReference
         Booking booking;
 
+        // reviews
+        @ManyToOne
+        @JoinColumn(name = "review_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_notifications_reviews", foreignKeyDefinition = "FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = true)
+        @JsonManagedReference
+        Review review;
+
         @Enumerated(EnumType.STRING)
         @Column(nullable = false)
         NotificationType type;

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.reviews.ReviewResponse;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 
 @NoArgsConstructor
@@ -19,6 +21,9 @@ public class NotificationResponse {
 
     @JsonProperty("booking")
     BookingResponse mBooking;
+
+    @JsonProperty("review")
+    ReviewResponse mReview;
 
     NotificationType type;
 
