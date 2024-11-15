@@ -74,4 +74,11 @@ public class SportsField extends AbstractEntity {
         @JsonBackReference
         List<Review> reviews;
 
+        @ManyToOne(optional = false, fetch = FetchType.LAZY)
+        @JoinColumn(name = "promotion_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_sports_fields_promotions",
+                        foreignKeyDefinition = "FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false)
+        @JsonBackReference
+        Promotion promotion;
 }

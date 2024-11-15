@@ -10,5 +10,5 @@ public enum SportsFieldStatus {
 
     INACTIVE,
 
-
+    PENDING
 }

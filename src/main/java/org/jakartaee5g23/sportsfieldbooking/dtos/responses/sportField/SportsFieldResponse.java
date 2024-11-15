@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
+import org.jakartaee5g23.sportsfieldbooking.entities.Promotion;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 import java.util.Date;
@@ -44,4 +45,5 @@ public class SportsFieldResponse {
     @JsonProperty(value = "fieldAvailabilities")
     List<FieldAvailabilityResponse> fieldAvailabilities;
 
+    Promotion promotion;
 }

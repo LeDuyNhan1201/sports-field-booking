@@ -145,6 +145,7 @@ public class DataSeeder {
                         .rating(faker.number().randomDouble(2, 0, 5))
                         .status(getRandomEnum(SportsFieldStatus.class))
                         .createdBy(createdBy.getId())
+                        .promotion(null)
                         .build();
 
                 sportFieldRepository.save(field);
