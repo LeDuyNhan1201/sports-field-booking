@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.OK;
 
-
 @RestController
 @RequestMapping("${api.prefix}/sports-field")
 @RequiredArgsConstructor
@@ -43,135 +42,192 @@ import static org.springframework.http.HttpStatus.OK;
 @Tag(name = "Sports Field APIs")
 public class SportsFieldController {
 
-    SportsFieldService sportsFieldService;
+        SportsFieldService sportsFieldService;
 
-    UserService userService;
+        UserService userService;
 
-    MinioClientService minioClientService;
+        MinioClientService minioClientService;
 
-    SportsFieldMapper sportsFieldMapper = SportsFieldMapper.INSTANCE;
+        SportsFieldMapper sportsFieldMapper = SportsFieldMapper.INSTANCE;
 
-    @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping
-    @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportsFieldResponse> create (@RequestBody @Valid NewSportsFieldRequest request) {
-        User current = userService.findById(getUserIdFromContext());
-        SportsField sportsField = sportsFieldMapper.toSportsField(request);
-        sportsField.setUser(current);
-        sportsField.setCategory(Category.builder().id(request.categoryId()).build());
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.create(sportsField, request.isConfirmed())));
-    }
+        @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
+        @PostMapping
+        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        public ResponseEntity<SportsFieldResponse> create(@RequestBody @Valid NewSportsFieldRequest request) {
+                User current = userService.findById(getUserIdFromContext());
+                SportsField sportsField = sportsFieldMapper.toSportsField(request);
+                sportsField.setUser(current);
+                sportsField.setCategory(Category.builder().id(request.categoryId()).build());
+                return ResponseEntity.status(OK).body(
+                                sportsFieldMapper.toSportsFieldResponse(
+                                                sportsFieldService.create(sportsField, request.isConfirmed())));
+        }
 
+        @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping
+        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
+                SportsField sportsField = sportsFieldMapper.toSportsField(request);
+                return ResponseEntity.status(OK).body(
+                                sportsFieldMapper.toSportsFieldResponse(
+                                                sportsFieldService.update(sportsField, request.isConfirmed())));
+        }
 
-    @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping
-    @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
-        SportsField sportsField = sportsFieldMapper.toSportsField(request);
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.update(sportsField, request.isConfirmed())));
-    }
+        @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping("/status/{id}")
+        // @PostAuthorize("(returnObject.body.owner.id == authentication.name and
+        // hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        public ResponseEntity<SportsFieldResponse> updateStatus(@PathVariable String id,
+                        @RequestParam SportsFieldStatus status) {
+                return ResponseEntity.status(OK)
+                                .body(sportsFieldMapper
+                                                .toSportsFieldResponse(sportsFieldService.updateStatus(id, status)));
+        }
 
-    @Operation(summary = "Update status sport field", description = "Update status sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/status/{id}")
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportsFieldResponse> updateStatus (@PathVariable String id, @RequestParam SportsFieldStatus status) {
-        return ResponseEntity.status(OK).body(sportsFieldMapper.toSportsFieldResponse(sportsFieldService.updateStatus(id, status)));
-    }
+        @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
+        @GetMapping
+        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam String colSort,
+                        @RequestParam Integer sortDirection,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset),
+                                Integer.parseInt(limit),
+                                colSort, sortDirection);
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<SportsFieldResponse>builder()
+                                                .items(sportFields.stream().map(sf -> {
+                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
+                                                                        .toSportsFieldResponse(sf);
+                                                        setSportsFieldImages(sportsFieldResponse, sf);
+                                                        return sportsFieldResponse;
+                                                }).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                sportFields.getTotalElements()))
+                                                .build());
+        }
 
-    @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
-    @GetMapping
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findAll(@RequestParam String colSort,
-                                                                         @RequestParam Integer sortDirection,
-                                                                         @RequestParam(defaultValue = "0") String offset,
-                                                                         @RequestParam(defaultValue = "100") String limit) {
-        Page<SportsField> sportFields = sportsFieldService.findAll(Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sf -> {
-                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
-                            setSportsFieldImages(sportsFieldResponse, sf);
-                            return sportsFieldResponse;
-                        }).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
-                        .build());
-    }
-    
-    @Operation(summary = "Get sport field by id", description = "Get sport field detail when user have id ", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/{id}")
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<SportsFieldResponse> findById (@PathVariable String id) {
-        SportsField sportsField = sportsFieldService.findById(id);
-        SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sportsField);
-        setSportsFieldImages(sportsFieldResponse, sportsField);
-        return ResponseEntity.status(OK).body(sportsFieldResponse);
-    }
+        @Operation(summary = "Get sport field by id", description = "Get sport field detail when user have id ", security = @SecurityRequirement(name = "bearerAuth"))
+        @GetMapping("/{id}")
+        // @PostAuthorize("(returnObject.body.owner.id == authentication.name and
+        // hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        public ResponseEntity<SportsFieldResponse> findById(@PathVariable String id) {
+                SportsField sportsField = sportsFieldService.findById(id);
+                SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sportsField);
+                setSportsFieldImages(sportsFieldResponse, sportsField);
+                return ResponseEntity.status(OK).body(sportsFieldResponse);
+        }
 
-    @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
+        @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
 
-    @GetMapping("/search/{text}")
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeyword(@PathVariable String text,
-                                                                            @RequestParam String colSort,
-                                                                            @RequestParam Integer sortDirection,
-                                                                            @RequestParam(defaultValue = "0") String offset,
-                                                                            @RequestParam(defaultValue = "100") String limit) {
-        Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeyword(text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
-        
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sf -> {
-                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
-                            setSportsFieldImages(sportsFieldResponse, sf);
-                            return sportsFieldResponse;
-                        }).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
-                        .build());
-    }
+        @GetMapping("/search-by-category/{text}")
+        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeyword(
+                        @PathVariable String text,
+                        @RequestParam String colSort,
+                        @RequestParam Integer sortDirection,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeyword(text,
+                                Integer.parseInt(offset),
+                                Integer.parseInt(limit), colSort, sortDirection);
 
-    @Operation(summary = "Get sport fields by user", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/management/{userId}")
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByUser(@PathVariable String userId,
-                                                                            @RequestParam String colSort,
-                                                                            @RequestParam Integer sortDirection,
-                                                                            @RequestParam(defaultValue = "0") String offset,
-                                                                            @RequestParam(defaultValue = "100") String limit) {
-        User user = userService.findById(userId);
-        Page<SportsField> sportFields = sportsFieldService.findByUser(user,Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sf -> {
-                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
-                            setSportsFieldImages(sportsFieldResponse, sf);
-                            return sportsFieldResponse;
-                        }).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
-                        .build());
-    }
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<SportsFieldResponse>builder()
+                                                .items(sportFields.stream().map(sf -> {
+                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
+                                                                        .toSportsFieldResponse(sf);
+                                                        setSportsFieldImages(sportsFieldResponse, sf);
+                                                        return sportsFieldResponse;
+                                                }).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                sportFields.getTotalElements()))
+                                                .build());
+        }
 
-    @GetMapping("/management/{userId}/search/{text}")
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeywordAndUserId(@PathVariable String text,
-                                                                              @PathVariable String userId,
-                                                                              @RequestParam String colSort,
-                                                                              @RequestParam Integer sortDirection,
-                                                                              @RequestParam(defaultValue = "0") String offset,
-                                                                              @RequestParam(defaultValue = "100") String limit) {
-        Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeywordAndUserId(userId, text, Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
+        @Operation(summary = "Get sport fields by user", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
+        @GetMapping("/management/{userId}")
+        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByUser(@PathVariable String userId,
+                        @RequestParam String colSort,
+                        @RequestParam Integer sortDirection,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                User user = userService.findById(userId);
+                Page<SportsField> sportFields = sportsFieldService.findByUser(user, Integer.parseInt(offset),
+                                Integer.parseInt(limit), colSort, sortDirection);
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<SportsFieldResponse>builder()
+                                                .items(sportFields.stream().map(sf -> {
+                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
+                                                                        .toSportsFieldResponse(sf);
+                                                        setSportsFieldImages(sportsFieldResponse, sf);
+                                                        return sportsFieldResponse;
+                                                }).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                sportFields.getTotalElements()))
+                                                .build());
+        }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sf -> {
-                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper.toSportsFieldResponse(sf);
-                            setSportsFieldImages(sportsFieldResponse, sf);
-                            return sportsFieldResponse;
-                        }).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), sportFields.getTotalElements()))
-                        .build());
-    }
+        @GetMapping("/management/{userId}/search/{text}")
+        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeywordAndUserId(
+                        @PathVariable String text,
+                        @PathVariable String userId,
+                        @RequestParam String colSort,
+                        @RequestParam Integer sortDirection,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeywordAndUserId(userId, text,
+                                Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection);
 
-    private void setSportsFieldImages(SportsFieldResponse sportsFieldResponse, SportsField sportsField) {
-        sportsFieldResponse.setMImages(sportsField.getImages() != null
-                ? sportsField.getImages().stream().map(fileMetadata ->
-                minioClientService.getObjectUrl(fileMetadata.getObjectKey())).collect(Collectors.toList())
-                : new ArrayList<>());
-    }
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<SportsFieldResponse>builder()
+                                                .items(sportFields.stream().map(sf -> {
+                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
+                                                                        .toSportsFieldResponse(sf);
+                                                        setSportsFieldImages(sportsFieldResponse, sf);
+                                                        return sportsFieldResponse;
+                                                }).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                sportFields.getTotalElements()))
+                                                .build());
+        }
 
+        @Operation(summary = "Search sport fields by category, location, and price", description = "Search sport fields by category, location, and price")
+        @GetMapping("/search-all")
+        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByCategoryLocationPrice(
+                        @RequestParam String categoryId,
+                        @RequestParam String location,
+                        @RequestParam double minPrice,
+                        @RequestParam double maxPrice,
+                        @RequestParam String colSort,
+                        @RequestParam Integer sortDirection,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByCategoryLocationPrice(categoryId,
+                                location, minPrice, maxPrice, Integer.parseInt(offset), Integer.parseInt(limit),
+                                colSort, sortDirection);
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<SportsFieldResponse>builder()
+                                                .items(sportFields.stream().map(sf -> {
+                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
+                                                                        .toSportsFieldResponse(sf);
+                                                        setSportsFieldImages(sportsFieldResponse, sf);
+                                                        return sportsFieldResponse;
+                                                }).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                sportFields.getTotalElements()))
+                                                .build());
+        }
+
+        private void setSportsFieldImages(SportsFieldResponse sportsFieldResponse, SportsField sportsField) {
+                sportsFieldResponse.setMImages(sportsField.getImages() != null
+                                ? sportsField.getImages().stream()
+                                                .map(fileMetadata -> minioClientService
+                                                                .getObjectUrl(fileMetadata.getObjectKey()))
+                                                .collect(Collectors.toList())
+                                : new ArrayList<>());
+        }
 }
