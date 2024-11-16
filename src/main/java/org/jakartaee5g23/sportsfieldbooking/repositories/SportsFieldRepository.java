@@ -11,19 +11,30 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SportsFieldRepository extends JpaRepository<SportsField, String> {
 
-    Page<SportsField> findByUser(User user, Pageable pageable);
-    @Query("SELECT sf FROM SportsField sf WHERE sf.name LIKE %:text% " +
-            "OR sf.location LIKE %:text% " +
-            "OR sf.category.id = CAST(:text AS integer) " +
-            "OR sf.opacity = CAST(:text AS integer) ")
-    Page<SportsField> findSportsFieldsByKeyword(@Param("text") String text, Pageable pageable);
+        Page<SportsField> findByUser(User user, Pageable pageable);
 
-    @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
-            "OR sf.location LIKE %:text% " +
-            "OR sf.opacity = CAST(:text AS integer) " +
-            "OR sf.category.id = CAST(:text AS integer)) " +
-            "AND sf.user.id LIKE %:userId%")
-    Page<SportsField> findSportsFieldsByKeywordAndUserId(@Param("userId") String userId, @Param("text") String text, Pageable pageable);
+        @Query("SELECT sf FROM SportsField sf WHERE sf.name LIKE %:text% " +
+                        "OR sf.location LIKE %:text% " +
+                        "OR sf.category.id = CAST(:text AS integer) " +
+                        "OR sf.opacity = CAST(:text AS integer) ")
+        Page<SportsField> findSportsFieldsByKeyword(@Param("text") String text, Pageable pageable);
 
+        @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
+                        "OR sf.location LIKE %:text% " +
+                        "OR sf.opacity = CAST(:text AS integer) " +
+                        "OR sf.category.id = CAST(:text AS integer)) " +
+                        "AND sf.user.id LIKE %:userId%")
+        Page<SportsField> findSportsFieldsByKeywordAndUserId(@Param("userId") String userId, @Param("text") String text,
+                        Pageable pageable);
 
+        @Query("SELECT sf FROM SportsField sf JOIN sf.fieldAvailabilities fa WHERE " +
+                        "(sf.category.id = CAST(:categoryId AS integer)) " +
+                        "AND sf.location LIKE %:location% " +
+                        "AND fa.price BETWEEN :minPrice AND :maxPrice " +
+                        "GROUP BY sf.id")
+        Page<SportsField> findSportsFieldsByCategoryLocationPrice(@Param("categoryId") String categoryId,
+                        @Param("location") String location,
+                        @Param("minPrice") double minPrice,
+                        @Param("maxPrice") double maxPrice,
+                        Pageable pageable);
 }
