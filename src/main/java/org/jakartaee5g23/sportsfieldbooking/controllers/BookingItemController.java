@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("${api.prefix}/booking-items")
@@ -62,5 +63,18 @@ public class BookingItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(bookingItemMapper.toBookingItemResponse(bookingItemsService.create(bookingItem)));
+    }
+
+    @Operation(summary = "Get Booking Items by Sports Field ID", description = "Retrieve all booking items associated with a specific sports field ID",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/sports-field/{sportsFieldId}")
+    public ResponseEntity<List<BookingItemResponse>> getBookingItemsBySportsFieldId(@PathVariable String sportsFieldId) {
+        List<BookingItem> bookingItems = bookingItemsService.findBySportsFieldId(sportsFieldId);
+
+        List<BookingItemResponse> responses = bookingItems.stream()
+                .map(bookingItemMapper::toBookingItemResponse)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 }

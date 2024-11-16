@@ -37,6 +37,7 @@ public class BookingItemsServiceImpl implements BookingItemsService {
         return bookingItemsRepository.save(item);
     }
 
+
     @Override
     @Scheduled(fixedRate = 30000) // 30s
     public void updateBookingItemStatus() {
@@ -51,4 +52,8 @@ public class BookingItemsServiceImpl implements BookingItemsService {
         }
     }
 
+    @Override
+    public List<BookingItem> findBySportsFieldId(String sportsFieldId) {
+        return bookingItemsRepository.findBySportsFieldId(sportsFieldId);
+    }
 }

@@ -11,5 +11,6 @@ import java.util.List;
 public interface BookingItemRepository extends JpaRepository<BookingItem, String> {
 
     List<BookingItem> findAllByBooking(Booking booking);
+    List<BookingItem> findBySportsFieldId(String sportsFieldId);
 
 }
