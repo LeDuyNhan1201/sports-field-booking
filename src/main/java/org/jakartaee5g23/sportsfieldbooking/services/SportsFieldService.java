@@ -7,18 +7,25 @@ import org.springframework.data.domain.Page;
 
 public interface SportsFieldService {
 
-    SportsField findById(String id);
+        SportsField findById(String id);
 
-    Page<SportsField> findAll(int offset, int limit, String colSort, int sortDirection);
+        Page<SportsField> findAll(int offset, int limit, String colSort, int sortDirection);
 
-    SportsField create(SportsField request, Boolean isConfirmed);
+        SportsField create(SportsField request, Boolean isConfirmed);
 
-    SportsField update(SportsField request, Boolean isConfirmed);
+        SportsField update(SportsField request, Boolean isConfirmed);
 
-    SportsField updateStatus(String id, SportsFieldStatus status);
+        SportsField updateStatus(String id, SportsFieldStatus status);
 
-    Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort, int sortDirection);
+        Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
+                        int sortDirection);
 
-    Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
-    Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit, String colSort, int sortDirection);
+        Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
+
+        Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit,
+                        String colSort, int sortDirection);
+
+        Page<SportsField> findSportsFieldsByCategoryLocationPrice(String categoryId, String location, double minPrice,
+                        double maxPrice, int offset, int limit, String colSort, int sortDirection);
+
 }
