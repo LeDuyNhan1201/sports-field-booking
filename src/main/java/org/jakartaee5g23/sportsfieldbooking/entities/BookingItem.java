@@ -38,12 +38,18 @@ public class BookingItem extends AbstractEntity {
         Double price;
 
         @ManyToOne
-        @JoinColumn(name = "booking_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_booking_items_bookings", foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JoinColumn(name = "booking_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_booking_items_bookings",
+                        foreignKeyDefinition = "FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonManagedReference
         Booking booking;
 
-        @OneToOne
-        @JoinColumn(name = "field_availability_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_booking_item_field_availability"))
+        @ManyToOne
+        @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_booking_item_field_availability",
+                        foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availabilities(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonManagedReference
         FieldAvailability fieldAvailability;
 }

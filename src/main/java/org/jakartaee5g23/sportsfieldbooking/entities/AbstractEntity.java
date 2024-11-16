@@ -10,9 +10,11 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getCurrentUser;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.randomDate;
 
 @Getter
 @Setter
@@ -28,7 +30,7 @@ public abstract class AbstractEntity {
     @Column(name = "created_by")
     String createdBy;
 
-    @CreationTimestamp
+    //@CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false, name = "created_at")
     Date createdAt;
@@ -37,7 +39,7 @@ public abstract class AbstractEntity {
     @Column(name = "updated_by")
     String updatedBy;
 
-    @UpdateTimestamp
+    //@UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     Date updatedAt;
@@ -65,6 +67,15 @@ public abstract class AbstractEntity {
         if (this.createdBy == null) {
             this.createdBy = getCurrentUser();
         }
+
+        Date endDate = new Date();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.MONTH, -1);
+        Date startDate = calendar.getTime();
+
+        createdAt = randomDate(startDate, endDate);
     }
 
     @PreUpdate

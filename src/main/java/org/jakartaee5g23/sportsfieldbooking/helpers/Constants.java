@@ -38,4 +38,8 @@ public class Constants {
 
     public static String DEFAULT_AVATAR_URL;
 
+    public static final String SPORTS_FIELD_FAKE_IMAGES_FOLDER = "sports-field";
+
+    public static final String USER_FAKE_AVATARS_FOLDER = "user-avatar";
+
 }

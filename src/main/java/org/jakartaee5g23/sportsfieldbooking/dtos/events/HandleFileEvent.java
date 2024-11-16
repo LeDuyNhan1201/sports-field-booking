@@ -13,6 +13,8 @@ import org.jakartaee5g23.sportsfieldbooking.enums.HandleFileAction;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HandleFileEvent {
 
+    String id;
+
     String objectKey;
 
     long size;

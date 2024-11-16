@@ -19,6 +19,7 @@ import java.util.List;
 @Entity
 @Table(name = "bookings")
 public class Booking extends AbstractEntity {
+
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
         String id;
@@ -28,7 +29,10 @@ public class Booking extends AbstractEntity {
         BookingStatus status;
 
         @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_bookings_users", foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = false, updatable = false)
+        @JoinColumn(name = "user_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_bookings_users",
+                        foreignKeyDefinition = "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+                nullable = false, updatable = false)
         @JsonManagedReference
         User user;
 

@@ -35,6 +35,13 @@ public class FileMetadataServiceImpl implements FileMetadataService {
     }
 
     @Override
+    public FileMetadata update(FileMetadata item) {
+        FileMetadata existing = findById(item.getId());
+        existing.setObjectKey(item.getObjectKey());
+        return fileMetadataRepository.save(item);
+    }
+
+    @Override
     @Transactional
     public void delete(FileMetadata item) {
         fileMetadataRepository.delete(item);

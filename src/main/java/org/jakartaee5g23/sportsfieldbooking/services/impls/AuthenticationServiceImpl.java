@@ -116,7 +116,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setActivated(true);
         user.setStatus(UserStatus.ACTIVE);
         try {
-            userService.createUser(user);
+            userService.create(user);
         } catch (DataIntegrityViolationException exception) {
             throw new AuthenticationException(CREATE_USER_FAILED, CONFLICT);
         }

@@ -43,9 +43,7 @@ public class FileController {
     @GetMapping("/metadata-by-user")
     ResponseEntity<CommonResponse<String, ?>> getFileMetadataByUserId(@RequestParam String userId) {
         User current = userService.findById(userId);
-        FileMetadata fileMetadata = minioClientService.getFileMetadataByUser(current);
-
-        String avatarUrl = fileMetadata != null ? minioClientService.getObjectUrl(fileMetadata.getObjectKey()) : null;
+        String avatarUrl = minioClientService.getObjectUrl(current.getAvatar().getObjectKey());
 
         return ResponseEntity.ok(
                 CommonResponse.<String, Object>builder()
@@ -67,7 +65,8 @@ public class FileController {
                 request.startByte(),
                 request.totalSize(),
                 request.contentType(),
-                request.userId());
+                request.ownerId(),
+                request.fileMetadataType());
 
         HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
 
@@ -86,7 +85,7 @@ public class FileController {
     ResponseEntity<CommonResponse<String, Object>> deleteObject(@PathVariable String id) {
         User current = userService.findById(id);
         current.setAvatar(null);
-        userService.updateUser(current);
+        userService.update(current);
 
         return ResponseEntity.ok(
                 CommonResponse.<String, Object>builder()

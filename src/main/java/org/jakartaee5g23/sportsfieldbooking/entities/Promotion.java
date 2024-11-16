@@ -1,10 +1,13 @@
 package org.jakartaee5g23.sportsfieldbooking.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
@@ -26,7 +29,7 @@ public class Promotion extends AbstractEntity {
         @Column(nullable = false, length = 100)
         String name;
 
-        @Column(length = 255)
+        @Column
         String description;
 
         @Column(name = "discount_percentage", nullable = false)
@@ -43,4 +46,8 @@ public class Promotion extends AbstractEntity {
         @Enumerated(EnumType.STRING)
         @Column(nullable = false)
         PromotionStatus status;
+
+        @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+        @JsonManagedReference
+        List<SportsField> sportsFields;
 }

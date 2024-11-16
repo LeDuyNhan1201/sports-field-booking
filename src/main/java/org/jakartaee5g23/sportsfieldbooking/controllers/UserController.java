@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.SignOutRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.user.UserUpdateRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
@@ -18,16 +20,18 @@ import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
+import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 
+import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -39,6 +43,8 @@ import static org.springframework.http.HttpStatus.*;
 public class UserController {
 
     UserService userService;
+
+    MinioClientService minioClientService;
 
     AuthenticationService authenticationService;
 
@@ -68,12 +74,40 @@ public class UserController {
         existingUser.setMobileNumber(userUpdateRequest.getMobileNumber());
         existingUser.setBirthdate(userUpdateRequest.getBirthdate());
         existingUser.setGender(userUpdateRequest.getGender());
-//        existingUser.setAvatar(userUpdateRequest.getAvatar());
 
-        userService.updateUser(existingUser);
+        userService.update(existingUser);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userMapper.toUserResponse(existingUser));
+    }
+
+    @Operation(summary = "Upload avatar", description = "Upload avatar", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/avatar")
+    ResponseEntity<CommonResponse<Long, ?>> uploadAvatar(@RequestPart(name = "file") MultipartFile file,
+                                                        @RequestPart(name = "request") @Valid FileUploadRequest request) {
+
+        User existingUser = userService.findById(request.ownerId());
+
+        long uploadedSize = minioClientService.uploadChunk(
+                file,
+                request.fileMetadataId(),
+                request.chunkHash(),
+                request.startByte(),
+                request.totalSize(),
+                request.contentType(),
+                existingUser.getId(),
+                request.fileMetadataType());
+
+        HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
+
+        String message = uploadedSize == request.totalSize() ? "file_upload_success" : "chunk_uploaded";
+
+        return ResponseEntity.status(httpStatus).body(
+                CommonResponse.<Long, Object>builder()
+                        .message(getLocalizedMessage(message))
+                        .results(uploadedSize)
+                        .build()
+        );
     }
 
     @DeleteMapping("/{userId}")

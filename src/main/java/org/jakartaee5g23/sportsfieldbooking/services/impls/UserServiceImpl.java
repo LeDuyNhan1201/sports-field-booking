@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
@@ -52,31 +53,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(User user) {
+    public User create(User user) {
         return userRepository.save(user);
     }
 
     @Override
     @Transactional
     public void updatePassword(User user, String newPassword) {
+        User existingUser = findById(user.getId());
         String hashedPassword = passwordEncoder.encode(newPassword);
-        user.setPassword(hashedPassword);
-        userRepository.save(user);
+        existingUser.setPassword(hashedPassword);
+        userRepository.save(existingUser);
     }
-
 
     @Override
     @Transactional
     public void activateUser(User user) {
-        user.setActivated(true);
-        userRepository.save(user);
+        User existingUser = findById(user.getId());
+        existingUser.setActivated(true);
+        userRepository.save(existingUser);
     }
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        User existingUser = userRepository.findById(user.getId()).orElseThrow(() ->
-                new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
+    public void update(User user) {
+        User existingUser = findById(user.getId());
 
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setMobileNumber(user.getMobileNumber());
         existingUser.setBirthdate(user.getBirthdate());
         existingUser.setGender(user.getGender());
-//        existingUser.setAvatar(user.getAvatar());
+        existingUser.setAvatar(user.getAvatar());
 
         userRepository.save(existingUser);
     }

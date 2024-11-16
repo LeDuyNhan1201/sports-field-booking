@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.services;
 
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.data.domain.Page;
 
@@ -13,13 +14,13 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
-    User createUser(User user);
+    User create(User user);
 
     void updatePassword(User user, String password);
 
     void activateUser(User user);
 
-    void updateUser(User user);
+    void update(User user);
 
     void deleteUser(String id);
 }

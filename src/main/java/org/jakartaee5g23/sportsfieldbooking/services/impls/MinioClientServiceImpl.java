@@ -3,9 +3,9 @@ package org.jakartaee5g23.sportsfieldbooking.services.impls;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -14,13 +14,10 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.events.HandleFileEvent;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.ChunkUploadProgress;
 import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.FileMetadataType;
 import org.jakartaee5g23.sportsfieldbooking.enums.HandleFileAction;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileException;
-import org.jakartaee5g23.sportsfieldbooking.repositories.FileMetadataRepository;
-import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
-import org.jakartaee5g23.sportsfieldbooking.services.BaseRedisService;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +37,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.StreamSupport;
 
 import static java.util.concurrent.TimeUnit.DAYS;
-import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode.USER_NOT_FOUND;
 import static org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileErrorCode.*;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Constants.*;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.generateFileName;
@@ -58,13 +55,7 @@ public class MinioClientServiceImpl implements MinioClientService {
 
     KafkaTemplate<String, HandleFileEvent> fileStorageTemplate;
 
-    BaseRedisService<String, String, ChunkUploadProgress> baseRedisService;
-
     ConcurrentHashMap<String, List<ChunkUploadProgress>> uploadStatusMap = new ConcurrentHashMap<>();
-
-    UserRepository userRepository;
-
-    FileMetadataRepository fileMetadataRepository;
 
     @Value("${minio.bucket-name}")
     @NonFinal
@@ -77,23 +68,19 @@ public class MinioClientServiceImpl implements MinioClientService {
     public MinioClientServiceImpl(@Value("${minio.endpoint}") String endpoint,
                                   @Value("${minio.access-key}") String accessKey,
                                   @Value("${minio.secret-key}") String secretKey,
-                                  @Autowired KafkaTemplate<String, HandleFileEvent> fileStorageTemplate,
-                                  @Autowired BaseRedisService<String, String, ChunkUploadProgress> baseRedisService, UserRepository userRepository, FileMetadataRepository fileMetadataRepository) {
-        this.userRepository = userRepository;
-        this.fileMetadataRepository = fileMetadataRepository;
+                                  @Autowired KafkaTemplate<String, HandleFileEvent> fileStorageTemplate) {
         this.minioClient = MinioClient.builder()
             .endpoint(endpoint)
             .credentials(accessKey, secretKey)
             .build();
 
         this.fileStorageTemplate = fileStorageTemplate;
-        this.baseRedisService = baseRedisService;
     }
 
-    @PostConstruct
-    public void initDefaultUrls() {
-        DEFAULT_AVATAR_URL = getObjectUrl("user-info.png");
-    }
+//    @PostConstruct
+//    public void initDefaultUrls() {
+//        DEFAULT_AVATAR_URL = getObjectUrl("user-info.png");
+//    }
 
 //    @PostConstruct
 //    public void setBucketLifecyclePolicy() {
@@ -136,22 +123,12 @@ public class MinioClientServiceImpl implements MinioClientService {
 //    }
 
     @Override
-    public long uploadChunk(MultipartFile file, String fileMetadataId, String chunkHash, long startByte, long totalSize, String contentType, String userId) {
+    public long uploadChunk(MultipartFile file, String fileMetadataId, String chunkHash, long startByte, long totalSize, String contentType, String ownerId, FileMetadataType fileMetadataType) {
         if (file.getSize() > MAX_CHUNK_SIZE) throw new FileException(FILE_TOO_LARGE, BAD_REQUEST);
 
         if (totalSize > MAX_FILE_SIZE) throw new FileException(FILE_TOO_LARGE, BAD_REQUEST);
 
         if (!isMedia(contentType)) throw new FileException(INVALID_FILE_TYPE, BAD_REQUEST);
-
-        fileMetadataRepository.findById(fileMetadataId).ifPresent(existingMetadata -> {
-            try {
-                deleteObject(existingMetadata.getObjectKey(), bucketName);  // Remove from storage
-                fileMetadataRepository.delete(existingMetadata);  // Remove metadata record
-            } catch (Exception e) {
-                log.error("Error deleting existing file before replacement", e);
-                throw new FileException(FileErrorCode.CAN_NOT_DELETE_FILE, BAD_REQUEST);
-            }
-        });
 
         //if (hashFileChunk(file).equals(chunkHash)) throw new FileException(INVALID_FILE_PROVIDED, BAD_REQUEST);
 
@@ -199,20 +176,6 @@ public class MinioClientServiceImpl implements MinioClientService {
             String newFileName = generateFileName(contentType.split("/")[0], contentType.split("/")[1]);
             try {
                 storeObject(fileAfterCombine, newFileName, contentType, bucketName);
-
-                FileMetadata metadata = new FileMetadata();
-                metadata.setObjectKey(newFileName);
-                metadata.setContentType(contentType);
-                metadata.setSize(totalSize);
-                metadata.setCreatedBy(userId);
-
-                if (userId != null) {
-                    metadata.setUser(userRepository.findById(userId)
-                            .orElseThrow(() -> new AuthenticationException(USER_NOT_FOUND, BAD_REQUEST)));
-                }
-
-                // Lưu metadata vào cơ sở dữ liệu
-                fileMetadataRepository.save(metadata);
                 Files.delete(fileAfterCombine.toPath()); // Xóa file sau khi upload hoàn thành
             } catch (Exception e) {
                 log.error("Error storing file", e);
@@ -224,6 +187,8 @@ public class MinioClientServiceImpl implements MinioClientService {
                 .size(fileAfterCombine.length())
                 .contentType(contentType)
                 .action(HandleFileAction.UPLOAD)
+                .type(fileMetadataType)
+                .ownerId(ownerId)
                 .build());
 
             // Xóa trạng thái sau khi upload hoàn thành
@@ -291,16 +256,18 @@ public class MinioClientServiceImpl implements MinioClientService {
     }
 
     @Override
-    public FileMetadata getFileMetadataByUser(User user) {
-        return fileMetadataRepository.findByUser(user);
-    }
-
-    @Override
-    public void deleteFileMetadata(String id) {
-        FileMetadata fileMetadata = fileMetadataRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("File metadata not found"));
-        fileMetadataRepository.delete(fileMetadata);
-        fileMetadataRepository.flush();
+    public long countObjectsInBucket(String bucketName) {
+        try {
+            Iterable<Result<Item>> results = minioClient.listObjects(
+                    ListObjectsArgs.builder()
+                            .bucket(bucketName)
+                            .build()
+            );
+            return StreamSupport.stream(results.spliterator(), false).count();
+        } catch (Exception e) {
+            log.error("Error counting objects in bucket", e);
+            throw new FileException(CAN_NOT_CHECK_BUCKET, BAD_REQUEST);
+        }
     }
 
     private void ensureBucketExists(String bucketName) {

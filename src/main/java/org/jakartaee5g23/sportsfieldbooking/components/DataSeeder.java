@@ -6,21 +6,31 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.*;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileException;
+import org.jakartaee5g23.sportsfieldbooking.helpers.Constants;
 import org.jakartaee5g23.sportsfieldbooking.repositories.*;
+import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.*;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getRandomEnum;
+import static org.jakartaee5g23.sportsfieldbooking.exceptions.file.FileErrorCode.FILE_NOT_FOUND;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.*;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor
@@ -44,6 +54,12 @@ public class DataSeeder {
     FieldAvailabilityRepository fieldAvailabilityRepository;
     BookingItemRepository bookingItemRepository;
 
+    MinioClientService minioClientService;
+
+    @Value("${minio.bucket-name}")
+    @NonFinal
+    String bucketName;
+
     Faker faker = new Faker();
 
     @PostConstruct
@@ -54,30 +70,30 @@ public class DataSeeder {
         seedUserRole();
         seedCategories();
         seedSportFields();
-//        seedFieldImages();
         seedReviews();
         seedFieldAvailabilities();
         seedBookings();
-//        seedBookingItems();
+        seedBookingItems();
         seedPayments();
         seedNotifications();
         seedPromotions();
         seedStatistics();
+        //seedFiles();
     }
 
     private void seedRoles() {
         if (roleRepository.count() == 0) {
-            Role admin = Role.builder().name("ADMIN").build();
-            Role customer = Role.builder().name("CUSTOMER").build();
+            Role user = Role.builder().name("USER").build();
             Role fieldOwner = Role.builder().name("FIELD_OWNER").build();
-
-            roleRepository.saveAll(List.of(customer, fieldOwner, admin));
+            Role admin = Role.builder().name("ADMIN").build();
+            roleRepository.saveAll(List.of(user, fieldOwner, admin));
         }
     }
 
     private void seedUsers() {
         if (userRepository.count() == 0) {
-            IntStream.range(0, 20).forEach(_ -> {
+            List<User> users = new ArrayList<>();
+            IntStream.range(0, 200).forEach(_ -> {
                 User user = User.builder()
                         .username(faker.name().username())
                         .password(passwordEncoder.encode("123456"))
@@ -93,8 +109,9 @@ public class DataSeeder {
                         .status(getRandomEnum(UserStatus.class))
                         .isActivated(true)
                         .build();
-                userRepository.save(user);
+                users.add(user);
             });
+            userRepository.saveAll(users);
         }
     }
 
@@ -102,15 +119,26 @@ public class DataSeeder {
         if (userRoleRepository.count() == 0) {
             List<Role> roles = roleRepository.findAll();
             List<User> users = userRepository.findAll();
+            List<UserRole> userRoles = new ArrayList<>();
+            users.forEach(user -> {
+                UserRole userRole = UserRole.builder()
+                        .user(user)
+                        .role(roles.getFirst())
+                        .build();
+
+                userRoles.add(userRole);
+            });
 
             users.forEach(user -> {
                 UserRole userRole = UserRole.builder()
                         .user(user)
-                        .role(roles.get(faker.number().numberBetween(0, roles.size())))
+                        .role(roles.get(faker.number().numberBetween(1, roles.size())))
                         .build();
 
-                userRoleRepository.save(userRole);
+                userRoles.add(userRole);
             });
+
+            userRoleRepository.saveAll(userRoles);
         }
     }
 
@@ -120,110 +148,92 @@ public class DataSeeder {
 
     private void seedCategories() {
         if (categoryRepository.count() == 0) {
+            List<Category> categories = new ArrayList<>();
             IntStream.range(0, 5).forEach(_ -> {
                 Category category = Category.builder().name(faker.team().sport()).createdBy(seedCreatedBy()).build();
-                categoryRepository.save(category);
+                categories.add(category);
             });
+            categoryRepository.saveAll(categories);
         }
     }
 
     private void seedSportFields() {
         if (sportFieldRepository.count() == 0) {
-            List<User> users = userRepository.findAll();
+            List<User> users = userRepository.findAllByRoles(List.of(roleRepository.findByName("FIELD_OWNER").get()));
             List<Category> categories = categoryRepository.findAll();
+            List<SportsField> fields = new ArrayList<>();
 
-            IntStream.range(0, 20).forEach(_ -> {
-                User createdBy = users.get(faker.number().numberBetween(0, users.size()));
+            for (User user : users) {
                 SportsField field = SportsField.builder()
                         .name(faker.team().name())
                         .location(faker.address().fullAddress())
                         .opacity(faker.number().numberBetween(1, 100))
                         .openingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
-                        .closingTime(faker.date().future(365 * 5, TimeUnit.DAYS)) // Updated to future
+                        .closingTime(faker.date().past(365 * 5, TimeUnit.DAYS))
                         .category(categories.get(faker.number().numberBetween(0, categories.size())))
-                        .user(createdBy)
+                        .user(user)
                         .rating(faker.number().randomDouble(2, 0, 5))
                         .status(getRandomEnum(SportsFieldStatus.class))
-                        .createdBy(createdBy.getId())
-                        .promotion(null)
+                        .createdBy(user.getId())
                         .build();
 
-                sportFieldRepository.save(field);
-            });
-        }
-    }
-
-    private void seedFieldImages() {
-        if (sportFieldRepository.count() * 2 == fileMetadataRepository.count()) {
-            List<SportsField> fields = sportFieldRepository.findAll();
-            List<FileMetadata> images = fileMetadataRepository.findAll();
-
-            int image_ = 0;
-            for (SportsField field : fields) {
-
-                for (int i = 0; i < 2; i++) { // Thêm 2 hình ảnh cho mỗi sports field
-                    FileMetadata image = images.get(image_);
-                    image.setCreatedBy(field.getUser().getId());
-                    image.setSportsField(field);
-                    fileMetadataRepository.save(image); // Lưu lại hình ảnh với createdBy là người sở hữu sports field
-                    image_++;
-                }
+                fields.add(field);
             }
-
+            sportFieldRepository.saveAll(fields);
         }
     }
 
     private void seedFieldAvailabilities() {
         if (fieldAvailabilityRepository.count() == 0) {
             List<SportsField> fields = sportFieldRepository.findAll();
-            List<BookingItem> bookingItems = bookingItemRepository.findAll();
+            List<FieldAvailability> availabilities = new ArrayList<>();
+            for (SportsField field : fields) {
+                int availabilityCount = faker.number().numberBetween(1, 5);
+                for (int i = 0; i < availabilityCount; i++) {
+                    // Create a date that is available in the next 30 days
+                    Date availableDate = faker.date().future(30, TimeUnit.DAYS);
+                    //
+                    // // Generate start time between 8:00 AM and 8:00 PM
+                    LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
+                            .atZone(ZoneId.systemDefault()).toInstant());
 
-            IntStream.range(0, 30).forEach(_ -> {
-                SportsField field = fields.get(faker.number().numberBetween(0, fields.size()));
-                // Create a date that is available in the next 30 days
-                Date availableDate = faker.date().future(30, TimeUnit.DAYS);
-                //
-                // // Generate start time between 8:00 AM and 8:00 PM
-                LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                Date startTime = Date.from(localDate.atTime(faker.number().numberBetween(8, 20), 0)
-                        .atZone(ZoneId.systemDefault()).toInstant());
+                    // Generate end time between 1 to 12 hours after start time
+                    Date endTime = new Date(
+                            startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
 
-                // Generate end time between 1 to 12 hours after start time
-                Date endTime = new Date(
-                        startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
+                    FieldAvailability availability = FieldAvailability.builder()
+                            .sportsField(field)
+                            .availableDate(availableDate)
+                            .startTime(startTime)
+                            .price(faker.number().randomDouble(2, 10, 100))
+                            .endTime(endTime)
+                            .isAvailable(faker.bool().bool())
+                            .createdBy(field.getUser().getId())
+                            .build();
 
-                FieldAvailability availability = FieldAvailability.builder()
-                        .sportsField(field)
-                        .availableDate(availableDate)
-                        .startTime(startTime)
-                        .price(faker.number().randomDouble(2, 10, 100))
-                        .endTime(endTime)
-                        .isAvailable(faker.bool().bool())
-                        .createdBy(field.getUser().getId())
-                        .build();
-
-                fieldAvailabilityRepository.save(availability);
-            });
+                    availabilities.add(availability);
+                }
+            }
+            fieldAvailabilityRepository.saveAll(availabilities);
         }
     }
 
     private void seedBookings() {
         if (bookingRepository.count() == 0) {
             List<User> users = userRepository.findAll();
-            List<FieldAvailability> availabilities = fieldAvailabilityRepository.findAll();
-
-            IntStream.range(0, 20).forEach(i -> {
-                FieldAvailability availability = availabilities.get(i);
+            List<Booking> bookings = new ArrayList<>();
+            IntStream.range(0, users.size()).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
-
                 Booking booking = Booking.builder()
                         .user(createdBy)
                         .status(getRandomEnum(BookingStatus.class))
                         .createdBy(createdBy.getId())
                         .build();
 
-                bookingRepository.save(booking);
+                bookings.add(booking);
             });
+            bookingRepository.saveAll(bookings);
         }
     }
 
@@ -231,11 +241,9 @@ public class DataSeeder {
         if (bookingItemRepository.count() == 0) {
             List<Booking> bookings = bookingRepository.findAll();
             List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
-
+            List<BookingItem> bookingItems = new ArrayList<>();
             bookings.forEach(booking -> {
-
                 int itemCount = faker.number().numberBetween(1, 3);
-
                 for (int i = 0; i < itemCount; i++) {
                     Date availableDate = faker.date().past(30, TimeUnit.DAYS);
                     LocalDate localDate = availableDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -259,40 +267,52 @@ public class DataSeeder {
                             .fieldAvailability(randomFieldAvailability)
                             .build();
 
-                    bookingItemRepository.save(bookingItem);
+                    bookingItems.add(bookingItem);
                 }
             });
+            bookingItemRepository.saveAll(bookingItems);
         }
     }
 
     private void seedPayments() {
         if (paymentRepository.count() == 0) {
             List<Booking> bookings = bookingRepository.findAll();
-            List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
+            Map<Booking, List<BookingItem>> bookingItemsMap = bookingItemRepository.findAll()
+                    .stream()
+                    .collect(Collectors.groupingBy(BookingItem::getBooking));
 
-            IntStream.range(0, 20).forEach(i -> {
-                Booking booking = bookings.get(i);
-                FieldAvailability fieldAvailability = fieldAvailabilities.get(i);
+            Set<Booking> usedBookings = new HashSet<>();
+            List<Payment> payments = new ArrayList<>();
+
+            bookings.forEach(booking -> {
+                if (usedBookings.contains(booking)) return;
+                usedBookings.add(booking);
+
+                List<BookingItem> bookingItems = bookingItemsMap.getOrDefault(booking, Collections.emptyList());
+                Double totalPrice = bookingItems.stream().mapToDouble(BookingItem::getPrice).sum();
 
                 Payment payment = Payment.builder()
                         .method(getRandomEnum(PaymentMethod.class))
-                        .price(fieldAvailability.getPrice())
+                        .price(totalPrice)
                         .booking(booking)
                         .status(getRandomEnum(PaymentStatus.class))
                         .createdBy(booking.getUser().getId())
                         .build();
 
-                paymentRepository.save(payment);
+                payments.add(payment);
             });
+
+            paymentRepository.saveAll(payments);
         }
     }
+
 
     private void seedReviews() {
         if (reviewRepository.count() == 0) {
             List<User> users = userRepository.findAll();
             List<SportsField> fields = sportFieldRepository.findAll();
-
-            IntStream.range(0, 20).forEach(_ -> {
+            List<Review> reviews = new ArrayList<>();
+            IntStream.range(0, 200).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
                 Review review = Review.builder()
                         .user(createdBy)
@@ -301,22 +321,27 @@ public class DataSeeder {
                         .createdBy(createdBy.getId())
                         .build();
 
-                reviewRepository.save(review);
+                reviews.add(review);
             });
+            reviewRepository.saveAll(reviews);
+            reviews.clear();
 
-            IntStream.range(0, 3).forEach(_ -> {
+            List<Review> parentReviews = reviewRepository.findAll();
+            IntStream.range(0, parentReviews.size() * 2).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
+                Review parentReview = parentReviews.get(faker.number().numberBetween(0, parentReviews.size()));
                 Review review = Review.builder()
                         .user(createdBy)
-                        .sportsField(fields.get(faker.number().numberBetween(0, fields.size())))
+                        .sportsField(parentReview.getSportsField())
                         .comment(faker.lorem().sentence(15))
-                        .parentReview(reviewRepository.findAll()
-                                .get(faker.number().numberBetween(0, reviewRepository.findAll().size())))
+                        .parentReview(parentReview)
                         .createdBy(createdBy.getId())
                         .build();
 
-                reviewRepository.save(review);
+                reviews.add(review);
             });
+
+            reviewRepository.saveAll(reviews);
         }
     }
 
@@ -374,6 +399,57 @@ public class DataSeeder {
 
                 statisticRepository.save(statistics);
             });
+        }
+    }
+
+    private void seedFiles() {
+        if (fileMetadataRepository.count() == 0) {
+            List<SportsField> fields = sportFieldRepository.findAll();
+            for (SportsField field : fields) {
+                int imageCount = faker.number().numberBetween(1, 5);
+                for (int i = 0; i < imageCount; i++) { // Thêm 2 hình ảnh cho mỗi sports field
+                    File randomFile = getRandomFile(Constants.SPORTS_FIELD_FAKE_IMAGES_FOLDER);
+                    String contentType = getContentType(randomFile);
+                    long size = randomFile.length();
+                    String fileName = generateFileName(contentType.split("/")[0], contentType.split("/")[1]);
+                    FileMetadata fileMetadata = FileMetadata.builder()
+                            .objectKey(fileName)
+                            .size(size)
+                            .contentType(contentType)
+                            .sportsField(field)
+                            .createdBy(field.getUser().getId())
+                            .createdAt(field.getCreatedAt())
+                            .build();
+                    fileMetadataRepository.save(fileMetadata);
+                    minioClientService.storeObject(randomFile, fileName, contentType, bucketName);
+                }
+            }
+
+            List<User> users = userRepository.findAll();
+            for (User user : users) {
+                File randomFile = getRandomFile(Constants.USER_FAKE_AVATARS_FOLDER);
+                String contentType = getContentType(randomFile);
+                long size = randomFile.length();
+                String fileName = generateFileName(contentType.split("/")[0], contentType.split("/")[1]);
+                FileMetadata fileMetadata = FileMetadata.builder()
+                        .objectKey(fileName)
+                        .size(size)
+                        .contentType(contentType)
+                        .user(user)
+                        .createdBy(user.getId())
+                        .createdAt(user.getCreatedAt())
+                        .build();
+                fileMetadataRepository.save(fileMetadata);
+                minioClientService.storeObject(randomFile, fileName, contentType, bucketName);
+            }
+        }
+    }
+
+    private String getContentType(File file) {
+        try {
+            return Files.probeContentType(file.toPath());
+        } catch (IOException e) {
+            throw new FileException(FILE_NOT_FOUND, NOT_FOUND);
         }
     }
 

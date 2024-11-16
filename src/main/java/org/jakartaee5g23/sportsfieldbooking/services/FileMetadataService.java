@@ -10,6 +10,8 @@ public interface FileMetadataService {
 
     FileMetadata create(FileMetadata item);
 
+    FileMetadata update(FileMetadata item);
+
     void delete(FileMetadata item);
 
 }

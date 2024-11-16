@@ -114,7 +114,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./docker/sports-field-booking-minio-data:/data:rw
+      - sports-field-booking-minio-data:/data:r
     environment:
       MINIO_ROOT_USER: group23
       MINIO_ROOT_PASSWORD: gRoUp23IsThEbEsT#
