@@ -57,6 +57,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = Booking.builder()
 //                .fieldAvailability(fieldAvailability)
+                .updatedAt(new Date())
                 .status(BookingStatus.PENDING)
                 .user(user)
                 .build();

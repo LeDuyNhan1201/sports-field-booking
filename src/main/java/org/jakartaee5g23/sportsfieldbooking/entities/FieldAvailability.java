@@ -18,7 +18,6 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "field_availabilities")
 public class FieldAvailability extends AbstractEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -34,9 +33,13 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "price", nullable = false)
     Double price;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "available_date", nullable = false)
-    Date availableDate;
+//    @OneToOne(mappedBy = "fieldAvailability", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonBackReference
+//    Booking booking;
+
+//    @Temporal(TemporalType.DATE)
+//    @Column(name = "available_date", nullable = false)
+//    Date availableDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_time", nullable = false)
@@ -46,10 +49,6 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "end_time", nullable = false)
     Date endTime;
 
-    @Column(name = "is_available", nullable = false)
-    Boolean isAvailable;
-
-    @OneToMany(mappedBy = "fieldAvailability")
-    @JsonBackReference
-    List<BookingItem> bookingItems;
+//    @Column(name = "is_available", nullable = false)
+//    Boolean isAvailable;
 }

@@ -10,4 +10,5 @@ public interface BookingItemsService {
 
     BookingItem create(BookingItem item);
 
+    void updateBookingItemStatus();
 }

@@ -12,10 +12,13 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingItemRe
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
+import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingItemMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,28 +39,25 @@ import java.util.Date;
 public class BookingItemController {
     BookingItemsService bookingItemsService;
     BookingService bookingService;
-    FieldAvailabilityService fieldAvailabilityService;
+    SportsFieldService sportsFieldService;
     BookingItemMapper bookingItemMapper = BookingItemMapper.INSTANCE;
 
-    @Operation(summary = "Add Booking Item", description = "Create booking item with booking ID and field availability ID",
+    @Operation(summary = "Add Booking Item", description = "Create booking item with booking ID and sports field ID",
             security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ResponseEntity<BookingItemResponse> createBookingItem(@RequestBody BookingItemRequest bookingItemRequest) throws ParseException{
         Booking booking = bookingService.findById(bookingItemRequest.orderId());
-        FieldAvailability fieldAvailability = fieldAvailabilityService.findById(bookingItemRequest.fieldAvailabilityId());
-
-        if (fieldAvailability.getAvailableDate().equals(bookingItemRequest.availableDate())) {
-            fieldAvailability.setIsAvailable(false);
-            fieldAvailabilityService.update(fieldAvailability);
-        }
+        SportsField sportsField = sportsFieldService.findById(bookingItemRequest.sportFieldID());
 
         BookingItem bookingItem = BookingItem.builder()
                 .booking(booking)
-                .fieldAvailability(fieldAvailability)
+                .sportsField(sportsField)
                 .availableDate(bookingItemRequest.availableDate())
                 .startTime(bookingItemRequest.startTime())
                 .endTime(bookingItemRequest.endTime())
                 .price(bookingItemRequest.price())
+                .status(BookingItemStatus.PENDING)
+                .updatedAt(new Date())
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK)

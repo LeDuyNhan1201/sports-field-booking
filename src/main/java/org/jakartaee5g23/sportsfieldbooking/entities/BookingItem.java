@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 
 import java.util.Date;
 
@@ -46,10 +47,14 @@ public class BookingItem extends AbstractEntity {
         Booking booking;
 
         @ManyToOne
-        @JoinColumn(name = "field_availability_id", referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_booking_item_field_availability",
-                        foreignKeyDefinition = "FOREIGN KEY (field_availability_id) REFERENCES field_availabilities(id) ON DELETE CASCADE ON UPDATE CASCADE"),
+        @JoinColumn(name = "sports_field_id", referencedColumnName = "id",
+                foreignKey = @ForeignKey(name = "fk_booking_items_sports_fields",
+                        foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"),
                 nullable = false, updatable = false)
         @JsonManagedReference
-        FieldAvailability fieldAvailability;
+        SportsField sportsField;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name="status", nullable = false)
+        BookingItemStatus status;
 }

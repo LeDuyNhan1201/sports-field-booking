@@ -10,7 +10,5 @@ public interface FieldAvailabilityService {
 
     FieldAvailability create(FieldAvailability request);
 
-    void updateFieldAvailabilityStatus();
-
     void update(FieldAvailability fieldAvailability);
 }

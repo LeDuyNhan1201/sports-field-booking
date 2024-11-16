@@ -12,7 +12,7 @@ public record BookingItemRequest(
 
         @NotNull(message = "null_field")
         @NotBlank(message = "blank_field")
-        String fieldAvailabilityId,
+        String sportFieldID,
 
         @NotNull(message = "null_field")
         Date availableDate,

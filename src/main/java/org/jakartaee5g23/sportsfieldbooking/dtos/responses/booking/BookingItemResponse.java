@@ -7,6 +7,8 @@ import lombok.experimental.FieldDefaults;
 import java.util.Date;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.FieldAvailabilityResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 
 @Getter
 @Setter
@@ -24,11 +26,13 @@ public class BookingItemResponse {
 
     Date endTime;
 
+    BookingItemStatus status;
+
     double price;
 
     @JsonProperty(value = "createdBy")
     String createdBy;
 
-    @JsonProperty(value = "fieldAvailability")
-    FieldAvailabilityResponse mFieldAvailability;
+    @JsonProperty(value = "sportField")
+    SportsFieldResponse mSportsField;
 }

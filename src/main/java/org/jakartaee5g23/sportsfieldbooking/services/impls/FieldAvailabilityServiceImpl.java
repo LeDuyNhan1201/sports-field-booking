@@ -30,13 +30,12 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
 
     @Override
     public FieldAvailability findById(String id) {
-        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(id)
+
+//        if (!fieldAvailability.getIsAvailable())
+//            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
+
+        return fieldAvailabilityRepository.findById(id)
                 .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field availability"));
-
-        if (!fieldAvailability.getIsAvailable())
-            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
-
-        return fieldAvailability;
     }
 
 //    @Override
@@ -49,20 +48,6 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
         return fieldAvailabilityRepository.save(request);
     }
 
-    @Override
-    @Scheduled(fixedRate = 30000) // 30s
-    public void updateFieldAvailabilityStatus() {
-        Date currentTime = new Date();
-
-        List<FieldAvailability> fieldAvailabilityList = fieldAvailabilityRepository.findAll();
-
-        for (FieldAvailability fieldAvailability : fieldAvailabilityList) {
-            if (fieldAvailability.getEndTime().before(currentTime)) {
-                fieldAvailability.setIsAvailable(false);
-                fieldAvailabilityRepository.save(fieldAvailability);
-            }
-        }
-    }
 
     @Override
     public void update(FieldAvailability fieldAvailability) {
