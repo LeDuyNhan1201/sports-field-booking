@@ -78,7 +78,7 @@ public class DataSeeder {
         seedNotifications();
         seedPromotions();
         seedStatistics();
-        //seedFiles();
+        seedFiles();
     }
 
     private void seedRoles() {
