@@ -120,7 +120,7 @@ public class SportsFieldController {
 
         @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
 
-        @GetMapping("/search-by-category/{text}")
+        @GetMapping("/search/{text}")
         public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeyword(
                         @PathVariable String text,
                         @RequestParam String colSort,
@@ -168,6 +168,7 @@ public class SportsFieldController {
                                                                 sportFields.getTotalElements()))
                                                 .build());
         }
+
 
         @GetMapping("/management/{userId}/search/{text}")
         public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeywordAndUserId(
@@ -230,4 +231,6 @@ public class SportsFieldController {
                                                 .collect(Collectors.toList())
                                 : new ArrayList<>());
         }
+
+
 }
