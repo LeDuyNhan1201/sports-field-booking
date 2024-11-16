@@ -57,22 +57,24 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     }
 
     @Override
-    public Page<SportsField> findAll(int offset, int limit , String colSort, int sortDirection) {
-        Sort sort = (sortDirection == 1) 
-            ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
-            : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+    public Page<SportsField> findAll(int offset, int limit, String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
         return sportsFieldRepository.findAll(PageRequest.of(offset, limit, sort));
     }
 
     @Override
     @Transactional
     public SportsField update(SportsField request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new SportsFieldException(SportsFieldErrorCode.UPDATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!isConfirmed)
+            throw new SportsFieldException(SportsFieldErrorCode.UPDATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Date openingTime = request.getOpeningTime();
         Date closingTime = request.getClosingTime();
-        if(isTimeValid(openingTime, closingTime))
-            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (isTimeValid(openingTime, closingTime))
+            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
 
         SportsField sportsField = findById(request.getId());
         sportsField.setOpacity(request.getOpacity());
@@ -92,13 +94,15 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
     @Override
     public SportsField create(SportsField request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!isConfirmed)
+            throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
         Date openingTime = request.getOpeningTime();
         Date closingTime = request.getClosingTime();
 
         if (isTimeValid(openingTime, closingTime))
-            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+                    HttpStatus.UNPROCESSABLE_ENTITY);
 
         Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
                 () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
@@ -117,29 +121,43 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     }
 
     @Override
-    public Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort, int sortDirection) {
-        Sort sort = (sortDirection == 1) 
+    public Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
+            int sortDirection) {
+        Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
-    
+
         Pageable pageable = PageRequest.of(offset, limit, sort);
         return sportsFieldRepository.findSportsFieldsByKeyword(text, pageable);
     }
 
     @Override
-    public Page<SportsField> findByUser(User user ,int offset, int limit, String colSort, int sortDirection) {
+    public Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
         return sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
     }
+
     @Override
-    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit, String colSort, int sortDirection) {
+    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit,
+            String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.findSportsFieldsByKeywordAndUserId(UserId,text, pageable);
+        return sportsFieldRepository.findSportsFieldsByKeywordAndUserId(UserId, text, pageable);
+    }
+
+    @Override
+    public Page<SportsField> findSportsFieldsByCategoryLocationPrice(String categoryId, String location,
+            double minPrice, double maxPrice, int offset, int limit, String colSort, int sortDirection) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending()
+                : Sort.by(colSort).descending();
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        return sportsFieldRepository.findSportsFieldsByCategoryLocationPrice(categoryId, location, minPrice, maxPrice,
+                pageable);
     }
 }
