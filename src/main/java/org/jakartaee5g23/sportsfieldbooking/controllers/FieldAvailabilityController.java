@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailability.NewFieldAvailabilityRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportsFieldRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.fieldAvailability.FieldAvailabilityResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
@@ -64,6 +63,7 @@ public class FieldAvailabilityController {
                 .sportsField(sportsField)
                 .build();
             fieldAvailability.setSportsField(sportsField);
+            fieldAvailabilityService.create(fieldAvailability, request.isConfirmed());
             return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
