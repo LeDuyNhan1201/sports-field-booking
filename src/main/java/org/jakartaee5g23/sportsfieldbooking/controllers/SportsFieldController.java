@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportsFieldRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.UpdateSportsFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
@@ -27,11 +29,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -52,9 +57,9 @@ public class SportsFieldController {
 
         @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
         @PostMapping
-        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
         public ResponseEntity<SportsFieldResponse> create(@RequestBody @Valid NewSportsFieldRequest request) {
-                User current = userService.findById(getUserIdFromContext());
+                User current = userService.findById(request.userId());
                 SportsField sportsField = sportsFieldMapper.toSportsField(request);
                 sportsField.setUser(current);
                 sportsField.setCategory(Category.builder().id(request.categoryId()).build());
@@ -221,6 +226,34 @@ public class SportsFieldController {
                                                                 Integer.parseInt(limit),
                                                                 sportFields.getTotalElements()))
                                                 .build());
+        }
+        @Operation(summary = "Upload images", description = "Upload images", security = @SecurityRequirement(name = "bearerAuth"))
+        @PostMapping("/images")
+        ResponseEntity<CommonResponse<Long, ?>> uploadAvatar(@RequestPart(name = "file") MultipartFile file,
+                                                                @RequestPart(name = "request") @Valid FileUploadRequest request) {
+
+                // SportsField existingSportField = sportsFieldService.findById(request.ownerId());
+
+                long uploadedSize = minioClientService.uploadChunk(
+                        file,
+                        request.fileMetadataId(),
+                        request.chunkHash(),
+                        request.startByte(),
+                        request.totalSize(),
+                        request.contentType(),
+                        request.ownerId(),
+                        request.fileMetadataType());
+
+                HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
+
+                String message = uploadedSize == request.totalSize() ? "file_upload_success" : "chunk_uploaded";
+
+                return ResponseEntity.status(httpStatus).body(
+                        CommonResponse.<Long, Object>builder()
+                                .message(getLocalizedMessage(message))
+                                .results(uploadedSize)
+                                .build()
+                );
         }
 
         private void setSportsFieldImages(SportsFieldResponse sportsFieldResponse, SportsField sportsField) {

@@ -10,6 +10,8 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
 import org.springframework.http.HttpStatus;
@@ -44,8 +46,16 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
 //    }
 
     @Override
-    public FieldAvailability create(FieldAvailability request) {
-        return fieldAvailabilityRepository.save(request);
+    public FieldAvailability create(FieldAvailability request, boolean isConfirmed) {
+        if (!isConfirmed)
+            throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        FieldAvailability createFieldAvailability = FieldAvailability.builder()
+        .startTime(request.getStartTime())
+        .endTime(request.getEndTime())
+        .price(request.getPrice())
+        .sportsField(request.getSportsField())
+        .build();
+        return fieldAvailabilityRepository.save(createFieldAvailability);
     }
 
 

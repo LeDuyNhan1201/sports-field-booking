@@ -8,7 +8,7 @@ public interface FieldAvailabilityService {
 
     FieldAvailability findById(String id);
 
-    FieldAvailability create(FieldAvailability request);
+    FieldAvailability create(FieldAvailability request, boolean isConfirmed);
 
     void update(FieldAvailability fieldAvailability);
 }
