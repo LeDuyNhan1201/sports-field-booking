@@ -47,14 +47,15 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
 
     @Override
     public FieldAvailability create(FieldAvailability request, boolean isConfirmed) {
-        if (!isConfirmed)
-            throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        Date openingTime = request.getStartTime();
+        Date closingTime = request.getEndTime();
+        
         FieldAvailability createFieldAvailability = FieldAvailability.builder()
-        .startTime(request.getStartTime())
-        .endTime(request.getEndTime())
-        .price(request.getPrice())
-        .sportsField(request.getSportsField())
-        .build();
+            .startTime(openingTime)
+            .endTime(closingTime)
+            .price(request.getPrice())
+            .sportsField(request.getSportsField())
+            .build();
         return fieldAvailabilityRepository.save(createFieldAvailability);
     }
 

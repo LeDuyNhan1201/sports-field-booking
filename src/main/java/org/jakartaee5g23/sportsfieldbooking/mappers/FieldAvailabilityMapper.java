@@ -15,8 +15,6 @@ public interface FieldAvailabilityMapper {
 
     FieldAvailability toFieldAvailability(NewFieldAvailabilityRequest dto);
 
-    org.jakartaee5g23.sportsfieldbooking.dtos.responses.fieldAvailability.FieldAvailabilityResponse toFieldAvailabilityRes(FieldAvailability entity);
-
     FieldAvailabilityResponse toFieldAvailabilityResponse(FieldAvailability entity);
 
     @AfterMapping

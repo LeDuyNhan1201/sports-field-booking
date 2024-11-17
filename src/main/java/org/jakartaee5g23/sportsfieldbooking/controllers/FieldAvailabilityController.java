@@ -22,7 +22,9 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.FieldAvailabilityMapper;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,14 +53,17 @@ public class FieldAvailabilityController {
     }
 
     @Operation(summary = "Create new field availability", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping
-    // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<FieldAvailabilityResponse> create(@RequestBody @Valid NewFieldAvailabilityRequest request) {
+    @PostMapping("/create")
+    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
+    public ResponseEntity<Void> create(@RequestBody @Valid NewFieldAvailabilityRequest request) {
             SportsField sportsField = sportsFieldService.findById(request.sportsFieldId());
-            FieldAvailability fieldAvailability = fieldAvailabilityMapper.toFieldAvailability(request);
+            FieldAvailability fieldAvailability = FieldAvailability.builder()
+                .startTime(request.startTime())
+                .endTime(request.endTime())
+                .price(request.price())
+                .sportsField(sportsField)
+                .build();
             fieldAvailability.setSportsField(sportsField);
-            return ResponseEntity.status(OK).body(
-                            fieldAvailabilityMapper.toFieldAvailabilityRes(
-                                            fieldAvailabilityService.create(fieldAvailability, request.isConfirmed())));
+            return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
