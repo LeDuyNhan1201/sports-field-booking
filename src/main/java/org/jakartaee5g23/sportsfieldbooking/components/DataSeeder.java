@@ -93,7 +93,7 @@ public class DataSeeder {
     private void seedUsers() {
         if (userRepository.count() == 0) {
             List<User> users = new ArrayList<>();
-            IntStream.range(0, 10).forEach(_ -> {
+            IntStream.range(0, 200).forEach(_ -> {
                 User user = User.builder()
                         .username(faker.name().username())
                         .password(passwordEncoder.encode("123456"))
@@ -302,7 +302,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<SportsField> fields = sportFieldRepository.findAll();
             List<Review> reviews = new ArrayList<>();
-            IntStream.range(0, 10).forEach(_ -> {
+            IntStream.range(0, 200).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
                 Review review = Review.builder()
                         .user(createdBy)
