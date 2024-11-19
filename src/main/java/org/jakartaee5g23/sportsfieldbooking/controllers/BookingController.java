@@ -27,9 +27,7 @@ import static org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus.*;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/booking")
@@ -195,4 +193,30 @@ public class BookingController {
                 Booking cancelledBooking = bookingService.cancelBooking(id);
                 return ResponseEntity.ok(cancelledBooking);
         }
+
+        @GetMapping("/current-month")
+        public ResponseEntity<List<BookingResponse>> getCurrentMonthBookings() {
+                List<Booking> bookings = bookingService.getBookingsForCurrentMonth();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/previous-month")
+        public ResponseEntity<List<BookingResponse>> getPreviousMonthBookings() {
+                List<Booking> bookings = bookingService.getBookingsForPreviousMonth();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/current-week")
+        public ResponseEntity<List<BookingResponse>> getCurrentWeekBookings() {
+                List<Booking> bookings = bookingService.getBookingsForCurrentWeek();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/previous-week")
+        public ResponseEntity<List<BookingResponse>> getPreviousWeekBookings() {
+                List<Booking> bookings = bookingService.getBookingsForPreviousWeek();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+
 }

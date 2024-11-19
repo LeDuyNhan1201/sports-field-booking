@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -38,5 +39,10 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
         Page<Booking> findAllByStatus(BookingStatus status, Pageable pageable);
 
         Page<Booking> findAllByUserAndStatusIn(User user, List<BookingStatus> statuses, Pageable pageable);
+
+        @Query("SELECT b FROM Booking b WHERE b.createdAt BETWEEN :startDate AND :endDate")
+        List<Booking> findBookingsByDateRange(
+                @Param("startDate") Date startDate,
+                @Param("endDate") Date endDate);
 
 }

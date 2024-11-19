@@ -9,18 +9,21 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.booking.BookingItemRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingItemResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
-import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingItemMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
-import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -76,5 +79,21 @@ public class BookingItemController {
                 .toList();
 
         return ResponseEntity.status(HttpStatus.OK).body(responses);
+    }
+
+    @Operation(summary = "Get booking item list", description = "Get booking item list", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PaginateResponse<BookingItemResponse>> findAll(
+            @RequestParam(defaultValue = "0") String offset,
+            @RequestParam(defaultValue = "100") String limit) {
+        Page<BookingItem> bookingItems = bookingItemsService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<BookingItemResponse>builder()
+                        .items(bookingItems.stream().map(bookingItemMapper::toBookingItemResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset),
+                                Integer.parseInt(limit),
+                                bookingItems.getTotalElements()))
+                        .build());
     }
 }
