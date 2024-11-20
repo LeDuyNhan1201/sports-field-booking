@@ -64,6 +64,7 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         Booking createBooking = bookingRepository.save(booking);
+        createBooking.setCreatedAt(new Date());
 
         Notification notification = Notification.builder()
                 .user(user)
@@ -74,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
 
         notificationRepository.save(notification);
 
-        return createBooking;
+        return bookingRepository.save(createBooking);
 
     }
 

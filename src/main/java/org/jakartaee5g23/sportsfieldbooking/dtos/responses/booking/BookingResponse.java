@@ -22,6 +22,8 @@ public class BookingResponse {
 
     Date orderDate;
 
+    Date createdAt;
+
     BookingStatus status;
 
     @JsonProperty(value = "user")
@@ -35,4 +37,5 @@ public class BookingResponse {
 
     @JsonProperty(value = "bookingItems")
     List<BookingItemResponse> mBookingItems;
+
 }
