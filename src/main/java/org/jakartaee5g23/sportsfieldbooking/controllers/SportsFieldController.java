@@ -17,6 +17,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateRespons
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
+import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
@@ -70,9 +72,10 @@ public class SportsFieldController {
 
         @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
         @PutMapping
-        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+//        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
         public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
                 SportsField sportsField = sportsFieldMapper.toSportsField(request);
+                sportsField.setCategory(Category.builder().id(request.categoryId()).build());
                 return ResponseEntity.status(OK).body(
                                 sportsFieldMapper.toSportsFieldResponse(
                                                 sportsFieldService.update(sportsField, request.isConfirmed())));
@@ -265,5 +268,20 @@ public class SportsFieldController {
                                 : new ArrayList<>());
         }
 
+        @Operation(summary = "Delete images", description = "Delete images")
+        @DeleteMapping("/delete-images/{index}/{id}")
+        ResponseEntity<CommonResponse<String, Object>> deleteObject(@PathVariable String id, @PathVariable Integer index) {
+            SportsField sportsField = sportsFieldService.findById(id);
+            List<FileMetadata> currentImages = sportsField.getImages();
+            currentImages.set(index, null);
 
+            sportsField.setImages(currentImages);
+            sportsFieldService.update(sportsField, true);
+
+            return ResponseEntity.ok(
+                    CommonResponse.<String, Object>builder()
+                            .message(getLocalizedMessage("file_metadata_retrieved"))
+                            .build()
+            );
+        }
 }

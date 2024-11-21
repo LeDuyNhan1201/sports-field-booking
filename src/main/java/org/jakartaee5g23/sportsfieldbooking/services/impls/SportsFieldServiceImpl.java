@@ -68,21 +68,29 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     @Transactional
     public SportsField update(SportsField request, Boolean isConfirmed) {
         if (!isConfirmed)
-            throw new SportsFieldException(SportsFieldErrorCode.UPDATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+            throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        Date openingTime = request.getOpeningTime();
-        Date closingTime = request.getClosingTime();
-        if (isTimeValid(openingTime, closingTime))
-            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+            Date openingTime = request.getOpeningTime();
+            Date closingTime = request.getClosingTime();
 
-        SportsField sportsField = findById(request.getId());
-        sportsField.setOpacity(request.getOpacity());
-        sportsField.setClosingTime(closingTime);
-        sportsField.setOpeningTime(openingTime);
-        sportsField.setLocation(request.getLocation());
-        sportsField.setName(request.getName());
-        return sportsFieldRepository.save(sportsField);
+//            if (isTimeValid(openingTime, closingTime))
+//                throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+//                        HttpStatus.UNPROCESSABLE_ENTITY);
+
+            Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
+                    () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
+            
+            SportsField currentSportsField = sportsFieldRepository.findById(request.getId()).orElseThrow(
+                () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Sports Field"));
+
+            currentSportsField.setName(request.getName());
+            currentSportsField.setLocation(request.getLocation());
+            currentSportsField.setOpacity(request.getOpacity());
+            currentSportsField.setOpeningTime(openingTime);
+            currentSportsField.setClosingTime(closingTime);
+            currentSportsField.setCategory(category);
+
+            return sportsFieldRepository.save(currentSportsField);
     }
 
     @Override
@@ -97,28 +105,28 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         if (!isConfirmed)
             throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-        Date openingTime = request.getOpeningTime();
-        Date closingTime = request.getClosingTime();
+            Date openingTime = request.getOpeningTime();
+            Date closingTime = request.getClosingTime();
 
-        if (isTimeValid(openingTime, closingTime))
-            throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
-                    HttpStatus.UNPROCESSABLE_ENTITY);
+//            if (isTimeValid(openingTime, closingTime))
+//                throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
+//                        HttpStatus.UNPROCESSABLE_ENTITY);
 
-        Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
-                () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
+            Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
+                    () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
 
-        SportsField createField = SportsField.builder()
-                .name(request.getName())
-                .location(request.getLocation())
-                .opacity(request.getOpacity())
-                .openingTime(openingTime)
-                .closingTime(closingTime)
-                .rating(request.getRating())
-                .status(SportsFieldStatus.PENDING)
-                .category(category)
-                .user(request.getUser())
-                .build();
-        return sportsFieldRepository.save(createField);
+            SportsField createField = SportsField.builder()
+                    .name(request.getName())
+                    .location(request.getLocation())
+                    .opacity(request.getOpacity())
+                    .openingTime(openingTime)
+                    .closingTime(closingTime)
+                    .rating(request.getRating())
+                    .status(SportsFieldStatus.PENDING)
+                    .category(category)
+                    .user(request.getUser())
+                    .build();
+            return sportsFieldRepository.save(createField);
     }
 
     @Override
