@@ -17,6 +17,7 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -225,5 +226,24 @@ public class BookingController {
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
+        @GetMapping("/search")
+        public ResponseEntity<PaginateResponse<BookingResponse>> searchBookings(
+                @RequestParam(required = false) String keyword,
+                @RequestParam(required = false) String status,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+                @RequestParam(defaultValue = "0") String offset,
+                @RequestParam(defaultValue = "100") String limit) {
 
+                BookingStatus bookingStatus = (status == null || status.isEmpty()) ? null : BookingStatus.valueOf(status);
+
+                Page<Booking> bookings = bookingService.searchBookings(keyword, bookingStatus, startDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit));
+
+                for (Booking booking : bookings.getContent()) { System.out.println("Booking: " + booking); }
+                return ResponseEntity.ok(
+                        PaginateResponse.<BookingResponse>builder()
+                                .items(bookings.stream().map(BookingMapper.INSTANCE::toBookingResponse).toList())
+                                .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                                .build());
+        }
 }

@@ -21,6 +21,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -154,6 +155,12 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void deleteBooking(String id) {
         bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return bookingRepository.searchBookings(keyword, status, startDate, endDate, pageable);
     }
 
     public List<Booking> getBookingsForCurrentMonth() {
