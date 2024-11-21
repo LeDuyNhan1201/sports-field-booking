@@ -31,6 +31,8 @@ public interface BookingService {
 
     Booking cancelBooking(String bookingId);
 
+    void deleteBooking(String id);
+
     List<Booking> getBookingsForCurrentMonth();
 
     List<Booking> getBookingsForPreviousMonth();

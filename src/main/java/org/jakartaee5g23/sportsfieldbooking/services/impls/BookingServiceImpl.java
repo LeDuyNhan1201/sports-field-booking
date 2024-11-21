@@ -151,6 +151,11 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Override
+    public void deleteBooking(String id) {
+        bookingRepository.deleteById(id);
+    }
+
     public List<Booking> getBookingsForCurrentMonth() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_MONTH, 1);

@@ -75,6 +75,13 @@ public class BookingController {
                                 .body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, CANCELED)));
         }
 
+        @Operation(summary = "Delete booking", description = "Delete booking after ordered", security = @SecurityRequirement(name = "bearerAuth"))
+        @DeleteMapping("/delete-booking/{id}")
+        public ResponseEntity<Void> deleteBooking(@PathVariable String id) {
+                bookingService.deleteBooking(id);
+                return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
         @Operation(summary = "Reschedule booking", description = "Reschedule an existing booking", security = @SecurityRequirement(name = "bearerAuth"))
         @PutMapping("/reschedule/{id}")
         @PostAuthorize("returnObject.body.MUser.id == authentication.name")

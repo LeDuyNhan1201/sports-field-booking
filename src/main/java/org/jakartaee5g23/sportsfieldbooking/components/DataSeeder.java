@@ -123,7 +123,7 @@ public class DataSeeder {
             users.forEach(user -> {
                 UserRole userRole = UserRole.builder()
                         .user(user)
-                        .role(roles.get(faker.number().numberBetween(1, roles.size())))
+                        .role(roles.get(faker.number().numberBetween(0, roles.size())))
                         .build();
 
                 userRoles.add(userRole);
