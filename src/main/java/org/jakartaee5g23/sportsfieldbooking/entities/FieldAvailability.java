@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.experimental.SuperBuilder;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 @Getter
 @Setter
@@ -41,4 +43,7 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "end_time", nullable = false)
     Date endTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    FieldAvailabilityStatus status;
 }

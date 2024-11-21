@@ -199,6 +199,7 @@ public class DataSeeder {
                             .price(faker.number().randomDouble(2, 10, 100))
                             .endTime(endTime)
                             .createdBy(field.getUser().getId())
+                            .status(getRandomEnum(FieldAvailabilityStatus.class))
                             .build();
 
                     availabilities.add(availability);

@@ -11,11 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailability.NewFieldAvailabilityRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportsFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.FieldAvailabilityResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.FieldAvailabilityMapper;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
@@ -25,6 +27,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -47,6 +51,15 @@ public class FieldAvailabilityController {
         return ResponseEntity.status(OK).body(fieldAvailabilityMapper.toFieldAvailabilityResponse(fieldAvailabilityService.findById(id)));
     }
 
+    @Operation(summary = "Update field availability status", description = "Update field availability status", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<FieldAvailabilityResponse> updateStatus(@PathVariable String id, @RequestParam FieldAvailabilityStatus status) {
+        System.out.println("test thu data: "+id+" "+status);
+        FieldAvailability updatedFieldAvailability = fieldAvailabilityService.updateStatus(id, status);
+        return ResponseEntity.ok(fieldAvailabilityMapper.toFieldAvailabilityResponse(updatedFieldAvailability));
+    }
+
+
     @Operation(summary = "Create new field availability", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/create")
 //    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
@@ -57,6 +70,7 @@ public class FieldAvailabilityController {
                 .endTime(request.endTime())
                 .price(request.price())
                 .sportsField(sportsField)
+                .status(FieldAvailabilityStatus.AVAILABLE)
                 .build();
         fieldAvailability.setSportsField(sportsField);
         fieldAvailabilityService.create(fieldAvailability, request.isConfirmed());
