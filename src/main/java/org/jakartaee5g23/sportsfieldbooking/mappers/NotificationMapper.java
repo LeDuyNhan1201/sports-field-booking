@@ -19,5 +19,6 @@ public interface NotificationMapper {
         dto.setMBooking(BookingMapper.INSTANCE.toBookingResponse(entity.getBooking()));
         dto.setRead(entity.isRead());
         dto.setMReview(ReviewMapper.INSTANCE.toReviewResponse(entity.getReview()));
+        dto.setMSportField(SportsFieldMapper.INSTANCE.toSportsFieldResponse(entity.getSportField()));
     }
 }
