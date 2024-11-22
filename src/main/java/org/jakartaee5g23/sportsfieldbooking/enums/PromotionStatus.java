@@ -6,6 +6,4 @@ public enum PromotionStatus {
 
     INACTIVE,
 
-    BANNED
-
 }

@@ -35,9 +35,9 @@ public interface BookingService {
 
     Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size);
 
-    List<Booking> getBookingsForCurrentMonth();
+    List<Booking> getBookingsForCurrentMonth(Date year);
 
-    List<Booking> getBookingsForPreviousMonth();
+    List<Booking> getBookingsForPreviousMonth(Date year);
 
     List<Booking> getBookingsForCurrentWeek();
 
