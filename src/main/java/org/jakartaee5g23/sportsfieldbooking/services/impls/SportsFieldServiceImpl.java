@@ -70,9 +70,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         if (!isConfirmed)
             throw new SportsFieldException(SportsFieldErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
 
-            Date openingTime = request.getOpeningTime();
-            Date closingTime = request.getClosingTime();
-
 //            if (isTimeValid(openingTime, closingTime))
 //                throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
 //                        HttpStatus.UNPROCESSABLE_ENTITY);
@@ -86,8 +83,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
             currentSportsField.setName(request.getName());
             currentSportsField.setLocation(request.getLocation());
             currentSportsField.setOpacity(request.getOpacity());
-            currentSportsField.setOpeningTime(openingTime);
-            currentSportsField.setClosingTime(closingTime);
             currentSportsField.setCategory(category);
 
             return sportsFieldRepository.save(currentSportsField);

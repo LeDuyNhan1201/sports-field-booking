@@ -24,11 +24,6 @@ public record UpdateSportsFieldRequest(
         @Min(value = 0, message = "min_value_field")
         Integer opacity,
 
-        @NotNull(message = "null_field")
-        Date closingTime,
-
-        @NotNull(message = "null_field")
-        Date openingTime,
 
         @NotNull(message = "null_field")
         Integer categoryId,

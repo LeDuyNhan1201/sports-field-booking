@@ -17,6 +17,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateRespons
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
@@ -282,11 +283,30 @@ public class SportsFieldController {
             );
         }
         @Operation(summary = "Delete all availability", description = "Delete availabilities")
-        @DeleteMapping("/delete-availabilities/{id}")
-        ResponseEntity<CommonResponse<String, Object>> removeAllAvailabilities(@PathVariable String id) {
+        @DeleteMapping("/delete-availabilities/{index}/{id}")
+        ResponseEntity<CommonResponse<String, Object>> removeAllAvailabilities(@PathVariable String id, @PathVariable Integer index) {
             SportsField sportsField = sportsFieldService.findById(id);
-            sportsField.getFieldAvailabilities().clear();
-            sportsFieldService.update(sportsField, true);
+            List<FieldAvailability> fieldAvailabilityList = sportsField.getFieldAvailabilities();
+            if (fieldAvailabilityList.get(index).getStatus() == FieldAvailabilityStatus.AVAILABLE){
+                fieldAvailabilityList.set(index, null);
+
+                Date minOpeningTime = fieldAvailabilityList.stream()
+                        .filter(Objects::nonNull)
+                        .map(FieldAvailability::getStartTime)
+                        .min(Date::compareTo)
+                        .orElse(null);
+
+                Date maxClosingTime = fieldAvailabilityList.stream()
+                        .filter(Objects::nonNull)
+                        .map(FieldAvailability::getStartTime)
+                        .max(Date::compareTo)
+                        .orElse(null);
+
+                sportsField.setOpeningTime(minOpeningTime);
+                sportsField.setClosingTime(maxClosingTime);
+                sportsFieldService.update(sportsField, true);
+
+            }
 
             return ResponseEntity.ok(
                     CommonResponse.<String, Object>builder()

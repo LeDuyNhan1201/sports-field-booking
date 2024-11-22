@@ -58,6 +58,7 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
             .startTime(openingTime)
             .endTime(closingTime)
             .price(request.getPrice())
+                .status(FieldAvailabilityStatus.AVAILABLE)
             .sportsField(request.getSportsField())
             .build();
         return fieldAvailabilityRepository.save(createFieldAvailability);
