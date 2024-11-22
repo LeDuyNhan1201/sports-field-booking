@@ -133,7 +133,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+#    show-sql: true
 #    properties:
 #      hibernate:
 #        format_sql: true

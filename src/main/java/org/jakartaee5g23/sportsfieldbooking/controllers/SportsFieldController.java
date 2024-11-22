@@ -16,10 +16,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Category;
-import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
-import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
@@ -276,6 +273,19 @@ public class SportsFieldController {
             currentImages.set(index, null);
 
             sportsField.setImages(currentImages);
+            sportsFieldService.update(sportsField, true);
+
+            return ResponseEntity.ok(
+                    CommonResponse.<String, Object>builder()
+                            .message(getLocalizedMessage("file_metadata_retrieved"))
+                            .build()
+            );
+        }
+        @Operation(summary = "Delete all availability", description = "Delete availabilities")
+        @DeleteMapping("/delete-availabilities/{id}")
+        ResponseEntity<CommonResponse<String, Object>> removeAllAvailabilities(@PathVariable String id) {
+            SportsField sportsField = sportsFieldService.findById(id);
+            sportsField.getFieldAvailabilities().clear();
             sportsFieldService.update(sportsField, true);
 
             return ResponseEntity.ok(
