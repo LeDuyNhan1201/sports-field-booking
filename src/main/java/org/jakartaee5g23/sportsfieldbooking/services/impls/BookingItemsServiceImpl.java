@@ -38,7 +38,9 @@ public class BookingItemsServiceImpl implements BookingItemsService {
 
     @Override
     public BookingItem create(BookingItem item) {
-        return bookingItemsRepository.save(item);
+        BookingItem createBookingItem = bookingItemsRepository.save(item);
+        createBookingItem.setCreatedAt(new Date());
+        return bookingItemsRepository.save(createBookingItem);
     }
 
 

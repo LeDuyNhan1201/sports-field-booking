@@ -242,4 +242,33 @@ public class BookingServiceImpl implements BookingService {
 
         return bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
     }
+
+    @Override
+    public List<Booking> getBookingsFromYear(Date fromDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fromDate);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, Calendar.JANUARY, 1, 0, 0, 0);
+        Date startOfYear = calendar.getTime();
+
+        calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
+        Date endOfYear = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+    }
+    @Override
+    public List<Booking> getBookingsToYear(Date toDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(toDate);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, Calendar.JANUARY, 1, 0, 0, 0);
+        Date startOfYear = calendar.getTime();
+
+        calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
+        Date endOfYear = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+    }
 }

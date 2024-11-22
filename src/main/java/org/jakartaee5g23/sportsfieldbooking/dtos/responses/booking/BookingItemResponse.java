@@ -26,6 +26,8 @@ public class BookingItemResponse {
 
     Date endTime;
 
+    Date createdAt;
+
     BookingItemStatus status;
 
     double price;

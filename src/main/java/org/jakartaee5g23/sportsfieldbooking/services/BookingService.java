@@ -42,4 +42,8 @@ public interface BookingService {
     List<Booking> getBookingsForCurrentWeek();
 
     List<Booking> getBookingsForPreviousWeek();
+
+    List<Booking> getBookingsFromYear(Date year);
+
+    List<Booking> getBookingsToYear(Date year);
 }

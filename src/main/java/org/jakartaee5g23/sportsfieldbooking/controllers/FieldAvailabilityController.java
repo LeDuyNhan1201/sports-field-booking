@@ -54,7 +54,6 @@ public class FieldAvailabilityController {
     @Operation(summary = "Update field availability status", description = "Update field availability status", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/update-status/{id}")
     public ResponseEntity<FieldAvailabilityResponse> updateStatus(@PathVariable String id, @RequestParam FieldAvailabilityStatus status) {
-        System.out.println("test thu data: "+id+" "+status);
         FieldAvailability updatedFieldAvailability = fieldAvailabilityService.updateStatus(id, status);
         return ResponseEntity.ok(fieldAvailabilityMapper.toFieldAvailabilityResponse(updatedFieldAvailability));
     }

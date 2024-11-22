@@ -226,6 +226,18 @@ public class BookingController {
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
+        @GetMapping("/from-year")
+        public ResponseEntity<List<BookingResponse>> getFromDateBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
+                List<Booking> bookings = bookingService.getBookingsFromYear(fromDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/to-year")
+        public ResponseEntity<List<BookingResponse>> getPreviousYearBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+                List<Booking> bookings = bookingService.getBookingsToYear(toDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
         @GetMapping("/search")
         public ResponseEntity<PaginateResponse<BookingResponse>> searchBookings(
                 @RequestParam(required = false) String keyword,

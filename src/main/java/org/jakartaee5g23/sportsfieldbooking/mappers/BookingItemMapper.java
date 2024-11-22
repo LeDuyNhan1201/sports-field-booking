@@ -22,6 +22,7 @@ public interface BookingItemMapper {
                                 SportsFieldMapper.INSTANCE
                                                 .toSportsFieldResponse(entity.getSportsField()));
                 dto.setStatus(entity.getStatus());
+                dto.setCreatedAt(entity.getCreatedAt());
                 // dto.setMSportField(
                 // SportsFieldMapper.INSTANCE
                 // .toSportsFieldResponse(entity.getFieldAvailability().getSportsField()));
