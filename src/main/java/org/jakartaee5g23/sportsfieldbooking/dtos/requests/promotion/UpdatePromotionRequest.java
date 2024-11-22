@@ -15,9 +15,6 @@ import java.time.*;
 
 public record UpdatePromotionRequest(
     @NotNull(message = "null_field")
-    Integer id,
-
-    @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")
     String name,
 

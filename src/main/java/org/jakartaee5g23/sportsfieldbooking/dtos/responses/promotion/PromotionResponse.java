@@ -14,7 +14,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionResponse {
-    Integer id;
+    String id;
     String name;
     String description;
     Double discountPercentage;

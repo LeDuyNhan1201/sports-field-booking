@@ -1,7 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 
 @Getter
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Setter
 @SuperBuilder
 @NoArgsConstructor
@@ -25,8 +23,8 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 public class Promotion extends AbstractEntity {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        Integer id;
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
 
         @Column(nullable = false, length = 100)
         String name;

@@ -57,4 +57,18 @@ public class BookingItem extends AbstractEntity {
         @Enumerated(EnumType.STRING)
         @Column(name="status", nullable = false)
         BookingItemStatus status;
+
+        @Override
+        public String toString() {
+                return "BookingItem{" +
+                        "id='" + id + '\'' +
+                        ", availableDate=" + availableDate +
+                        ", startTime=" + startTime +
+                        ", endTime=" + endTime +
+                        ", price=" + price +
+                        ", booking=" + booking +
+                        ", sportsField=" + sportsField +
+                        ", status=" + status +
+                        '}';
+        }
 }

@@ -11,9 +11,9 @@ public interface PromotionService {
 
     Page<Promotion> findAll(int offset, int limit);
 
-    Promotion findById(Integer id);
+    Promotion findById(String id);
 
     Promotion update(Promotion request, Boolean isConfirmed);
 
-    Promotion updateStatus(Integer id, PromotionStatus status);
+    Promotion updateStatus(String id, PromotionStatus status);
 }

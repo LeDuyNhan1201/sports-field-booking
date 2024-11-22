@@ -66,7 +66,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion findById(Integer id) {
+    public Promotion findById(String id) {
         return promotionRepository.findById(id).orElseThrow(
                 () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Promotion"));
     }
@@ -80,7 +80,8 @@ public class PromotionServiceImpl implements PromotionService {
         if(isTimeValid(startDate, endDate))
             throw new PromotionException(PromotionErrorCode.INVALID_START_END_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
         
-        Promotion promotion = findById(request.getId());
+        Promotion promotion = promotionRepository.findById(request.getId())
+                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Promotion"));
         promotion.setName(request.getName());
         promotion.setDescription(request.getDescription());
         promotion.setDiscountPercentage(request.getDiscountPercentage());
@@ -91,7 +92,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion updateStatus(Integer id, PromotionStatus status) {
+    public Promotion updateStatus(String id, PromotionStatus status) {
         Promotion promotion = findById(id);
         promotion.setStatus(status);
         return promotionRepository.save(promotion);    

@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.controllers;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.promotion.NewPromotionRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.promotion.UpdatePromotionRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.promotion.PromotionResponse;
@@ -39,6 +40,13 @@ public class PromotionController {
 
     PromotionService promotionService;
 
+    @Operation(summary = "Get promotion by id", description = "Get promotion by id", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{id}")
+    public ResponseEntity<PromotionResponse> findById(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(promotionMapper.toPromotionResponse(promotionService.findById(id)));
+    }
+
     @Operation(summary = "Create new promotion", description = "Create a new promotion when the admin wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
@@ -71,8 +79,9 @@ public class PromotionController {
     @Operation(summary = "Update status promotion", description = "Update status promotion when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/status/{id}")
     @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-    public ResponseEntity<PromotionResponse> updateStatus (@PathVariable Integer id, @RequestParam PromotionStatus status) {
+    public ResponseEntity<PromotionResponse> updateStatus (@PathVariable String id, @RequestParam PromotionStatus status) {
         return ResponseEntity.status(OK).body(promotionMapper.toPromotionResponse(promotionService.updateStatus(id, status)));
     }
+
 
 }
