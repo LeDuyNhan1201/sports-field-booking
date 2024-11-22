@@ -163,45 +163,48 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.searchBookings(keyword, status, startDate, endDate, pageable);
     }
 
-    public List<Booking> getBookingsForCurrentMonth() {
+    @Override
+    public List<Booking> getBookingsForCurrentMonth(Date date) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        calendar.setTime(date);
+
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, month, 1, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date startDate = calendar.getTime();
-
-        calendar.add(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.add(Calendar.DATE, -1);
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        Date endDate = calendar.getTime();
-
-        return bookingRepository.findBookingsByDateRange(startDate, endDate);
-    }
-
-    public List<Booking> getBookingsForPreviousMonth() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, -1);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date startDate = calendar.getTime();
+        Date startOfMonth = calendar.getTime();
 
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
-        Date endDate = calendar.getTime();
+        Date endOfMonth = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startDate, endDate);
+        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+    }
+
+    @Override
+    public List<Booking> getBookingsForPreviousMonth(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, month, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfMonth = calendar.getTime();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfMonth = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
     }
 
     public List<Booking> getBookingsForCurrentWeek() {

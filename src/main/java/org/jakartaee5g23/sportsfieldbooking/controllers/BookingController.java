@@ -203,14 +203,14 @@ public class BookingController {
         }
 
         @GetMapping("/current-month")
-        public ResponseEntity<List<BookingResponse>> getCurrentMonthBookings() {
-                List<Booking> bookings = bookingService.getBookingsForCurrentMonth();
+        public ResponseEntity<List<BookingResponse>> getCurrentMonthBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
+                List<Booking> bookings = bookingService.getBookingsForCurrentMonth(fromDate);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/previous-month")
-        public ResponseEntity<List<BookingResponse>> getPreviousMonthBookings() {
-                List<Booking> bookings = bookingService.getBookingsForPreviousMonth();
+        public ResponseEntity<List<BookingResponse>> getPreviousMonthBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+                List<Booking> bookings = bookingService.getBookingsForPreviousMonth(toDate);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
