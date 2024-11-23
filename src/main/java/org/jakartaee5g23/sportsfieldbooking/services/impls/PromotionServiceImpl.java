@@ -41,28 +41,29 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public Promotion create(Promotion request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new PromotionException(PromotionErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!isConfirmed)
+            throw new PromotionException(PromotionErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
         Date startDate = request.getStartDate();
         Date endDate = request.getEndDate();
-        
-        if(isTimeValid(startDate, endDate))
+
+        if (isTimeValid(startDate, endDate))
             throw new PromotionException(PromotionErrorCode.INVALID_START_END_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
-        
+
         Promotion promotion = Promotion.builder()
-            .name(request.getName())
-            .description(request.getDescription())
-            .discountPercentage(request.getDiscountPercentage())
-            .startDate(startDate)
-            .endDate(endDate)
-            .status(request.getStatus())
-            .build();
-        
+                .name(request.getName())
+                .description(request.getDescription())
+                .discountPercentage(request.getDiscountPercentage())
+                .startDate(startDate)
+                .endDate(endDate)
+                .status(request.getStatus())
+                .build();
+
         return promotionRepository.save(promotion);
     }
 
     @Override
     public Page<Promotion> findAll(int offset, int limit) {
-        return promotionRepository.findAll(PageRequest.of(offset, limit, Sort.by("created_at").descending())); 
+        return promotionRepository.findAll(PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 
     @Override
@@ -72,22 +73,25 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion update(Promotion request, Boolean isConfirmed) {
-        if (!isConfirmed) throw new PromotionException(PromotionErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
+    public Promotion update(String id, Promotion request, Boolean isConfirmed) {
+        if (!isConfirmed)
+            throw new PromotionException(PromotionErrorCode.CREATE_FAILED, HttpStatus.UNPROCESSABLE_ENTITY);
         Date startDate = request.getStartDate();
         Date endDate = request.getEndDate();
-        
-        if(isTimeValid(startDate, endDate))
+
+        if (isTimeValid(startDate, endDate))
             throw new PromotionException(PromotionErrorCode.INVALID_START_END_TIME, HttpStatus.UNPROCESSABLE_ENTITY);
-        
-        Promotion promotion = promotionRepository.findById(request.getId())
-                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Promotion"));
+
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(
+                        () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Promotion"));
         promotion.setName(request.getName());
         promotion.setDescription(request.getDescription());
         promotion.setDiscountPercentage(request.getDiscountPercentage());
         promotion.setStartDate(request.getStartDate());
         promotion.setEndDate(request.getEndDate());
-        
+        promotion.setStatus(request.getStatus());
+
         return promotionRepository.save(promotion);
     }
 
@@ -95,7 +99,13 @@ public class PromotionServiceImpl implements PromotionService {
     public Promotion updateStatus(String id, PromotionStatus status) {
         Promotion promotion = findById(id);
         promotion.setStatus(status);
-        return promotionRepository.save(promotion);    
+        return promotionRepository.save(promotion);
     }
-    
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        Promotion promotion = findById(id);
+        promotionRepository.delete(promotion);
+    }
 }
