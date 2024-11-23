@@ -47,4 +47,7 @@ public class SportsFieldResponse {
 
     @JsonProperty(value = "promotion")
     Promotion promotion;
+
+    @JsonProperty(value = "fieldAvailabilitiesAccess")
+    List<FieldAvailabilityAccessResponse> mFieldAvailabilitiesAccess;
 }

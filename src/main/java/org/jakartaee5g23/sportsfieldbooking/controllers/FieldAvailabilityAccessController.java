@@ -22,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -39,6 +41,14 @@ public class FieldAvailabilityAccessController {
     @GetMapping("/{id}")
     public ResponseEntity<FieldAvailabilityAccessResponse> findById(@PathVariable String id) {
         return ResponseEntity.status(OK).body(fieldAvailabilityAccessMapper.toFieldAvailabilityAccessResponse(fieldAvailabilityAccessService.findById(id)));
+    }
+
+    @Operation(summary = "Get field availability access by sport field id", description = "Get field availability access by sport field", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/sports-field")
+    public ResponseEntity<List<FieldAvailabilityAccessResponse>> findBySportFieldID(@RequestParam String sportsFieldID) {
+        List<FieldAvailabilityAccess> fieldAvailabilityAccessList = fieldAvailabilityAccessService.findBySportsFieldId(sportsFieldID);
+        List<FieldAvailabilityAccessResponse> responseList = fieldAvailabilityAccessMapper.toFieldAvailabilityAccessResponseList(fieldAvailabilityAccessList);
+        return ResponseEntity.status(OK).body(responseList);
     }
 
     @Operation(summary = "Create a new field availability access", description = "Create a new field availability access", security = @SecurityRequirement(name = "bearerAuth"))

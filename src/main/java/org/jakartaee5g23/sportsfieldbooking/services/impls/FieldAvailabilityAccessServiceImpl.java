@@ -11,8 +11,11 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityAccessRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportsFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityAccessService;
+import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class FieldAvailabilityAccessServiceImpl implements FieldAvailabilityAccessService {
     FieldAvailabilityAccessRepository fieldAvailabilityAccessRepository;
     SportsFieldRepository sportsFieldRepository;
+    SportsFieldService sportsFieldService;
     @Override
     public FieldAvailabilityAccess findById(String id) {
         return fieldAvailabilityAccessRepository.findById(id)
@@ -39,5 +43,11 @@ public class FieldAvailabilityAccessServiceImpl implements FieldAvailabilityAcce
                 .build();
 
         return fieldAvailabilityAccessRepository.save(fieldAvailabilityAccess);
+    }
+
+    @Override
+    public List<FieldAvailabilityAccess> findBySportsFieldId(String sportsFieldId) {
+        SportsField sportsField = sportsFieldService.findById(sportsFieldId);
+        return fieldAvailabilityAccessRepository.findBySportsField(sportsField);
     }
 }

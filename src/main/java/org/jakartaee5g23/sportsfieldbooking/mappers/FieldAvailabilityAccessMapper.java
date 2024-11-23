@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 
 @Mapper(componentModel = "spring")
 public interface FieldAvailabilityAccessMapper {
@@ -16,10 +18,10 @@ public interface FieldAvailabilityAccessMapper {
 
     FieldAvailabilityAccessResponse toFieldAvailabilityAccessResponse(FieldAvailabilityAccess entity);
 
+    List<FieldAvailabilityAccessResponse> toFieldAvailabilityAccessResponseList(List<FieldAvailabilityAccess> fieldAvailabilityAccessList);
+
     @AfterMapping
     default void customizeDto(FieldAvailabilityAccess entity, @MappingTarget FieldAvailabilityAccessResponse dto) {
-        dto.setMSportsField(
-                SportsFieldMapper.INSTANCE
-                        .toSportsFieldResponse(entity.getSportsField()));
+        dto.setMSportsField(SportsFieldMapper.INSTANCE.toSportsFieldResponse(entity.getSportsField()));
     }
 }
