@@ -71,7 +71,8 @@ public class SecurityConfig {
                 "/userRole/**",
                 "/category/**",
                 "/reviews/**",
-                "/field-availability-access/**"
+                "/field-availability-access/**",
+                "/rating/**"
                 ).map(s -> (s.contains("api-docs") || s.contains("swagger")) ? s : API_PREFIX + s)
                 .toList().toArray(new String[0]);
 

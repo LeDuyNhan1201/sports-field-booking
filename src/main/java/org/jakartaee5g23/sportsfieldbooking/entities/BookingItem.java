@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,6 +58,10 @@ public class BookingItem extends AbstractEntity {
         @Enumerated(EnumType.STRING)
         @Column(name="status", nullable = false)
         BookingItemStatus status;
+
+        @OneToOne(mappedBy = "bookingItem", cascade = CascadeType.ALL, orphanRemoval = true)
+        @JsonBackReference
+        Rating rating;
 
         @Override
         public String toString() {
