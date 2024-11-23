@@ -22,5 +22,4 @@ public class PromotionResponse {
     Date endDate;
     PromotionStatus status;
     String createdBy;
-
 }
