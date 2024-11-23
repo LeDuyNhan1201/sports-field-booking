@@ -80,4 +80,8 @@ public class SportsField extends AbstractEntity {
                         foreignKeyDefinition = "FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE CASCADE ON UPDATE CASCADE"))
         @JsonBackReference
         Promotion promotion;
+
+        @OneToMany(mappedBy = "sportsField", cascade = CascadeType.ALL, orphanRemoval = true)
+        @JsonManagedReference
+        List<FieldAvailabilityAccess> fieldAvailabilityAccessList;
 }
