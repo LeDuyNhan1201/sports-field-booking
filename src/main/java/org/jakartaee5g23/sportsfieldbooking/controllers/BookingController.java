@@ -241,21 +241,32 @@ public class BookingController {
         @GetMapping("/search")
         public ResponseEntity<PaginateResponse<BookingResponse>> searchBookings(
                 @RequestParam(required = false) String keyword,
-                @RequestParam(required = false) String status,
+                @RequestParam(required = false) BookingStatus status,
                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
                 @RequestParam(defaultValue = "0") String offset,
                 @RequestParam(defaultValue = "100") String limit) {
 
-                BookingStatus bookingStatus = (status == null || status.isEmpty()) ? null : BookingStatus.valueOf(status);
+                Page<Booking> bookings = bookingService.searchBookings(keyword, status, startDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit));
 
-                Page<Booking> bookings = bookingService.searchBookings(keyword, bookingStatus, startDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit));
-
-                for (Booking booking : bookings.getContent()) { System.out.println("Booking: " + booking); }
                 return ResponseEntity.ok(
                         PaginateResponse.<BookingResponse>builder()
                                 .items(bookings.stream().map(BookingMapper.INSTANCE::toBookingResponse).toList())
                                 .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
                                 .build());
+        }
+
+        @Operation(summary = "Update booking status", description = "Update the status of a booking by ID", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping("/update-status/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<BookingResponse> updateBookingStatus(@PathVariable String id, @RequestParam BookingStatus newStatus) {
+                Booking updatedBooking = bookingService.updateStatus(id, newStatus);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(bookingMapper.toBookingResponse(updatedBooking));
+        }
+
+        @GetMapping("/booking-status")
+        public List<String> getBookingStatuses() {
+                return bookingService.getBookingStatus();
         }
 }

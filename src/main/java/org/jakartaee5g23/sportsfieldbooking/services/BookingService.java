@@ -46,4 +46,6 @@ public interface BookingService {
     List<Booking> getBookingsFromYear(Date year);
 
     List<Booking> getBookingsToYear(Date year);
+
+    List<String> getBookingStatus();
 }
