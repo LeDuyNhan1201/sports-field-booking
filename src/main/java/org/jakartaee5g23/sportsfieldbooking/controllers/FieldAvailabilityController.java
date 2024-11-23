@@ -62,7 +62,7 @@ public class FieldAvailabilityController {
     @Operation(summary = "Create new field availability", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/create")
 //    @PostAuthorize("returnObject.body.MUser.id == authentication.name")
-    public ResponseEntity<Void> create(@RequestBody @Valid NewFieldAvailabilityRequest request) {
+    public ResponseEntity<FieldAvailabilityResponse> create(@RequestBody @Valid NewFieldAvailabilityRequest request) {
         SportsField sportsField = sportsFieldService.findById(request.sportsFieldId());
         FieldAvailability fieldAvailability = FieldAvailability.builder()
                 .startTime(request.startTime())
@@ -72,7 +72,6 @@ public class FieldAvailabilityController {
                 .status(FieldAvailabilityStatus.AVAILABLE)
                 .build();
         fieldAvailability.setSportsField(sportsField);
-        fieldAvailabilityService.create(fieldAvailability, request.isConfirmed());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(OK).body(fieldAvailabilityMapper.toFieldAvailabilityResponse(fieldAvailabilityService.create(fieldAvailability, request.isConfirmed())));
     }
 }
