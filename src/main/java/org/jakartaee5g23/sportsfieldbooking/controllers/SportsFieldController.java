@@ -9,14 +9,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.NewSportsFieldRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.sportField.UpdateSportsFieldRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.CommonResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.SportsFieldResponse;
-import org.jakartaee5g23.sportsfieldbooking.entities.Category;
-import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
-import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.*;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
@@ -27,11 +28,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -52,9 +57,9 @@ public class SportsFieldController {
 
         @Operation(summary = "Create new sport field", description = "Create a new field when the field manager wants to use the system", security = @SecurityRequirement(name = "bearerAuth"))
         @PostMapping
-        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+        // @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
         public ResponseEntity<SportsFieldResponse> create(@RequestBody @Valid NewSportsFieldRequest request) {
-                User current = userService.findById(getUserIdFromContext());
+                User current = userService.findById(request.userId());
                 SportsField sportsField = sportsFieldMapper.toSportsField(request);
                 sportsField.setUser(current);
                 sportsField.setCategory(Category.builder().id(request.categoryId()).build());
@@ -65,9 +70,10 @@ public class SportsFieldController {
 
         @Operation(summary = "Update field details", description = "Update field details when user edit sport field information", security = @SecurityRequirement(name = "bearerAuth"))
         @PutMapping
-        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
+//        @PostAuthorize("(returnObject.body.owner.id == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
         public ResponseEntity<SportsFieldResponse> update(@RequestBody @Valid UpdateSportsFieldRequest request) {
                 SportsField sportsField = sportsFieldMapper.toSportsField(request);
+                sportsField.setCategory(Category.builder().id(request.categoryId()).build());
                 return ResponseEntity.status(OK).body(
                                 sportsFieldMapper.toSportsFieldResponse(
                                                 sportsFieldService.update(sportsField, request.isConfirmed())));
@@ -222,6 +228,34 @@ public class SportsFieldController {
                                                                 sportFields.getTotalElements()))
                                                 .build());
         }
+        @Operation(summary = "Upload images", description = "Upload images", security = @SecurityRequirement(name = "bearerAuth"))
+        @PostMapping("/images")
+        ResponseEntity<CommonResponse<Long, ?>> uploadAvatar(@RequestPart(name = "file") MultipartFile file,
+                                                                @RequestPart(name = "request") @Valid FileUploadRequest request) {
+
+                // SportsField existingSportField = sportsFieldService.findById(request.ownerId());
+
+                long uploadedSize = minioClientService.uploadChunk(
+                        file,
+                        request.fileMetadataId(),
+                        request.chunkHash(),
+                        request.startByte(),
+                        request.totalSize(),
+                        request.contentType(),
+                        request.ownerId(),
+                        request.fileMetadataType());
+
+                HttpStatus httpStatus = uploadedSize == request.totalSize() ? CREATED : OK;
+
+                String message = uploadedSize == request.totalSize() ? "file_upload_success" : "chunk_uploaded";
+
+                return ResponseEntity.status(httpStatus).body(
+                        CommonResponse.<Long, Object>builder()
+                                .message(getLocalizedMessage(message))
+                                .results(uploadedSize)
+                                .build()
+                );
+        }
 
         private void setSportsFieldImages(SportsFieldResponse sportsFieldResponse, SportsField sportsField) {
                 sportsFieldResponse.setMImages(sportsField.getImages() != null
@@ -232,5 +266,52 @@ public class SportsFieldController {
                                 : new ArrayList<>());
         }
 
+        @Operation(summary = "Delete images", description = "Delete images")
+        @DeleteMapping("/delete-images/{index}/{id}")
+        ResponseEntity<CommonResponse<String, Object>> deleteObject(@PathVariable String id, @PathVariable Integer index) {
+            SportsField sportsField = sportsFieldService.findById(id);
+            List<FileMetadata> currentImages = sportsField.getImages();
+            currentImages.set(index, null);
 
+            sportsField.setImages(currentImages);
+            sportsFieldService.update(sportsField, true);
+
+            return ResponseEntity.ok(
+                    CommonResponse.<String, Object>builder()
+                            .message(getLocalizedMessage("file_metadata_retrieved"))
+                            .build()
+            );
+        }
+        @Operation(summary = "Delete all availability", description = "Delete availabilities")
+        @DeleteMapping("/delete-availabilities/{index}/{id}")
+        ResponseEntity<CommonResponse<String, Object>> removeAllAvailabilities(@PathVariable String id, @PathVariable Integer index) {
+            SportsField sportsField = sportsFieldService.findById(id);
+            List<FieldAvailability> fieldAvailabilityList = sportsField.getFieldAvailabilities();
+            if (fieldAvailabilityList.get(index).getStatus() == FieldAvailabilityStatus.AVAILABLE){
+                fieldAvailabilityList.set(index, null);
+
+                Date minOpeningTime = fieldAvailabilityList.stream()
+                        .filter(Objects::nonNull)
+                        .map(FieldAvailability::getStartTime)
+                        .min(Date::compareTo)
+                        .orElse(null);
+
+                Date maxClosingTime = fieldAvailabilityList.stream()
+                        .filter(Objects::nonNull)
+                        .map(FieldAvailability::getStartTime)
+                        .max(Date::compareTo)
+                        .orElse(null);
+
+                sportsField.setOpeningTime(minOpeningTime);
+                sportsField.setClosingTime(maxClosingTime);
+                sportsFieldService.update(sportsField, true);
+
+            }
+
+            return ResponseEntity.ok(
+                    CommonResponse.<String, Object>builder()
+                            .message(getLocalizedMessage("file_metadata_retrieved"))
+                            .build()
+            );
+        }
 }

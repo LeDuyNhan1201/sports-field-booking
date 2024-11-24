@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
@@ -20,6 +22,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.*;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -57,11 +60,13 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = Booking.builder()
 //                .fieldAvailability(fieldAvailability)
+                .updatedAt(new Date())
                 .status(BookingStatus.PENDING)
                 .user(user)
                 .build();
 
         Booking createBooking = bookingRepository.save(booking);
+        createBooking.setCreatedAt(new Date());
 
         Notification notification = Notification.builder()
                 .user(user)
@@ -72,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
 
         notificationRepository.save(notification);
 
-        return createBooking;
+        return bookingRepository.save(createBooking);
 
     }
 
@@ -146,6 +151,136 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
         booking.setStatus(BookingStatus.CANCELED);
         return bookingRepository.save(booking);
+    }
+
+    @Override
+    public void deleteBooking(String id) {
+        bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return bookingRepository.searchBookings(keyword, status, startDate, endDate, pageable);
+    }
+
+    @Override
+    public List<Booking> getBookingsForCurrentMonth(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, month, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfMonth = calendar.getTime();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfMonth = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+    }
+
+    @Override
+    public List<Booking> getBookingsForPreviousMonth(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, month, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfMonth = calendar.getTime();
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfMonth = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+    }
+
+    public List<Booking> getBookingsForCurrentWeek() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfWeek = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_WEEK, 6);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfWeek = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+    }
+
+    public List<Booking> getBookingsForPreviousWeek() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.WEEK_OF_YEAR, -1); // back 1 week from current week
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfWeek = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_WEEK, 6);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfWeek = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+    }
+
+    @Override
+    public List<Booking> getBookingsFromYear(Date fromDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fromDate);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, Calendar.JANUARY, 1, 0, 0, 0);
+        Date startOfYear = calendar.getTime();
+
+        calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
+        Date endOfYear = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+    }
+    @Override
+    public List<Booking> getBookingsToYear(Date toDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(toDate);
+        int year = calendar.get(Calendar.YEAR);
+
+        calendar.set(year, Calendar.JANUARY, 1, 0, 0, 0);
+        Date startOfYear = calendar.getTime();
+
+        calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
+        Date endOfYear = calendar.getTime();
+
+        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+    }
+
+
+    public List<String> getBookingStatus() {
+        return Arrays.stream(BookingStatus.values())
+                .map(Enum::name)
+                .toList();
     }
 
 }

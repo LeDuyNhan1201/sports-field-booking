@@ -23,8 +23,8 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 public class Promotion extends AbstractEntity {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        Integer id;
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
 
         @Column(nullable = false, length = 100)
         String name;

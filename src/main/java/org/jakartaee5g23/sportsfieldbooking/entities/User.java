@@ -91,27 +91,4 @@ public class User extends AbstractEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     List<Review> reviews;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", isActivated=" + isActivated +
-                ", bio='" + bio + '\'' +
-                ", username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", mobileNumber='" + mobileNumber + '\'' +
-                ", birthdate=" + birthdate +
-                ", gender=" + gender +
-                ", status=" + status +
-                ", verifications=" + verifications +
-                ", roles=" + roles +
-                ", bookings=" + bookings +
-                ", reviews=" + reviews +
-                '}';
-    }
 }

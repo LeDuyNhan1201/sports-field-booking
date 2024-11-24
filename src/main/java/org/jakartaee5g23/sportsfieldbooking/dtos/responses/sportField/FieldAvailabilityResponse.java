@@ -9,6 +9,7 @@ import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 
 import java.util.Date;
 
@@ -24,7 +25,7 @@ public class FieldAvailabilityResponse {
 
     Date orderDate;
 
-    BookingStatus status;
+    FieldAvailabilityStatus status;
 
     User user;
 

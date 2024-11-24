@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Date;
+import java.util.List;
+
+import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
 
 public record NewSportsFieldRequest(
 
@@ -18,26 +21,20 @@ public record NewSportsFieldRequest(
     String location,
 
     @NotNull(message = "null_field")
-    @NotBlank(message = "blank_field")
-    @Min(value = 1, message = "min_field")
-    Integer pricePerHour,
-
-    @NotNull(message = "null_field")
-    @NotBlank(message = "blank_field")
-    @Size(min = 1, max = 20, message = "size_field")
+    @Min(value = 0, message = "min_value_field")
     Integer opacity,
 
     @NotNull(message = "null_field")
-    @NotBlank(message = "blank_field")
     Date closingTime,
 
     @NotNull(message = "null_field")
-    @NotBlank(message = "blank_field")
     Date openingTime,
 
     @NotNull(message = "null_field")
-    @NotBlank(message = "blank_field")
     Integer categoryId,
+
+    @NotNull(message = "null_field")
+    Double rating,
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")

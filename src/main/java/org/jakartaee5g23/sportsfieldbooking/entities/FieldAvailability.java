@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.experimental.SuperBuilder;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 
 @Getter
 @Setter
@@ -18,7 +20,6 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "field_availabilities")
 public class FieldAvailability extends AbstractEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -34,10 +35,6 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "price", nullable = false)
     Double price;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "available_date", nullable = false)
-    Date availableDate;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_time", nullable = false)
     Date startTime;
@@ -46,10 +43,7 @@ public class FieldAvailability extends AbstractEntity {
     @Column(name = "end_time", nullable = false)
     Date endTime;
 
-    @Column(name = "is_available", nullable = false)
-    Boolean isAvailable;
-
-    @OneToMany(mappedBy = "fieldAvailability")
-    @JsonBackReference
-    List<BookingItem> bookingItems;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    FieldAvailabilityStatus status;
 }

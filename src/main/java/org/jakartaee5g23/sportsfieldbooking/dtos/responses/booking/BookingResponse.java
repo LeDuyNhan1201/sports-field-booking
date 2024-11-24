@@ -18,10 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingResponse {
-
     String id;
 
     Date orderDate;
+
+    Date createdAt;
 
     BookingStatus status;
 
@@ -36,4 +37,5 @@ public class BookingResponse {
 
     @JsonProperty(value = "bookingItems")
     List<BookingItemResponse> mBookingItems;
+
 }

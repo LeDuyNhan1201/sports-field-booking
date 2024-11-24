@@ -18,9 +18,11 @@ public interface BookingItemMapper {
 
         @AfterMapping
         default void customizeDto(BookingItem entity, @MappingTarget BookingItemResponse dto) {
-                dto.setMFieldAvailability(
-                                FieldAvailabilityMapper.INSTANCE
-                                                .toFieldAvailabilityResponse(entity.getFieldAvailability()));
+                dto.setMSportsField(
+                                SportsFieldMapper.INSTANCE
+                                                .toSportsFieldResponse(entity.getSportsField()));
+                dto.setStatus(entity.getStatus());
+                dto.setCreatedAt(entity.getCreatedAt());
                 // dto.setMSportField(
                 // SportsFieldMapper.INSTANCE
                 // .toSportsFieldResponse(entity.getFieldAvailability().getSportsField()));

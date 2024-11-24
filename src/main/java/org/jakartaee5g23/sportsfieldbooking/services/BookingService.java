@@ -31,4 +31,21 @@ public interface BookingService {
 
     Booking cancelBooking(String bookingId);
 
+    void deleteBooking(String id);
+
+    Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size);
+
+    List<Booking> getBookingsForCurrentMonth(Date year);
+
+    List<Booking> getBookingsForPreviousMonth(Date year);
+
+    List<Booking> getBookingsForCurrentWeek();
+
+    List<Booking> getBookingsForPreviousWeek();
+
+    List<Booking> getBookingsFromYear(Date year);
+
+    List<Booking> getBookingsToYear(Date year);
+
+    List<String> getBookingStatus();
 }

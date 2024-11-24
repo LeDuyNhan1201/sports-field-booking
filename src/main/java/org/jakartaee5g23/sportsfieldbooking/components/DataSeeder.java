@@ -123,16 +123,7 @@ public class DataSeeder {
             users.forEach(user -> {
                 UserRole userRole = UserRole.builder()
                         .user(user)
-                        .role(roles.getFirst())
-                        .build();
-
-                userRoles.add(userRole);
-            });
-
-            users.forEach(user -> {
-                UserRole userRole = UserRole.builder()
-                        .user(user)
-                        .role(roles.get(faker.number().numberBetween(1, roles.size())))
+                        .role(roles.get(faker.number().numberBetween(0, roles.size())))
                         .build();
 
                 userRoles.add(userRole);
@@ -204,12 +195,11 @@ public class DataSeeder {
 
                     FieldAvailability availability = FieldAvailability.builder()
                             .sportsField(field)
-                            .availableDate(availableDate)
                             .startTime(startTime)
                             .price(faker.number().randomDouble(2, 10, 100))
                             .endTime(endTime)
-                            .isAvailable(faker.bool().bool())
                             .createdBy(field.getUser().getId())
+                            .status(getRandomEnum(FieldAvailabilityStatus.class))
                             .build();
 
                     availabilities.add(availability);
@@ -240,7 +230,7 @@ public class DataSeeder {
     private void seedBookingItems() {
         if (bookingItemRepository.count() == 0) {
             List<Booking> bookings = bookingRepository.findAll();
-            List<FieldAvailability> fieldAvailabilities = fieldAvailabilityRepository.findAll();
+            List<SportsField> sportsFields = sportFieldRepository.findAll();
             List<BookingItem> bookingItems = new ArrayList<>();
             bookings.forEach(booking -> {
                 int itemCount = faker.number().numberBetween(1, 3);
@@ -254,8 +244,8 @@ public class DataSeeder {
                     Date endTime = new Date(
                             startTime.getTime() + (long) faker.number().numberBetween(1, 3) * 60 * 60 * 1000);
 
-                    FieldAvailability randomFieldAvailability = fieldAvailabilities.get(
-                            faker.number().numberBetween(0, fieldAvailabilities.size()));
+                    SportsField randomSportsField = sportsFields.get(
+                            faker.number().numberBetween(0, sportsFields.size()));
 
                     BookingItem bookingItem = BookingItem.builder()
                             .booking(booking)
@@ -264,7 +254,8 @@ public class DataSeeder {
                             .endTime(endTime)
                             .price(faker.number().randomDouble(2, 10, 50))
                             .createdBy(booking.getUser().getId())
-                            .fieldAvailability(randomFieldAvailability)
+                            .sportsField(randomSportsField)
+                            .status(BookingItemStatus.PENDING)
                             .build();
 
                     bookingItems.add(bookingItem);

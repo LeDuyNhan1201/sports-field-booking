@@ -43,4 +43,16 @@ public class Booking extends AbstractEntity {
         @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
         @JsonBackReference
         List<BookingItem> bookingItems;
+
+        @Override
+        public String toString() {
+                return "Booking{" +
+                        "id='" + id + '\'' +
+                        ", status=" + status +
+                        ", user=" + user +
+                        ", payment=" + payment +
+                        ", bookingItems=" + bookingItems +
+                        ", createAt=" + getCreatedAt() +
+                        '}';
+        }
 }

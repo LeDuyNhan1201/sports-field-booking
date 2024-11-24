@@ -24,6 +24,8 @@ public class ReviewResponse {
 
     Date createdAt;
 
+    Date updatedAt;
+
     Review parentReview;
     @JsonProperty("user")
     UserResponse mUser;

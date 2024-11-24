@@ -17,6 +17,7 @@ import org.jakartaee5g23.sportsfieldbooking.mappers.BookingMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -27,9 +28,7 @@ import static org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus.*;
 import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/booking")
@@ -75,6 +74,13 @@ public class BookingController {
         public ResponseEntity<BookingResponse> cancelBooking(@PathVariable String id) {
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(bookingMapper.toBookingResponse(bookingService.updateStatus(id, CANCELED)));
+        }
+
+        @Operation(summary = "Delete booking", description = "Delete booking after ordered", security = @SecurityRequirement(name = "bearerAuth"))
+        @DeleteMapping("/delete-booking/{id}")
+        public ResponseEntity<Void> deleteBooking(@PathVariable String id) {
+                bookingService.deleteBooking(id);
+                return ResponseEntity.status(HttpStatus.OK).build();
         }
 
         @Operation(summary = "Reschedule booking", description = "Reschedule an existing booking", security = @SecurityRequirement(name = "bearerAuth"))
@@ -194,5 +200,73 @@ public class BookingController {
         public ResponseEntity<Booking> cancelBookingById(@PathVariable String id) {
                 Booking cancelledBooking = bookingService.cancelBooking(id);
                 return ResponseEntity.ok(cancelledBooking);
+        }
+
+        @GetMapping("/current-month")
+        public ResponseEntity<List<BookingResponse>> getCurrentMonthBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
+                List<Booking> bookings = bookingService.getBookingsForCurrentMonth(fromDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/previous-month")
+        public ResponseEntity<List<BookingResponse>> getPreviousMonthBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+                List<Booking> bookings = bookingService.getBookingsForPreviousMonth(toDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/current-week")
+        public ResponseEntity<List<BookingResponse>> getCurrentWeekBookings() {
+                List<Booking> bookings = bookingService.getBookingsForCurrentWeek();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/previous-week")
+        public ResponseEntity<List<BookingResponse>> getPreviousWeekBookings() {
+                List<Booking> bookings = bookingService.getBookingsForPreviousWeek();
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/from-year")
+        public ResponseEntity<List<BookingResponse>> getFromDateBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
+                List<Booking> bookings = bookingService.getBookingsFromYear(fromDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/to-year")
+        public ResponseEntity<List<BookingResponse>> getPreviousYearBookings(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
+                List<Booking> bookings = bookingService.getBookingsToYear(toDate);
+                return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
+        }
+
+        @GetMapping("/search")
+        public ResponseEntity<PaginateResponse<BookingResponse>> searchBookings(
+                @RequestParam(required = false) String keyword,
+                @RequestParam(required = false) BookingStatus status,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+                @RequestParam(defaultValue = "0") String offset,
+                @RequestParam(defaultValue = "100") String limit) {
+
+                Page<Booking> bookings = bookingService.searchBookings(keyword, status, startDate, endDate, Integer.parseInt(offset), Integer.parseInt(limit));
+
+                return ResponseEntity.ok(
+                        PaginateResponse.<BookingResponse>builder()
+                                .items(bookings.stream().map(BookingMapper.INSTANCE::toBookingResponse).toList())
+                                .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), bookings.getTotalElements()))
+                                .build());
+        }
+
+        @Operation(summary = "Update booking status", description = "Update the status of a booking by ID", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping("/update-status/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<BookingResponse> updateBookingStatus(@PathVariable String id, @RequestParam BookingStatus newStatus) {
+                Booking updatedBooking = bookingService.updateStatus(id, newStatus);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(bookingMapper.toBookingResponse(updatedBooking));
+        }
+
+        @GetMapping("/booking-status")
+        public List<String> getBookingStatuses() {
+                return bookingService.getBookingStatus();
         }
 }

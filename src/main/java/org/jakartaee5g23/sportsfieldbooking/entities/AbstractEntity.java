@@ -32,7 +32,7 @@ public abstract class AbstractEntity {
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(updatable = false, name = "created_at")
+    @Column(name = "created_at")
     Date createdAt;
 
     @LastModifiedBy

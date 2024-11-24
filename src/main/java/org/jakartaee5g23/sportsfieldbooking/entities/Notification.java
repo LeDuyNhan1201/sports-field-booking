@@ -50,4 +50,9 @@ public class Notification extends AbstractEntity {
         @Builder.Default
         @JoinColumn(name = "is_read")
         boolean isRead = false;
+
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "sports_field_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_notifications_sports_fields", foreignKeyDefinition = "FOREIGN KEY (sports_field_id) REFERENCES sports_fields(id) ON DELETE CASCADE ON UPDATE CASCADE"), nullable = true)
+        @JsonManagedReference
+        SportsField sportField;
 }

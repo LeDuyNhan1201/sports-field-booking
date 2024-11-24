@@ -20,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 
 @Service
@@ -59,26 +61,33 @@ public class ReviewServiceImpl implements ReviewService {
                 .user(request.getUser())
                 .parentReview(request.getParentReview())
                 .comment(request.getComment())
+                .createdBy(request.getUser().getId())
+                .createdAt(new Date())
+                .updatedAt(new Date())
                 .build();
 
         Review createReview = reviewRepository.save(review);
+        createReview.setCreatedAt(new Date());
 
-        Notification notification = Notification.builder()
-                .user(request.getParentReview().getUser())
-                .booking(null)
-                .review(createReview)
-                .type(NotificationType.COMMENT_FEEDBACK)
-                .message(getLocalizedMessage("message_confirmed"))
-                .build();
+        if(request.getParentReview() != null) {
+            Notification notification = Notification.builder()
+                    .user(request.getParentReview().getUser())
+                    .booking(null)
+                    .review(createReview)
+                    .type(NotificationType.COMMENT_FEEDBACK)
+                    .message(getLocalizedMessage("message_confirmed"))
+                    .build();
+            notificationRepository.save(notification);
+        }
 
-        notificationRepository.save(notification);
-        return createReview;
+        return reviewRepository.save(createReview);
     }
 
     @Override
     public Review updateComment(String id, String comment) {
         Review review = findById(id);
         review.setComment(comment);
+        review.setUpdatedAt(new Date());
         return reviewRepository.save(review);
     }
 

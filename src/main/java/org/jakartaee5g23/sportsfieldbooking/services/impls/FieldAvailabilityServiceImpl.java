@@ -5,15 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
+import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
+import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.booking.BookingException;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.FieldAvailabilityRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.FieldAvailabilityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -30,13 +36,12 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
 
     @Override
     public FieldAvailability findById(String id) {
-        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(id)
+
+//        if (!fieldAvailability.getIsAvailable())
+//            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
+
+        return fieldAvailabilityRepository.findById(id)
                 .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field availability"));
-
-        if (!fieldAvailability.getIsAvailable())
-            throw new BookingException(BookingErrorCode.FIELD_AVAILABILITY_ORDERED, HttpStatus.UNPROCESSABLE_ENTITY);
-
-        return fieldAvailability;
     }
 
 //    @Override
@@ -45,28 +50,34 @@ public class FieldAvailabilityServiceImpl implements FieldAvailabilityService {
 //    }
 
     @Override
-    public FieldAvailability create(FieldAvailability request) {
-        return fieldAvailabilityRepository.save(request);
+    public FieldAvailability create(FieldAvailability request, boolean isConfirmed) {
+        Date openingTime = request.getStartTime();
+        Date closingTime = request.getEndTime();
+        
+        FieldAvailability createFieldAvailability = FieldAvailability.builder()
+            .startTime(openingTime)
+            .endTime(closingTime)
+            .price(request.getPrice())
+                .status(FieldAvailabilityStatus.AVAILABLE)
+            .sportsField(request.getSportsField())
+            .build();
+        return fieldAvailabilityRepository.save(createFieldAvailability);
     }
 
-    @Override
-    @Scheduled(fixedRate = 30000) // 30s
-    public void updateFieldAvailabilityStatus() {
-        Date currentTime = new Date();
-
-        List<FieldAvailability> fieldAvailabilityList = fieldAvailabilityRepository.findAll();
-
-        for (FieldAvailability fieldAvailability : fieldAvailabilityList) {
-            if (fieldAvailability.getEndTime().before(currentTime)) {
-                fieldAvailability.setIsAvailable(false);
-                fieldAvailabilityRepository.save(fieldAvailability);
-            }
-        }
-    }
 
     @Override
     public void update(FieldAvailability fieldAvailability) {
         fieldAvailabilityRepository.save(fieldAvailability);
+    }
+
+    @Override
+    public FieldAvailability updateStatus(String id, FieldAvailabilityStatus status) {
+        FieldAvailability fieldAvailability = fieldAvailabilityRepository.findById(id)
+                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field availability"));
+
+        fieldAvailability.setStatus(status);
+
+        return fieldAvailabilityRepository.save(fieldAvailability);
     }
 
 }
