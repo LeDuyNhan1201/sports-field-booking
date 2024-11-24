@@ -52,6 +52,7 @@ public class SecurityConfig {
                 "/auth/forgot-password",
                 "/auth/reset-password",
                 "/auth/sign-in",
+                "/auth/social/**",
                 "/auth/sign-out",
                 "/auth/introspect",
                 "/users/**",

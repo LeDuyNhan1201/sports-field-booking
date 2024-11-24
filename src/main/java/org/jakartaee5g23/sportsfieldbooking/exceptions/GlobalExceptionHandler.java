@@ -193,7 +193,7 @@ public class GlobalExceptionHandler {
                         case "NotBlank", "NotNull" -> getLocalizedMessage(error.getDefaultMessage(), field);
                         case "Size" -> {
                             Object min = getArgument((FieldError) error, 2);
-                            Object max = getArgument((FieldError) error, 3);
+                            Object max = getArgument((FieldError) error, 1);
                             if (min != null && max != null) {
                                 yield getLocalizedMessage(error.getDefaultMessage(), field, min, max);
                             }

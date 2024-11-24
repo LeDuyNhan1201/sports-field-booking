@@ -13,7 +13,12 @@ import org.jakartaee5g23.sportsfieldbooking.annotations.RateLimit;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.TokensResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.*;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.*;
+import org.jakartaee5g23.sportsfieldbooking.entities.Role;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.UserRole;
+import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
+import org.jakartaee5g23.sportsfieldbooking.enums.ProviderType;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
@@ -24,13 +29,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
+import static org.jakartaee5g23.sportsfieldbooking.enums.Gender.Other;
 import static org.jakartaee5g23.sportsfieldbooking.enums.RateLimitKeyType.BY_IP;
 import static org.jakartaee5g23.sportsfieldbooking.enums.RateLimitKeyType.BY_TOKEN;
+import static org.jakartaee5g23.sportsfieldbooking.enums.UserStatus.ACTIVE;
+import static org.jakartaee5g23.sportsfieldbooking.enums.VerificationType.VERIFY_EMAIL_BY_TOKEN;
 import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode.INVALID_SIGNATURE;
+import static org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode.PROVIDER_NOT_SUPPORTED;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -73,9 +85,9 @@ public class AuthenticationController {
     @ResponseStatus(CREATED)
     ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid SignUpRequest request) {
         User user = userMapper.toUser(request);
-
-        authenticationService.signUp(user, request.passwordConfirmation(), request.acceptTerms());
-
+        user.setActivated(false);
+        authenticationService.signUp(user, request.passwordConfirmation(), request.acceptTerms(), request.isFieldOwner());
+        authenticationService.sendEmailVerification(user.getEmail(), VERIFY_EMAIL_BY_TOKEN);
         return ResponseEntity.status(CREATED).body(
                 new SignUpResponse(getLocalizedMessage("sign_up_success"), user.getId()));
     }
@@ -119,6 +131,69 @@ public class AuthenticationController {
     @RateLimit(limitKeyTypes = { BY_IP })
     ResponseEntity<SignInResponse> signIn(@RequestBody @Valid SignInRequest request) {
         User signInUser = authenticationService.signIn(request.email(), request.password());
+
+        String accessToken = authenticationService.generateToken(signInUser, false);
+
+        String refreshToken = authenticationService.generateToken(signInUser, true);
+
+        return ResponseEntity.status(OK).body(
+                SignInResponse.builder()
+                        .tokensResponse(new TokensResponse(accessToken, refreshToken))
+                        .userInfo(userMapper.toUserResponse(signInUser)).build()
+        );
+    }
+
+    @Operation(summary = "Sign in with social", description = "Authenticate user with social account")
+    @GetMapping("/social")
+    @ResponseStatus(OK)
+    @RateLimit(limitKeyTypes = { BY_IP })
+    ResponseEntity<SocialSignInResponse> signInWithSocial(@RequestParam(defaultValue = "google") String provider) {
+        ProviderType providerType;
+        try {
+            providerType = ProviderType.valueOf(provider.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new AuthenticationException(PROVIDER_NOT_SUPPORTED, UNPROCESSABLE_ENTITY);
+        }
+        String url = authenticationService.generateSocialAuthUrl(providerType);
+        return ResponseEntity.status(OK).body(new SocialSignInResponse(url));
+    }
+
+    @Operation(summary = "Social callback", description = "Social callback")
+    @GetMapping("/social/callback")
+    @ResponseStatus(OK)
+    @RateLimit(limitKeyTypes = { BY_IP })
+    ResponseEntity<SignInResponse> socialCallback(@RequestParam String code, @RequestParam String provider) {
+        ProviderType providerType;
+        Map<String, Object> userInfo;
+        try {
+            providerType = ProviderType.valueOf(provider.toUpperCase());
+            userInfo = authenticationService.fetchSocialUser(code, providerType);
+
+        } catch (Exception e) {
+            log.error("Error occurred while fetching social user", e);
+            throw new AuthenticationException(PROVIDER_NOT_SUPPORTED, UNPROCESSABLE_ENTITY);
+        }
+
+        String email = userInfo.get("email").toString();
+        String name = userInfo.get("name").toString();
+        String sub = userInfo.get("sub").toString();
+        if (!userService.existsByEmail(userInfo.get("email").toString())) {
+            User newUser = User.builder()
+                    .email(email)
+                    .username(name)
+                    .firstName(name.split(" ")[0])
+                    .lastName(name.split(" ")[1])
+                    .mobileNumber("not provided")
+                    .gender(Other)
+                    .birthdate(LocalDate.now().minusYears(21))
+                    .password(sub)
+                    .isActivated(true)
+                    .status(ACTIVE)
+                    .build();
+            authenticationService.signUp(newUser, sub, true, false);
+
+        }
+        User signInUser = authenticationService.signIn(email, sub);
 
         String accessToken = authenticationService.generateToken(signInUser, false);
 

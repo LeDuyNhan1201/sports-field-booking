@@ -77,6 +77,30 @@ logging:
       springframework:
         security: DEBUG
 
+security:
+  oauth2:
+    client:
+      registration:
+        google:
+          client-id: 104804516769-v0lame500n11e37c11l1buufs0a12imc.apps.googleusercontent.com
+          client-secret: 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
+          redirect-uri: "${GOOGLE_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/google/callback}"
+          user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+        facebook:
+          client-id: 1007654770988152
+          client-secret: 5adb1d315754ac7e7e26b09d4c8b8b17
+          redirect-uri: "${FACEBOOK_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/facebook/callback}"
+          auth-uri: https://www.facebook.com/v21.0/dialog/oauth
+          token-uri: https://graph.facebook.com/oauth/access_token
+          user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture.type(large)
+          scope:
+            - email
+            - public_profile
+      resource-server:
+        opaque-token:
+          introspection-uri: "https://googleapis.com"
+
+
 # Spring configuration
 spring:
   config:
@@ -133,7 +157,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+#    show-sql: true
 #    properties:
 #      hibernate:
 #        format_sql: true

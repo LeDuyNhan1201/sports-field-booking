@@ -11,6 +11,7 @@ public enum AuthenticationErrorCode {
     PASSWORD_MIS_MATCH("auth/password-mismatch", "password_mis_match"),
     TERMS_NOT_ACCEPTED("auth/terms-not-accepted", "terms_not_accepted"),
     CREATE_USER_FAILED("auth/create-user-failed", "create_user_failed"),
+    PROVIDER_NOT_SUPPORTED("auth/provider-not-supported", "provider_not_supported"),
 
     // Authentication Errors
     WRONG_PASSWORD("auth/wrong-password", "wrong_password"),
