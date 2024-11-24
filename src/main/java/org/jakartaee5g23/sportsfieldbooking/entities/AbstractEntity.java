@@ -26,20 +26,20 @@ import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.randomDate;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractEntity {
 
-    //@CreatedBy
+    @CreatedBy
     @Column(name = "created_by")
     String createdBy;
 
-    //@CreationTimestamp
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
     Date createdAt;
 
-    //@LastModifiedBy
+    @LastModifiedBy
     @Column(name = "updated_by")
     String updatedBy;
 
-    //@UpdateTimestamp
+    @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     Date updatedAt;
@@ -68,14 +68,14 @@ public abstract class AbstractEntity {
             this.createdBy = getCurrentUser();
         }
 
-        Date endDate = new Date();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endDate);
-        calendar.add(Calendar.MONTH, -1);
-        Date startDate = calendar.getTime();
-
-        createdAt = randomDate(startDate, endDate);
+//        Date endDate = new Date();
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(endDate);
+//        calendar.add(Calendar.MONTH, -1);
+//        Date startDate = calendar.getTime();
+//
+//        createdAt = randomDate(startDate, endDate);
     }
 
     @PreUpdate

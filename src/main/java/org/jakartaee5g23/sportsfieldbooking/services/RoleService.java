@@ -5,5 +5,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface RoleService {
+
     Role findById(int id);
+
+    Role findByName(String name);
+
 }

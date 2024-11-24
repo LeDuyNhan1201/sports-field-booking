@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
+import org.jakartaee5g23.sportsfieldbooking.validates.Adult;
+import org.jakartaee5g23.sportsfieldbooking.validates.ValidPhoneNumber;
 
 import java.time.LocalDate;
 
@@ -41,12 +43,16 @@ public record SignUpRequest (
 
         @NotNull(message = "null_field")
         @NotBlank(message = "blank_field")
+        @ValidPhoneNumber
         String mobileNumber,
 
+        @Adult
         LocalDate birthdate,
 
         Gender gender,
-                
+
+        boolean isFieldOwner,
+
         boolean acceptTerms
 
 ) {

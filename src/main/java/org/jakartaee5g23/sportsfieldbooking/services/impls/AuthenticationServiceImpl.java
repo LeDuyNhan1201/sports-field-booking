@@ -1,5 +1,9 @@
 package org.jakartaee5g23.sportsfieldbooking.services.impls;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -13,13 +17,17 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.entities.UserRole;
 import org.jakartaee5g23.sportsfieldbooking.entities.Verification;
+import org.jakartaee5g23.sportsfieldbooking.enums.ProviderType;
 import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.VerificationType;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
+import org.jakartaee5g23.sportsfieldbooking.repositories.GoogleAuthorizationCodeTokenRequest;
 import org.jakartaee5g23.sportsfieldbooking.repositories.VerificationRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
 import org.jakartaee5g23.sportsfieldbooking.services.BaseRedisService;
+import org.jakartaee5g23.sportsfieldbooking.services.RoleService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,15 +38,13 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -55,6 +61,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     UserService userService;
 
+    RoleService roleService;
+
     VerificationRepository verificationRepository;
 
     PasswordEncoder passwordEncoder;
@@ -62,6 +70,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     KafkaTemplate<String, String> kafkaTemplate;
 
     BaseRedisService<String, String, Object> baseRedisService;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.client-id}")
+    String GOOGLE_CLIENT_ID;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.client-secret}")
+    String GOOGLE_CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.redirect-uri}")
+    String GOOGLE_REDIRECT_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.user-info-uri}")
+    String GOOGLE_USER_INFO_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.client-id}")
+    String FACEBOOK_CLIENT_ID;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.client-secret}")
+    String FACEBOOK_CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.redirect-uri}")
+    String FACEBOOK_REDIRECT_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.user-info-uri}")
+    String FACEBOOK_USER_INFO_URI;
 
     int VERIFICATION_VALID_DURATION = 15;
 
@@ -96,7 +136,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void signUp(User user, String confirmationPassword, boolean acceptTerms) {
+    public void signUp(User user, String confirmationPassword, boolean acceptTerms, boolean isFieldOwner) {
         if (userService.existsByEmail(user.getEmail()))
             throw new AuthenticationException(EMAIL_ALREADY_IN_USE, CONFLICT);
 
@@ -113,10 +153,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AuthenticationException(TERMS_NOT_ACCEPTED, BAD_REQUEST);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivated(true);
         user.setStatus(UserStatus.ACTIVE);
+
         try {
-            userService.create(user);
+            User newUser = userService.create(user);
+
+            if (isFieldOwner) {
+                user.setRoles(List.of(UserRole.builder()
+                        .user(newUser)
+                        .role(roleService.findByName("FIELD_OWNER"))
+                        .build()));
+            } else {
+                user.setRoles(List.of(UserRole.builder()
+                        .user(newUser)
+                        .role(roleService.findByName("USER"))
+                        .build()));
+            }
         } catch (DataIntegrityViolationException exception) {
             throw new AuthenticationException(CREATE_USER_FAILED, CONFLICT);
         }
@@ -186,6 +238,51 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!user.isActivated()) throw new AuthenticationException(USER_NOT_ACTIVATED, FORBIDDEN);
 
         return user;
+    }
+
+    @Override
+    public String generateSocialAuthUrl(ProviderType providerType) {
+        return switch (providerType) {
+            case GOOGLE -> "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + GOOGLE_CLIENT_ID +
+                    "&redirect_uri=" + GOOGLE_REDIRECT_URI + "&response_type=code&scope=openid%20profile%20email";
+
+            case FACEBOOK -> "https://www.facebook.com/v11.0/dialog/oauth?client_id=" + FACEBOOK_CLIENT_ID +
+                    "&redirect_uri=" + FACEBOOK_REDIRECT_URI + "&scope=email";
+        };
+    }
+
+    @Override
+    public Map<String, Object> fetchSocialUser(String code, ProviderType providerType) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        String accessToken;
+
+        switch (providerType) {
+            case GOOGLE -> {
+                accessToken = new GoogleAuthorizationCodeTokenRequest(
+                        new NetHttpTransport(),
+                        GOOGLE_CLIENT_ID,
+                        GOOGLE_CLIENT_SECRET,
+                        code,
+                        GOOGLE_REDIRECT_URI
+                ).getAccessToken();
+
+                restTemplate.getInterceptors().add((request, body, execution) -> {
+                    request.getHeaders().set("Authorization", "Bearer " + accessToken);
+                    return execution.execute(request, body);
+                });
+
+                return new ObjectMapper().readValue(
+                        restTemplate.getForEntity(GOOGLE_USER_INFO_URI, String.class).getBody(),
+                        new TypeReference<>(){});
+            }
+
+            default ->
+            {
+                log.error("Provider not supported");
+                throw new AuthenticationException(PROVIDER_NOT_SUPPORTED, BAD_REQUEST);
+            }
+        }
+
     }
 
     @Override

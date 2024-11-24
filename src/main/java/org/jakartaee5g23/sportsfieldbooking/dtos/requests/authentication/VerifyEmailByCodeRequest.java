@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record VerifyEmailByCodeRequest (
 
-        @NotNull(message = "null_email")
+        @NotNull(message = "null_field")
         @NotBlank(message = "blank_field")
         @Email(message = "invalid_email")
         String email,
