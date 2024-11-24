@@ -6,4 +6,12 @@ import org.springframework.data.domain.Pageable;
 
 public interface CategoryService {
     Page<Category> findAll(Pageable pageable);
+
+    Category create(Category category);
+
+    Category update(int id, Category category);
+
+    void delete(int id);
+
+    Category findById(int id);
 }

@@ -276,7 +276,8 @@ public class DataSeeder {
             List<Payment> payments = new ArrayList<>();
 
             bookings.forEach(booking -> {
-                if (usedBookings.contains(booking)) return;
+                if (usedBookings.contains(booking))
+                    return;
                 usedBookings.add(booking);
 
                 List<BookingItem> bookingItems = bookingItemsMap.getOrDefault(booking, Collections.emptyList());
@@ -296,7 +297,6 @@ public class DataSeeder {
             paymentRepository.saveAll(payments);
         }
     }
-
 
     private void seedReviews() {
         if (reviewRepository.count() == 0) {
@@ -433,6 +433,27 @@ public class DataSeeder {
                 fileMetadataRepository.save(fileMetadata);
                 minioClientService.storeObject(randomFile, fileName, contentType, bucketName);
             }
+
+            // // category
+            // List<Category> categories = categoryRepository.findAll();
+            // for (Category category : categories) {
+            // File randomFile = getRandomFile(Constants.CATEGORY_FAKE_IMAGES_FOLDER);
+            // String contentType = getContentType(randomFile);
+            // long size = randomFile.length();
+            // String fileName = generateFileName(contentType.split("/")[0],
+            // contentType.split("/")[1]);
+            // FileMetadata fileMetadata = FileMetadata.builder()
+            // .objectKey(fileName)
+            // .size(size)
+            // .contentType(contentType)
+            // .category(category)
+            // .createdBy(category.getCreatedBy())
+            // .createdAt(category.getCreatedAt())
+            // .build();
+            // fileMetadataRepository.save(fileMetadata);
+            // minioClientService.storeObject(randomFile, fileName, contentType,
+            // bucketName);
+            // }
         }
     }
 

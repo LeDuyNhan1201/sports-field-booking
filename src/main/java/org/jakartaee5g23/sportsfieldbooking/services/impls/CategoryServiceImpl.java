@@ -22,4 +22,25 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<Category> findAll(Pageable pageable) {
         return categoryRepository.findAll(pageable);
     }
+
+    @Override
+    public Category create(Category category) {
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public Category update(int id, Category category) {
+        category.setId(id);
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public Category findById(int id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void delete(int id) {
+        categoryRepository.deleteById(id);
+    }
 }

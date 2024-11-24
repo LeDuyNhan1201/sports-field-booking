@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.*;
 import java.util.*;
 import java.time.*;
 
@@ -16,8 +15,6 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.AppException;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.CommonErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.promotion.PromotionErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.promotion.PromotionException;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldErrorCode;
-import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.PromotionRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.PromotionService;
 import org.springframework.data.domain.Page;
