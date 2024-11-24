@@ -18,7 +18,9 @@ import org.jakartaee5g23.sportsfieldbooking.services.RatingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +82,28 @@ public class RatingServiceImpl implements RatingService {
                 .sum();
 
         return totalPoints / ratings.size();
+    }
+
+    @Override
+    public Map<String, Double> calculateAverageRatingForAllFields() {
+        List<Rating> ratingList = ratingRepository.findAll();
+        Map<String, Double> totalRatingPoint = new HashMap<>();
+        Map<String, Integer> countRatingPoint = new HashMap<>();
+        Map<String, Double> result = new HashMap<>();
+
+        for(Rating rating: ratingList) {
+            String sportsFieldID = rating.getSportsField().getId();
+            double point = rating.getRating_point();
+
+            totalRatingPoint.put(sportsFieldID, totalRatingPoint.getOrDefault(sportsFieldID, 0.0) + point);
+            countRatingPoint.put(sportsFieldID, countRatingPoint.getOrDefault(sportsFieldID, 0) + 1);
+        }
+
+        for(String sportsFieldID : totalRatingPoint.keySet()) {
+            double average = totalRatingPoint.get(sportsFieldID) / countRatingPoint.get(sportsFieldID);
+            result.put(sportsFieldID, average);
+        }
+
+        return result;
     }
 }

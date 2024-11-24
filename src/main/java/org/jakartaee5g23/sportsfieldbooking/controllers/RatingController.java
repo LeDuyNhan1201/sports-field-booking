@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -70,5 +72,11 @@ public class RatingController {
     public ResponseEntity<Double> getAverageRatingBySportsFieldId(@PathVariable String sportsFieldId) {
         return ResponseEntity.status(OK)
                 .body(ratingService.calculateAverageRatingBySportsFieldId(sportsFieldId));
+    }
+
+    @Operation(summary = "Get average rating for all sports fields", description = "Calculate average rating for all sports fields", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/average/all")
+    public ResponseEntity<Map<String, Double>> getAverageRatingForAllFields() {
+        return ResponseEntity.status(OK).body(ratingService.calculateAverageRatingForAllFields());
     }
 }
