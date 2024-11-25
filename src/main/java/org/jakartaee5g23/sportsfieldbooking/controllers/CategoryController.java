@@ -69,4 +69,18 @@ public class CategoryController {
         categoryService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @Operation(summary = "Search category", description = "Search category by id or name")
+    @GetMapping("/search")
+    public ResponseEntity<List<CategoryResponse>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        Page<Category> categories = categoryService.searchCategories(keyword, pageable);
+        List<CategoryResponse> categoryResponses = categories.stream()
+                .map(categoryMapper::toCategoryResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(categoryResponses);
+    }
 }

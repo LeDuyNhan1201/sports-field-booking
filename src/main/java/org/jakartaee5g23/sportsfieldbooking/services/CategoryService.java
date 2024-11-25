@@ -14,4 +14,6 @@ public interface CategoryService {
     void delete(int id);
 
     Category findById(int id);
+
+    Page<Category> searchCategories(String keyword, Pageable pageable);
 }

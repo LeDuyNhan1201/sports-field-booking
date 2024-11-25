@@ -43,4 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(int id) {
         categoryRepository.deleteById(id);
     }
+
+    @Override
+    public Page<Category> searchCategories(String keyword, Pageable pageable) {
+        return categoryRepository.searchCategories(keyword, pageable);
+    }
 }
