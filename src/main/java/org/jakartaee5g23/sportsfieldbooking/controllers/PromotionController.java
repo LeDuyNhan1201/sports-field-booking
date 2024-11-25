@@ -2,7 +2,6 @@ package org.jakartaee5g23.sportsfieldbooking.controllers;
 
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.promotion.NewPromotionRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.promotion.UpdatePromotionRequest;
-import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.BookingResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.promotion.PromotionResponse;
@@ -11,6 +10,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.PromotionMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.PromotionService;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -26,6 +26,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.springframework.http.HttpStatus.OK;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("${api.prefix}/promotions")
@@ -97,8 +99,30 @@ public class PromotionController {
         @Operation(summary = "Delete promotion", description = "Delete promotion when user want to delete it", security = @SecurityRequirement(name = "bearerAuth"))
         @DeleteMapping("/{id}")
         @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
-        public ResponseEntity<BookingResponse> delete(@PathVariable String id) {
+        public ResponseEntity<PromotionResponse> delete(@PathVariable String id) {
                 promotionService.delete(id);
                 return ResponseEntity.status(OK).build();
+        }
+
+        @Operation(summary = "Search promotion", description = "Search promotion when user want to search it")
+        @GetMapping("/search")
+        public ResponseEntity<PaginateResponse<PromotionResponse>> search(
+                        @RequestParam(defaultValue = "") String keyword,
+                        @RequestParam(required = false) PromotionStatus status,
+                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<Promotion> promotions = promotionService.searchPromotions(keyword, status, startDate, endDate,
+                                Integer.parseInt(offset),
+                                Integer.parseInt(limit));
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<PromotionResponse>builder()
+                                                .items(promotions.stream().map(promotionMapper::toPromotionResponse)
+                                                                .toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                promotions.getTotalElements()))
+                                                .build());
         }
 }

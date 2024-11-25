@@ -17,7 +17,6 @@ import java.util.List;
 @Entity
 @Table(name = "categories")
 public class Category extends AbstractEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -29,4 +28,8 @@ public class Category extends AbstractEntity {
     @JsonBackReference
     List<SportsField> sportsFields;
 
+    // @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // @JsonBackReference
+    // List<FileMetadata> images;
 }
