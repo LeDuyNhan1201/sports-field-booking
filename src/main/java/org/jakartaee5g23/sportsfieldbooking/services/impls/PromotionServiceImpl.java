@@ -105,4 +105,11 @@ public class PromotionServiceImpl implements PromotionService {
         Promotion promotion = findById(id);
         promotionRepository.delete(promotion);
     }
+
+    @Override
+    public Page<Promotion> searchPromotions(String keyword, PromotionStatus promotionStatus, Date startDate,
+            Date endDate, int offset, int limit) {
+        return promotionRepository.searchPromotions(keyword, promotionStatus, startDate, endDate,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
 }
