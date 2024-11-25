@@ -8,7 +8,9 @@ import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.CategoryService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,7 +47,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<Category> searchCategories(String keyword, Pageable pageable) {
-        return categoryRepository.searchCategories(keyword, pageable);
+    public Page<Category> searchCategories(String keyword, int offset, int limit) {
+        return categoryRepository.searchCategories(keyword,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 }

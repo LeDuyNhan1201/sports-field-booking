@@ -15,5 +15,5 @@ public interface CategoryService {
 
     Category findById(int id);
 
-    Page<Category> searchCategories(String keyword, Pageable pageable);
+    Page<Category> searchCategories(String keyword, int offset, int limit);
 }
