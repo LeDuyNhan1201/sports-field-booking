@@ -6,7 +6,7 @@ public record SendEmailForgotPasswordResponse(
 
     String message,
 
-    Date retryAfter
+    int retryAfter
 
 ) {
 

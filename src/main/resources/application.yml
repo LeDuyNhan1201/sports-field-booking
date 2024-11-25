@@ -88,7 +88,7 @@ security:
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
         facebook:
           client-id: 1007654770988152
-          client-secret: 5adb1d315754ac7e7e26b09d4c8b8b17
+          client-secret: e2cf57ff60294712585c0c2a81b188c0
           redirect-uri: "${FACEBOOK_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/facebook/callback}"
           auth-uri: https://www.facebook.com/v21.0/dialog/oauth
           token-uri: https://graph.facebook.com/oauth/access_token

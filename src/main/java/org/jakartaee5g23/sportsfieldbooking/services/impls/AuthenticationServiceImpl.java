@@ -399,7 +399,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AuthenticationException(WEAK_PASSWORD, BAD_REQUEST);
 
         User user = verification.getUser();
-        userService.updatePassword(user, passwordEncoder.encode(password));
+        userService.updatePassword(user, password);
         verificationRepository.delete(verification);
     }
 

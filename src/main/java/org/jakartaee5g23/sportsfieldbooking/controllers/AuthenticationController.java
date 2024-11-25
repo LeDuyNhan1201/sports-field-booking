@@ -243,18 +243,19 @@ public class AuthenticationController {
     @Operation(summary = "Send email forgot password", description = "Send email forgot password")
     @PostMapping("/send-forgot-password")
     @ResponseStatus(OK)
+    @RateLimit(limitKeyTypes = { BY_IP })
     ResponseEntity<SendEmailForgotPasswordResponse> sendEmailForgotPassword(
             @RequestBody @Valid SendEmailForgotPasswordRequest request) {
         authenticationService.sendEmailForgotPassword(request.email());
 
         return ResponseEntity.status(OK).body(new SendEmailForgotPasswordResponse(
                 getLocalizedMessage("send_forgot_password_email_success"),
-                Date.from(Instant.now().plus(1, ChronoUnit.MINUTES))
+                60
         ));
     }
 
     @Operation(summary = "Verify forgot password code", description = "Verify forgot password code")
-    @PostMapping("/forgot-password")
+    @PostMapping("/forgot")
     @ResponseStatus(OK)
     ResponseEntity<ForgotPasswordResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
         User user = userService.findByEmail(request.email());
@@ -267,7 +268,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Reset password", description = "Reset password")
-    @PostMapping("/reset-password")
+    @PostMapping("/reset")
     @ResponseStatus(OK)
     ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         authenticationService.resetPassword(request.token(), request.password(), request.passwordConfirmation());
