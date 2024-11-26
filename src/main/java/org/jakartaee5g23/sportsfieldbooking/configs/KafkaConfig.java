@@ -64,6 +64,7 @@ public class KafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> sendMailFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.getContainerProperties().setObservationEnabled(true);
         factory.setConsumerFactory(sendMailConsumer());
         factory.setConcurrency(3);
         factory.getContainerProperties().setClientId(CLIENT_ID);
@@ -74,6 +75,7 @@ public class KafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, HandleFileEvent> handleFileContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, HandleFileEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.getContainerProperties().setObservationEnabled(true);
         factory.setConsumerFactory(handleFileConsumer());
         factory.setConcurrency(3);
         factory.getContainerProperties().setClientId(CLIENT_ID);

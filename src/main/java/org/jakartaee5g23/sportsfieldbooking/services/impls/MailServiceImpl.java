@@ -92,7 +92,7 @@ public class MailServiceImpl implements MailService {
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
-        helper.setFrom(emailFrom, "Base Microservice");
+        helper.setFrom(emailFrom, "Sports field booking");
         helper.setTo(toMail);
         helper.setSubject(subject);
         String html = templateEngine.process("common-template.html", context);

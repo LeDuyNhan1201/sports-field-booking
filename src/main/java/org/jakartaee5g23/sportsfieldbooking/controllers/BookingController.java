@@ -113,6 +113,7 @@ public class BookingController {
         public ResponseEntity<PaginateResponse<BookingResponse>> findAll(
                         @RequestParam(defaultValue = "0") String offset,
                         @RequestParam(defaultValue = "100") String limit) {
+                User current = userService.findById(getUserIdFromContext());
                 Page<Booking> bookings = bookingService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<BookingResponse>builder()

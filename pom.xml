@@ -94,6 +94,14 @@
 		<minio.version>8.5.12</minio.version>
 		<jedis.version>5.1.5</jedis.version>
 		<javafaker.version>1.0.2</javafaker.version>
+
+		<!-- TRACING -->
+		<micrometer-tracing.version>1.4.0</micrometer-tracing.version>
+		<micrometer-prometheus.version>1.14.1</micrometer-prometheus.version>
+		<loki.version>1.5.2</loki.version>
+		<zipkin.version>3.4.2</zipkin.version>
+		<datasource-micrometer.version>1.0.6</datasource-micrometer.version>
+		<logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
 	</properties>
 
 	<dependencies>
@@ -215,6 +223,48 @@
 			<groupId>com.github.javafaker</groupId>
 			<artifactId>javafaker</artifactId>
 			<version>${javafaker.version}</version>
+		</dependency>
+
+		<!--MICROMETER-->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+			<version>${micrometer-tracing.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${micrometer-prometheus.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!--LOKI-->
+		<dependency>
+			<groupId>com.github.loki4j</groupId>
+			<artifactId>loki-logback-appender</artifactId>
+			<version>${loki.version}</version>
+		</dependency>
+
+		<!-- ZIPKIN -->
+		<dependency>
+			<groupId>io.zipkin.reporter2</groupId>
+			<artifactId>zipkin-reporter-brave</artifactId>
+			<version>${zipkin.version}</version>
+		</dependency>
+
+		<!--DATASOURCE-->
+		<dependency>
+			<groupId>net.ttddyy.observation</groupId>
+			<artifactId>datasource-micrometer-spring-boot</artifactId>
+			<version>${datasource-micrometer.version}</version>
+		</dependency>
+
+		<!--LOGSTASH-->
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>${logstash-logback-encoder.version}</version>
 		</dependency>
 
 		<!--TEST-->

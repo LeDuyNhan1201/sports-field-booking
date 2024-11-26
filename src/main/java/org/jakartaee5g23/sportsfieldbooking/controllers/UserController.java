@@ -64,9 +64,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateProfile(@PathVariable String userId, @RequestBody UserUpdateRequest userUpdateRequest) {
         User existingUser = userService.findById(userId);
 
-        if (existingUser == null) {
-            return ResponseEntity.status(NOT_FOUND).build();
-        }
+        if (existingUser == null) return ResponseEntity.status(NOT_FOUND).build();
 
         existingUser.setFirstName(userUpdateRequest.getFirstName());
         existingUser.setLastName(userUpdateRequest.getLastName());
@@ -77,8 +75,7 @@ public class UserController {
 
         userService.update(existingUser);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(userMapper.toUserResponse(existingUser));
+        return ResponseEntity.status(HttpStatus.OK).body(userMapper.toUserResponse(existingUser));
     }
 
     @Operation(summary = "Upload avatar", description = "Upload avatar", security = @SecurityRequirement(name = "bearerAuth"))

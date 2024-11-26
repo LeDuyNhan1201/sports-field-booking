@@ -26,10 +26,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.VerificationType;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.GoogleAuthorizationCodeTokenRequest;
 import org.jakartaee5g23.sportsfieldbooking.repositories.VerificationRepository;
-import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
-import org.jakartaee5g23.sportsfieldbooking.services.BaseRedisService;
-import org.jakartaee5g23.sportsfieldbooking.services.RoleService;
-import org.jakartaee5g23.sportsfieldbooking.services.UserService;
+import org.jakartaee5g23.sportsfieldbooking.services.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +62,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserService userService;
 
     RoleService roleService;
+
+    UserRoleService userRoleService;
 
     VerificationRepository verificationRepository;
 
@@ -184,18 +183,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         try {
             User newUser = userService.create(user);
-
             if (isFieldOwner) {
-                user.setRoles(List.of(UserRole.builder()
+                userRoleService.create(UserRole.builder()
                         .user(newUser)
                         .role(roleService.findByName("FIELD_OWNER"))
-                        .build()));
+                        .build());
             } else {
-                user.setRoles(List.of(UserRole.builder()
+                userRoleService.create(UserRole.builder()
                         .user(newUser)
                         .role(roleService.findByName("USER"))
-                        .build()));
+                        .build());
             }
+
         } catch (DataIntegrityViolationException exception) {
             throw new AuthenticationException(CREATE_USER_FAILED, CONFLICT);
         }

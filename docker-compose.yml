@@ -120,6 +120,131 @@ services:
       MINIO_ROOT_PASSWORD: gRoUp23IsThEbEsT#
     command: server /data --console-address ":9001"
 
+  #_______________________________________GRAFANA STACK_______________________________________
+  #  TEMPO
+  sports-field-booking-tempo:
+    image: grafana/tempo:main-bbe0435
+    container_name: sports-field-booking-tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/grafana-stack/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - sports-field-booking-tempo-data:/tmp/tempo
+    ports:
+      - "3110:3100" # Tempo
+      - "9411:9411" # zipkin
+      - "4317:4317" # OTel
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #  LOKI
+  sports-field-booking-loki:
+    image: grafana/loki:main
+    container_name: sports-field-booking-loki
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+      - "3100:3100"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #  PROMETHEUS
+  sports-field-booking-prometheus:
+    image: prom/prometheus:main
+    container_name: sports-field-booking-prometheus
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/grafana-stack/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #  GRAFANA
+  sports-field-booking-grafana:
+    image: grafana/grafana:10.1.0
+    container_name: sports-field-booking-grafana
+    environment:
+      #      GF_AUTH_ANONYMOUS_ENABLED: true
+      #      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      #      GF_AUTH_DISABLE_LOGIN_FORM: true
+      GF_SECURITY_ADMIN_USER: ben1201
+      GF_SECURITY_ADMIN_PASSWORD: Ben1201#
+    volumes:
+      #      - ./docker/grafana-stack/grafana:/etc/grafana/provisioning/datasources:ro
+      - ./docker/grafana-stack/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./docker/grafana-stack/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    #      - ./docker/grafana-stack/grafana/grafana.ini:/etc/grafana/grafana.ini
+    ports:
+      - "3000:3000"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  #_______________________________________ELK STACK_______________________________________
+  # ELASTICSEARCH
+  sports-field-booking-elasticsearch:
+    image: elasticsearch:8.15.0
+    container_name: sports-field-booking-elasticsearch
+    environment:
+      xpack.security.enabled: false
+      discovery.type: single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - sports-field-booking-elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # KIBANA
+  sports-field-booking-kibana:
+    image: kibana:8.15.0
+    container_name: sports-field-booking-kibana
+    depends_on:
+      [ sports-field-booking-elasticsearch ]
+    environment:
+      ELASTICSEARCH_HOSTS: http://sports-field-booking-elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+  # LOGSTASH
+  sports-field-booking-logstash:
+    image: logstash:8.15.0
+    container_name: sports-field-booking-logstash
+    depends_on:
+      [ sports-field-booking-elasticsearch ]
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./docker/elk-stack/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./docker/elk-stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    networks:
+      - sports-field-booking-network
+    restart: unless-stopped
+
+
 networks:
   sports-field-booking-network:
     driver: bridge
@@ -131,3 +256,5 @@ volumes:
   sports-field-booking-kafka-broker-data:
   sports-field-booking-kafka-ui-data:
   sports-field-booking-minio-data:
+  sports-field-booking-tempo-data:
+  sports-field-booking-elasticsearch-data:

@@ -42,18 +42,6 @@ payment:
     accessKey: "klm05TvNBzhg7h7j"
     secretKey: "at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa"
 
-# Spring Boot Actuator configuration (Health, Info, Metrics, etc.)
-management:
-  endpoints:
-    web:
-      base-path: ${api.prefix}/actuator
-      exposure:
-        include: "*"
-
-  endpoint:
-    health:
-      show-details: always
-
 # Springdoc configuration (Swagger UI)
 springdoc:
   api-docs:
@@ -76,12 +64,51 @@ openapi:
     server-url: http://localhost:${server.port}${server.servlet.context-path}
     server-description: Sports Field Booking Backend API service For Development
 
-# Logging configuration
+#_______________________________________LOGGING_______________________________________
 logging:
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     org:
       springframework:
         security: DEBUG
+
+#_______________________________________MANAGEMENT_______________________________________
+management:
+  endpoints:
+    web:
+      base-path: ${api.prefix}/actuator
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+  endpoint:
+    health:
+      show-details: always
+
+  info:
+    git:
+      enabled: true
+      mode: full
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+    tags:
+      application: ${spring.application.name}
+
+  observations:
+    key-values:
+      application: ${spring.application.name}
+
+  tracing:
+    sampling:
+      probability: 1.0
 
 security:
   oauth2:
