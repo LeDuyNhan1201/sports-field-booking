@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.text.*;
 import java.util.*;
 import java.time.*;
+import java.util.stream.Collectors;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
@@ -126,14 +127,24 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
     @Override
     public Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
-            int sortDirection) {
+                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.findSportsFieldsByKeyword(text, pageable);
+        Page<SportsField> list = sportsFieldRepository.findSportsFieldsByKeyword(text, pageable);
+
+        if (categoryCol == 0) {
+            return list;
+        } else {
+            List<SportsField> filteredList = list.getContent().stream()
+                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
+        }
     }
+
 
     @Override
     public Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection) {

@@ -132,10 +132,13 @@ public class SportsFieldController {
                         @RequestParam String colSort,
                         @RequestParam Integer sortDirection,
                         @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit) {
+                        @RequestParam(defaultValue = "100") String limit,
+                        @RequestParam(defaultValue = "100000") Double maxPrice,
+                        @RequestParam(defaultValue = "1") Double minPrice,
+                        @RequestParam(defaultValue = "0") Integer categoryCol) {
                 Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeyword(text,
                                 Integer.parseInt(offset),
-                                Integer.parseInt(limit), colSort, sortDirection);
+                                Integer.parseInt(limit), colSort, sortDirection, maxPrice, minPrice, categoryCol);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<SportsFieldResponse>builder()

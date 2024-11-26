@@ -18,7 +18,7 @@ public interface SportsFieldService {
         SportsField updateStatus(String id, SportsFieldStatus status);
 
         Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
-                        int sortDirection);
+                        int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
 
         Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
 
