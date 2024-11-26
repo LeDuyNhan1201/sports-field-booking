@@ -129,7 +129,7 @@ public class SportsFieldServiceImpl implements SportsFieldService {
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.searchSportsFields(userId,text,categoryId,pageable);
+        return sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice,pageable);
     }
 
     @Override

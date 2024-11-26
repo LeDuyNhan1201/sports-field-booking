@@ -13,15 +13,18 @@ public interface SportsFieldRepository extends JpaRepository<SportsField, String
 
         Page<SportsField> findByUser(User user, Pageable pageable);
 
-        @Query("SELECT sf FROM SportsField sf WHERE " +
+        @Query("SELECT sf FROM SportsField sf JOIN sf.fieldAvailabilities fa WHERE " +
                 "(sf.name LIKE %:text% " +
                 "OR sf.location LIKE %:text% " +
                 "OR sf.category.id = CAST(:text AS integer) OR :text = ' ' ) " +
                 "AND (:userId = '0' OR sf.user.id = :userId) " +
-                "AND (:categoryId = 0 OR sf.category.id = :categoryId)")
+                "AND (:categoryId = 0 OR sf.category.id = :categoryId) " +
+                "AND fa.price BETWEEN :minPrice AND :maxPrice " )
         Page<SportsField> searchSportsFields(@Param("userId") String userId,
                                              @Param("text") String text,
                                              @Param("categoryId") Integer categoryId,
+                                             @Param("maxPrice") Double maxPrice,
+                                             @Param("minPrice") Double minPrice,
                                              Pageable pageable);
 
 
