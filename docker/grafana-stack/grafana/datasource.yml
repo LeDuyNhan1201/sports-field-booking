@@ -58,7 +58,7 @@ datasources:
     uid: loki
     access: proxy
     orgId: 1
-    url: http://sports-field-booking:3100
+    url: http://sports-field-booking-loki:3100
     basicAuth: false
     isDefault: true
     version: 1

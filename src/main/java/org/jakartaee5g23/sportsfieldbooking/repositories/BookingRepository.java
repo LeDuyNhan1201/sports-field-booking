@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.repositories;
 
 import java.util.*;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
@@ -14,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Observed
 public interface BookingRepository extends JpaRepository<Booking, String> {
 
         // @Query("SELECT b FROM Booking b " +

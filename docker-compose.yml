@@ -128,7 +128,7 @@ services:
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./docker/grafana-stack/tempo/tempo.yml:/etc/tempo.yaml:ro
-      - sports-field-booking-tempo-data:/tmp/tempo
+      - ./docker/grafana-stack/tempo/tempo-data:/tmp/tempo
     ports:
       - "3110:3100" # Tempo
       - "9411:9411" # zipkin
@@ -171,8 +171,8 @@ services:
       #      GF_AUTH_ANONYMOUS_ENABLED: true
       #      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       #      GF_AUTH_DISABLE_LOGIN_FORM: true
-      GF_SECURITY_ADMIN_USER: ben1201
-      GF_SECURITY_ADMIN_PASSWORD: Ben1201#
+      GF_SECURITY_ADMIN_USER: group23
+      GF_SECURITY_ADMIN_PASSWORD: gRoUp23IsThEbEsT#
     volumes:
       #      - ./docker/grafana-stack/grafana:/etc/grafana/provisioning/datasources:ro
       - ./docker/grafana-stack/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
@@ -256,5 +256,4 @@ volumes:
   sports-field-booking-kafka-broker-data:
   sports-field-booking-kafka-ui-data:
   sports-field-booking-minio-data:
-  sports-field-booking-tempo-data:
   sports-field-booking-elasticsearch-data:

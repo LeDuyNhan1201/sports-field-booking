@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.repositories;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.data.domain.*;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@Observed
 public interface SportsFieldRepository extends JpaRepository<SportsField, String> {
 
         Page<SportsField> findByUser(User user, Pageable pageable);
