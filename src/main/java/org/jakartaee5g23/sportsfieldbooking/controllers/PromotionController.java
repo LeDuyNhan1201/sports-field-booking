@@ -53,7 +53,7 @@ public class PromotionController {
         @PostAuthorize("(returnObject.body.createdBy == authentication.name and hasRole('FIELD_OWNER')) or hasRole('ADMIN')")
         public ResponseEntity<PromotionResponse> create(@RequestBody @Valid NewPromotionRequest request) {
                 Promotion promotion = promotionMapper.toPromotion(request);
-                return ResponseEntity.status(OK)
+                return ResponseEntity.status(HttpStatus.OK)
                                 .body(promotionMapper.toPromotionResponse(
                                                 promotionService.create(promotion, request.isConfirmed())));
 

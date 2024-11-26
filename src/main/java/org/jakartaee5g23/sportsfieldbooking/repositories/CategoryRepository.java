@@ -15,4 +15,5 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             " c.name LIKE CONCAT('%', :keyword, '%') OR " +
             " CAST(c.id AS string) LIKE CONCAT('%', :keyword, '%'))")
     Page<Category> searchCategories(@Param("keyword") String keyword, Pageable pageable);
+
 }
