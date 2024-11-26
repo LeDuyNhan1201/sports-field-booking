@@ -13,10 +13,10 @@ public interface SportsFieldRepository extends JpaRepository<SportsField, String
 
         Page<SportsField> findByUser(User user, Pageable pageable);
 
-        @Query("SELECT sf FROM SportsField sf WHERE sf.name LIKE %:text% " +
-                        "OR sf.location LIKE %:text% " +
-                        "OR sf.category.id = CAST(:text AS integer) " +
-                        "OR sf.opacity = CAST(:text AS integer) ")
+        @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
+                "OR sf.location LIKE %:text% " +
+                "OR sf.opacity = CAST(:text AS integer) " +
+                "OR sf.category.id = CAST(:text AS integer)) ")
         Page<SportsField> findSportsFieldsByKeyword(@Param("text") String text, Pageable pageable);
 
         @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
