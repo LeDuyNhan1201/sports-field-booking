@@ -128,8 +128,18 @@ public class SportsFieldServiceImpl implements SportsFieldService {
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
-        Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice,pageable);
+        Pageable pageable = PageRequest.of(0, 1000, sort);
+        Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, pageable);
+        List<SportsField> sportsFields = allFields.getContent();
+
+        int pageSize = limit;
+        int pageCount = (sportsFields.size() + pageSize - 1) / pageSize;
+        int pageIndex = pageable.getPageNumber();
+        int fromIndex = pageIndex * pageSize;
+        int toIndex = Math.min((pageIndex + 1) * pageSize, sportsFields.size());
+
+        List<SportsField> pageContent = sportsFields.subList(fromIndex, toIndex);
+       return new PageImpl<>(pageContent, pageable, sportsFields.size());
     }
 
     @Override
