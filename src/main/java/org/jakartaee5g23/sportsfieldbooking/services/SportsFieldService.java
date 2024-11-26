@@ -19,12 +19,14 @@ public interface SportsFieldService {
 
         Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
                         int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
-
+        Page<SportsField> findSportsFieldsByCategoryId(int offset, int limit, String colSort,
+                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
         Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
 
-        Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit,
-                        String colSort, int sortDirection);
-
+        Page<SportsField> findSportsFieldsByKeywordAndUserId(String userId, String text, int offset, int limit,
+                        String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
+        Page<SportsField> findSportsFieldsByCategoryIdAndUser(User user, int offset, int limit,
+                                                              String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
         Page<SportsField> findSportsFieldsByCategoryLocationPrice(String categoryId, String location, double minPrice,
                         double maxPrice, int offset, int limit, String colSort, int sortDirection);
 

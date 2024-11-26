@@ -144,25 +144,74 @@ public class SportsFieldServiceImpl implements SportsFieldService {
             return new PageImpl<>(filteredList, pageable, list.getTotalElements());
         }
     }
+    @Override
+    public Page<SportsField> findSportsFieldsByCategoryId(int offset, int limit, String colSort,
+                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        Page<SportsField> list = sportsFieldRepository.findAll(pageable);
+
+        if (categoryCol == 0) {
+            return list;
+        } else {
+            List<SportsField> filteredList = list.getContent().stream()
+                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
+        }
+    }
 
     @Override
     public Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+
+        Pageable pageable = PageRequest.of(offset, limit, sort);
         return sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
     }
 
     @Override
-    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String UserId, String text, int offset, int limit,
-            String colSort, int sortDirection) {
+    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String userId, String text, int offset, int limit,
+            String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        return sportsFieldRepository.findSportsFieldsByKeywordAndUserId(UserId, text, pageable);
+        Page<SportsField> list = sportsFieldRepository.findSportsFieldsByKeywordAndUserId(userId, text, pageable);
+
+        if (categoryCol == 0) {
+            return list;
+        } else {
+            List<SportsField> filteredList = list.getContent().stream()
+                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
+        }
+    }
+
+    @Override
+    public Page<SportsField> findSportsFieldsByCategoryIdAndUser(User user, int offset, int limit,
+                                                                String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
+        Sort sort = (sortDirection == 1)
+                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
+                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
+
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        Page<SportsField> list = sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
+
+        if (categoryCol == 0) {
+            return list;
+        } else {
+            List<SportsField> filteredList = list.getContent().stream()
+                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
+        }
     }
 
     @Override
