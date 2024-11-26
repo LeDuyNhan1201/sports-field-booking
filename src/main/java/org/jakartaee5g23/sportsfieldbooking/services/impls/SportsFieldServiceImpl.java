@@ -130,16 +130,22 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
         Pageable pageable = PageRequest.of(0, 1000, sort);
         Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, pageable);
-        List<SportsField> sportsFields = allFields.getContent();
 
-        int pageSize = limit;
-        int pageCount = (sportsFields.size() + pageSize - 1) / pageSize;
-        int pageIndex = pageable.getPageNumber();
-        int fromIndex = pageIndex * pageSize;
-        int toIndex = Math.min((pageIndex + 1) * pageSize, sportsFields.size());
+        if (allFields.isEmpty()) {
+            return Page.empty(PageRequest.of(offset, limit, sort));
+        }
 
-        List<SportsField> pageContent = sportsFields.subList(fromIndex, toIndex);
-       return new PageImpl<>(pageContent, pageable, sportsFields.size());
+        List<SportsField> allFieldList = allFields.getContent();
+
+        int fromIndex = Math.min(offset * limit, allFieldList.size());
+        int toIndex = Math.min(fromIndex + limit, allFieldList.size());
+
+        List<SportsField> subList = allFieldList.subList(fromIndex, toIndex);
+
+        Pageable resultPageable = PageRequest.of(offset, limit, sort);
+
+        return new PageImpl<>(subList, resultPageable, allFieldList.size());
+
     }
 
     @Override
