@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.repositories;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.Notification;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import jakarta.transaction.Transactional;
 
 @Repository
+@Observed
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     Page<Notification> findByUser(User user, Pageable pageable);

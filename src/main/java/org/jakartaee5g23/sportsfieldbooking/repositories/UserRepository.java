@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.repositories;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.Role;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Observed
 public interface UserRepository extends JpaRepository<User, String> {
 
     boolean existsByEmail(String email);

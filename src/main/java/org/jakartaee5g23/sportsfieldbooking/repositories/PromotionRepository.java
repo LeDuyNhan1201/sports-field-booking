@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.repositories;
 
 import java.util.Date;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.Promotion;
 import org.jakartaee5g23.sportsfieldbooking.enums.PromotionStatus;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Observed
 public interface PromotionRepository extends JpaRepository<Promotion, String> {
         @Query("SELECT p FROM Promotion p " +
                         "WHERE (:keyword IS NULL OR " +

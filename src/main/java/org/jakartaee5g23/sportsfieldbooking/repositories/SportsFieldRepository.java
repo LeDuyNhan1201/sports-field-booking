@@ -1,7 +1,9 @@
 package org.jakartaee5g23.sportsfieldbooking.repositories;
 
+import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@Observed
 public interface SportsFieldRepository extends JpaRepository<SportsField, String> {
 
         Page<SportsField> findByUser(User user, Pageable pageable);
@@ -21,7 +24,8 @@ public interface SportsFieldRepository extends JpaRepository<SportsField, String
                 "OR sf.category.id = CAST(:text AS integer) OR :text = ' ' ) " +
                 "AND (:userId = '0' OR sf.user.id = :userId) " +
                 "AND (:categoryId = 0 OR sf.category.id = :categoryId) " +
-                "AND fa.price BETWEEN :minPrice AND :maxPrice " )
+                "AND fa.price BETWEEN :minPrice AND :maxPrice " +
+                "AND (:userId != '0' OR sf.status IN (org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus.OPEN))")
         Page<SportsField> searchSportsFields(@Param("userId") String userId,
                                              @Param("text") String text,
                                              @Param("categoryId") Integer categoryId,
