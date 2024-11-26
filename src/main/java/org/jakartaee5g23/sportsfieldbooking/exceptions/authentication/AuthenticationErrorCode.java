@@ -18,6 +18,7 @@ public enum AuthenticationErrorCode {
     EXPIRED_PASSWORD("auth/expired-password", "expired_password"),
     TWO_FACTOR_REQUIRED("auth/two-factor-required", "two_factor_required"),
     INVALID_ACTIVATION_CODE("auth/invalid-activation-code", "invalid_activation_code"),
+    USER_BANNED("auth/user-banned", "user_banned"),
 
     // Token Errors
     TOKEN_MISSING("auth/token-missing", "token_missing"),

@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.mappers;
 
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.categories.CategoryRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.category.CategoryResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.mapstruct.Mapper;
@@ -10,4 +11,6 @@ public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
     CategoryResponse toCategoryResponse(Category entity);
+
+    Category toCategory(CategoryRequest response);
 }
