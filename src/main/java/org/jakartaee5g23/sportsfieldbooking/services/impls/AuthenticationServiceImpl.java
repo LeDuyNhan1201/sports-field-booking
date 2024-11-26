@@ -235,6 +235,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!passwordEncoder.matches(password, user.getPassword()))
             throw new AuthenticationException(WRONG_PASSWORD, UNAUTHORIZED);
 
+        if (user.getStatus() == UserStatus.BANNED) {
+            throw new AuthenticationException(USER_BANNED, CONFLICT);
+        }
+
         if (!user.isActivated()) throw new AuthenticationException(USER_NOT_ACTIVATED, FORBIDDEN);
 
         return user;
