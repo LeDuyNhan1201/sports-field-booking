@@ -93,7 +93,7 @@ public class DataSeeder {
     private void seedUsers() {
         if (userRepository.count() == 0) {
             List<User> users = new ArrayList<>();
-            IntStream.range(0, 200).forEach(_ -> {
+            IntStream.range(0, 20).forEach(_ -> {
                 User user = User.builder()
                         .username(faker.name().username())
                         .password(passwordEncoder.encode("123456"))
@@ -191,7 +191,7 @@ public class DataSeeder {
 
                     // Generate end time between 1 to 12 hours after start time
                     Date endTime = new Date(
-                            startTime.getTime() + (long) faker.number().numberBetween(1, 12) * 60 * 60 * 1000);
+                            startTime.getTime() + (long) faker.number().numberBetween(1, 2) * 60 * 60 * 1000);
 
                     FieldAvailability availability = FieldAvailability.builder()
                             .sportsField(field)
@@ -303,7 +303,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<SportsField> fields = sportFieldRepository.findAll();
             List<Review> reviews = new ArrayList<>();
-            IntStream.range(0, 200).forEach(_ -> {
+            IntStream.range(0, 20).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
                 Review review = Review.builder()
                         .user(createdBy)
