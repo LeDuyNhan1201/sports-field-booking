@@ -41,59 +41,61 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Booking Items APIs")
 public class BookingItemController {
-    BookingItemsService bookingItemsService;
-    BookingService bookingService;
-    SportsFieldService sportsFieldService;
-    BookingItemMapper bookingItemMapper = BookingItemMapper.INSTANCE;
+        BookingItemsService bookingItemsService;
+        BookingService bookingService;
+        SportsFieldService sportsFieldService;
+        BookingItemMapper bookingItemMapper = BookingItemMapper.INSTANCE;
 
-    @Operation(summary = "Add Booking Item", description = "Create booking item with booking ID and sports field ID",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping
-    public ResponseEntity<BookingItemResponse> createBookingItem(@RequestBody BookingItemRequest bookingItemRequest) throws ParseException{
-        Booking booking = bookingService.findById(bookingItemRequest.orderId());
-        SportsField sportsField = sportsFieldService.findById(bookingItemRequest.sportFieldID());
+        @Operation(summary = "Add Booking Item", description = "Create booking item with booking ID and sports field ID", security = @SecurityRequirement(name = "bearerAuth"))
+        @PostMapping
+        public ResponseEntity<BookingItemResponse> createBookingItem(@RequestBody BookingItemRequest bookingItemRequest)
+                        throws ParseException {
+                Booking booking = bookingService.findById(bookingItemRequest.orderId());
+                SportsField sportsField = sportsFieldService.findById(bookingItemRequest.sportFieldID());
 
-        BookingItem bookingItem = BookingItem.builder()
-                .booking(booking)
-                .sportsField(sportsField)
-                .availableDate(bookingItemRequest.availableDate())
-                .startTime(bookingItemRequest.startTime())
-                .endTime(bookingItemRequest.endTime())
-                .price(bookingItemRequest.price())
-                .status(BookingItemStatus.PENDING)
-                .updatedAt(new Date())
-                .build();
+                BookingItem bookingItem = BookingItem.builder()
+                                .booking(booking)
+                                .sportsField(sportsField)
+                                .availableDate(bookingItemRequest.availableDate())
+                                .startTime(bookingItemRequest.startTime())
+                                .endTime(bookingItemRequest.endTime())
+                                .price(bookingItemRequest.price())
+                                .status(BookingItemStatus.PENDING)
+                                .updatedAt(new Date())
+                                .build();
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(bookingItemMapper.toBookingItemResponse(bookingItemsService.create(bookingItem)));
-    }
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(bookingItemMapper.toBookingItemResponse(bookingItemsService.create(bookingItem)));
+        }
 
-    @Operation(summary = "Get Booking Items by Sports Field ID", description = "Retrieve all booking items associated with a specific sports field ID",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/sports-field/{sportsFieldId}")
-    public ResponseEntity<List<BookingItemResponse>> getBookingItemsBySportsFieldId(@PathVariable String sportsFieldId) {
-        List<BookingItem> bookingItems = bookingItemsService.findBySportsFieldId(sportsFieldId);
+        @Operation(summary = "Get Booking Items by Sports Field ID", description = "Retrieve all booking items associated with a specific sports field ID", security = @SecurityRequirement(name = "bearerAuth"))
+        @GetMapping("/sports-field/{sportsFieldId}")
+        public ResponseEntity<List<BookingItemResponse>> getBookingItemsBySportsFieldId(
+                        @PathVariable String sportsFieldId) {
+                List<BookingItem> bookingItems = bookingItemsService.findBySportsFieldId(sportsFieldId);
 
-        List<BookingItemResponse> responses = bookingItems.stream()
-                .map(bookingItemMapper::toBookingItemResponse)
-                .toList();
+                List<BookingItemResponse> responses = bookingItems.stream()
+                                .map(bookingItemMapper::toBookingItemResponse)
+                                .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
-    }
+                return ResponseEntity.status(HttpStatus.OK).body(responses);
+        }
 
-    @Operation(summary = "Get booking item list", description = "Get booking item list", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PaginateResponse<BookingItemResponse>> findAll(
-            @RequestParam(defaultValue = "0") String offset,
-            @RequestParam(defaultValue = "100") String limit) {
-        Page<BookingItem> bookingItems = bookingItemsService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<BookingItemResponse>builder()
-                        .items(bookingItems.stream().map(bookingItemMapper::toBookingItemResponse).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset),
-                                Integer.parseInt(limit),
-                                bookingItems.getTotalElements()))
-                        .build());
-    }
+        @Operation(summary = "Get booking item list", description = "Get booking item list", security = @SecurityRequirement(name = "bearerAuth"))
+        @GetMapping
+        @PreAuthorize("hasRole('FIELD_OWNER')")
+        public ResponseEntity<PaginateResponse<BookingItemResponse>> findAll(
+                        @RequestParam(defaultValue = "0") String offset,
+                        @RequestParam(defaultValue = "100") String limit) {
+                Page<BookingItem> bookingItems = bookingItemsService.findAll(Integer.parseInt(offset),
+                                Integer.parseInt(limit));
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(PaginateResponse.<BookingItemResponse>builder()
+                                                .items(bookingItems.stream()
+                                                                .map(bookingItemMapper::toBookingItemResponse).toList())
+                                                .pagination(new Pagination(Integer.parseInt(offset),
+                                                                Integer.parseInt(limit),
+                                                                bookingItems.getTotalElements()))
+                                                .build());
+        }
 }
