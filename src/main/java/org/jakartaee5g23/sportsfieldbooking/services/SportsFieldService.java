@@ -17,16 +17,11 @@ public interface SportsFieldService {
 
         SportsField updateStatus(String id, SportsFieldStatus status);
 
-        Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
-                        int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
-        Page<SportsField> findSportsFieldsByCategoryId(int offset, int limit, String colSort,
-                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
+        Page<SportsField> searchSportsField(String userId,String text,
+                                            Double maxPrice, Double minPrice, Integer categoryId, int offset, int limit , String colSort, int sortDirection);
+
         Page<SportsField> findByUser(User user, int offset, int limit, String colSort, int sortDirection);
 
-        Page<SportsField> findSportsFieldsByKeywordAndUserId(String userId, String text, int offset, int limit,
-                        String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
-        Page<SportsField> findSportsFieldsByCategoryIdAndUser(User user, int offset, int limit,
-                                                              String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol);
         Page<SportsField> findSportsFieldsByCategoryLocationPrice(String categoryId, String location, double minPrice,
                         double maxPrice, int offset, int limit, String colSort, int sortDirection);
 

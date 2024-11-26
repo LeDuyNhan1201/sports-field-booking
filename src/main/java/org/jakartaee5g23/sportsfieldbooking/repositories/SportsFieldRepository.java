@@ -13,19 +13,17 @@ public interface SportsFieldRepository extends JpaRepository<SportsField, String
 
         Page<SportsField> findByUser(User user, Pageable pageable);
 
-        @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
+        @Query("SELECT sf FROM SportsField sf WHERE " +
+                "(sf.name LIKE %:text% " +
                 "OR sf.location LIKE %:text% " +
-                "OR sf.opacity = CAST(:text AS integer) " +
-                "OR sf.category.id = CAST(:text AS integer)) ")
-        Page<SportsField> findSportsFieldsByKeyword(@Param("text") String text, Pageable pageable);
+                "OR sf.category.id = CAST(:text AS integer) OR :text = ' ' ) " +
+                "AND (:userId = '0' OR sf.user.id = :userId) " +
+                "AND (:categoryId = 0 OR sf.category.id = :categoryId)")
+        Page<SportsField> searchSportsFields(@Param("userId") String userId,
+                                             @Param("text") String text,
+                                             @Param("categoryId") Integer categoryId,
+                                             Pageable pageable);
 
-        @Query("SELECT sf FROM SportsField sf WHERE (sf.name LIKE %:text% " +
-                        "OR sf.location LIKE %:text% " +
-                        "OR sf.opacity = CAST(:text AS integer) " +
-                        "OR sf.category.id = CAST(:text AS integer)) " +
-                        "AND sf.user.id LIKE %:userId%")
-        Page<SportsField> findSportsFieldsByKeywordAndUserId(@Param("userId") String userId, @Param("text") String text,
-                        Pageable pageable);
 
         @Query("SELECT sf FROM SportsField sf JOIN sf.fieldAvailabilities fa WHERE " +
                         "(sf.category.id = CAST(:categoryId AS integer)) " +

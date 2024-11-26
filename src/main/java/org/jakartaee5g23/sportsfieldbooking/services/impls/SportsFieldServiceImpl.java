@@ -104,10 +104,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
             Date openingTime = request.getOpeningTime();
             Date closingTime = request.getClosingTime();
 
-//            if (isTimeValid(openingTime, closingTime))
-//                throw new SportsFieldException(SportsFieldErrorCode.INVALID_OPENING_CLOSING_TIME,
-//                        HttpStatus.UNPROCESSABLE_ENTITY);
-
             Category category = categoryRepository.findById(request.getCategory().getId()).orElseThrow(
                     () -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Category"));
 
@@ -126,42 +122,14 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     }
 
     @Override
-    public Page<SportsField> findSportsFieldsByKeyword(String text, int offset, int limit, String colSort,
-                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
+    public Page<SportsField> searchSportsField(String userId,String text,
+                                                        Double maxPrice, Double minPrice, Integer categoryId, int offset, int limit , String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(offset, limit, sort);
-        Page<SportsField> list = sportsFieldRepository.findSportsFieldsByKeyword(text, pageable);
-
-        if (categoryCol == 0) {
-            return list;
-        } else {
-            List<SportsField> filteredList = list.getContent().stream()
-                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
-                    .collect(Collectors.toList());
-            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
-        }
-    }
-    @Override
-    public Page<SportsField> findSportsFieldsByCategoryId(int offset, int limit, String colSort,
-                                                       int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
-        Sort sort = (sortDirection == 1)
-                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
-                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
-
-        Pageable pageable = PageRequest.of(offset, limit, sort);
-        Page<SportsField> list = sportsFieldRepository.findAll(pageable);
-
-        if (categoryCol == 0) {
-            return list;
-        } else {
-            List<SportsField> filteredList = list.getContent().stream()
-                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
-                    .collect(Collectors.toList());
-            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
-        }
+        return sportsFieldRepository.searchSportsFields(userId,text,categoryId,pageable);
     }
 
     @Override
@@ -174,45 +142,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         return sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
     }
 
-    @Override
-    public Page<SportsField> findSportsFieldsByKeywordAndUserId(String userId, String text, int offset, int limit,
-            String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
-        Sort sort = (sortDirection == 1)
-                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
-                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
-
-        Pageable pageable = PageRequest.of(offset, limit, sort);
-        Page<SportsField> list = sportsFieldRepository.findSportsFieldsByKeywordAndUserId(userId, text, pageable);
-
-        if (categoryCol == 0) {
-            return list;
-        } else {
-            List<SportsField> filteredList = list.getContent().stream()
-                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
-                    .collect(Collectors.toList());
-            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
-        }
-    }
-
-    @Override
-    public Page<SportsField> findSportsFieldsByCategoryIdAndUser(User user, int offset, int limit,
-                                                                String colSort, int sortDirection, Double maxPrice, Double minPrice, Integer categoryCol) {
-        Sort sort = (sortDirection == 1)
-                ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
-                : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
-
-        Pageable pageable = PageRequest.of(offset, limit, sort);
-        Page<SportsField> list = sportsFieldRepository.findByUser(user, PageRequest.of(offset, limit, sort));
-
-        if (categoryCol == 0) {
-            return list;
-        } else {
-            List<SportsField> filteredList = list.getContent().stream()
-                    .filter(sportsField -> sportsField.getCategory().getId() == categoryCol)
-                    .collect(Collectors.toList());
-            return new PageImpl<>(filteredList, pageable, list.getTotalElements());
-        }
-    }
 
     @Override
     public Page<SportsField> findSportsFieldsByCategoryLocationPrice(String categoryId, String location,

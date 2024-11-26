@@ -112,32 +112,6 @@ public class SportsFieldController {
                                                                 sportFields.getTotalElements()))
                                                 .build());
         }
-
-        @Operation(summary = "Get all sport fields by category", description = "Get all sport fields when user want to see all fields")
-        @GetMapping("category")
-        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByCategory(@RequestParam Integer categoryId,
-                                                                                    @RequestParam String colSort,
-                                                                                    @RequestParam Integer sortDirection,
-                                                                                    @RequestParam(defaultValue = "0") String offset,
-                                                                                    @RequestParam(defaultValue = "100") String limit,
-                                                                                    @RequestParam(defaultValue = "100000") Double maxPrice,
-                                                                                    @RequestParam(defaultValue = "1") Double minPrice ) {
-            Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByCategoryId(Integer.parseInt(offset),
-                    Integer.parseInt(limit),
-                    colSort, sortDirection, maxPrice, minPrice, categoryId);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(PaginateResponse.<SportsFieldResponse>builder()
-                            .items(sportFields.stream().map(sf -> {
-                                SportsFieldResponse sportsFieldResponse = sportsFieldMapper
-                                        .toSportsFieldResponse(sf);
-                                setSportsFieldImages(sportsFieldResponse, sf);
-                                return sportsFieldResponse;
-                            }).toList())
-                            .pagination(new Pagination(Integer.parseInt(offset),
-                                    Integer.parseInt(limit),
-                                    sportFields.getTotalElements()))
-                            .build());
-        }
         @Operation(summary = "Get sport field by id", description = "Get sport field detail when user have id ", security = @SecurityRequirement(name = "bearerAuth"))
         @GetMapping("/{id}")
         // @PostAuthorize("(returnObject.body.owner.id == authentication.name and
@@ -149,21 +123,20 @@ public class SportsFieldController {
                 return ResponseEntity.status(OK).body(sportsFieldResponse);
         }
 
-        @Operation(summary = "Search sport fields by text", description = "Search sport fields by name, location, or description containing the given text")
+        @Operation(summary = "Search sport fields", description = "Search sport fields by name, location, or description containing the given text")
 
-        @GetMapping("/search/{text}")
+        @GetMapping("/search")
         public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeyword(
-                        @PathVariable String text,
+                        @RequestParam String userId,
+                        @RequestParam String text,
                         @RequestParam String colSort,
                         @RequestParam Integer sortDirection,
-                        @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit,
-                        @RequestParam(defaultValue = "100000") Double maxPrice,
+                        @RequestParam(defaultValue = "0") Integer offset,
+                        @RequestParam(defaultValue = "100") Integer limit,
+                        @RequestParam(defaultValue = "1000") Double maxPrice,
                         @RequestParam(defaultValue = "1") Double minPrice,
-                        @RequestParam(defaultValue = "0") Integer categoryCol) {
-                Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeyword(text,
-                                Integer.parseInt(offset),
-                                Integer.parseInt(limit), colSort, sortDirection, maxPrice, minPrice, categoryCol);
+                        @RequestParam(defaultValue = "0") Integer categoryId) {
+                Page<SportsField> sportFields = sportsFieldService.searchSportsField(userId,text,maxPrice,minPrice,categoryId,offset,limit,colSort,sortDirection);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<SportsFieldResponse>builder()
@@ -173,87 +146,8 @@ public class SportsFieldController {
                                                         setSportsFieldImages(sportsFieldResponse, sf);
                                                         return sportsFieldResponse;
                                                 }).toList())
-                                                .pagination(new Pagination(Integer.parseInt(offset),
-                                                                Integer.parseInt(limit),
-                                                                sportFields.getTotalElements()))
-                                                .build());
-        }
-
-        @Operation(summary = "Get sport fields by user", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
-        @GetMapping("/management/{userId}")
-        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByUser(@PathVariable String userId,
-                        @RequestParam String colSort,
-                        @RequestParam Integer sortDirection,
-                        @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit) {
-                User user = userService.findById(userId);
-                Page<SportsField> sportFields = sportsFieldService.findByUser(user, Integer.parseInt(offset),
-                                Integer.parseInt(limit), colSort, sortDirection);
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(PaginateResponse.<SportsFieldResponse>builder()
-                                                .items(sportFields.stream().map(sf -> {
-                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
-                                                                        .toSportsFieldResponse(sf);
-                                                        setSportsFieldImages(sportsFieldResponse, sf);
-                                                        return sportsFieldResponse;
-                                                }).toList())
-                                                .pagination(new Pagination(Integer.parseInt(offset),
-                                                                Integer.parseInt(limit),
-                                                                sportFields.getTotalElements()))
-                                                .build());
-        }
-
-    @Operation(summary = "Get sport fields by user and category", description = "Get all sport fields when user want to see all fields", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/management/{userId}/category")
-    public ResponseEntity<PaginateResponse<SportsFieldResponse>> findByCategory(@PathVariable String userId,
-                                                                            @RequestParam Integer categoryId,
-                                                                            @RequestParam String colSort,
-                                                                            @RequestParam Integer sortDirection,
-                                                                            @RequestParam(defaultValue = "0") String offset,
-                                                                            @RequestParam(defaultValue = "100") String limit,
-                                                                            @RequestParam(defaultValue = "100000") Double maxPrice,
-                                                                            @RequestParam(defaultValue = "1") Double minPrice){
-        User user = userService.findById(userId);
-        Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByCategoryIdAndUser(user, Integer.parseInt(offset),
-                Integer.parseInt(limit), colSort, sortDirection, maxPrice, minPrice,categoryId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateResponse.<SportsFieldResponse>builder()
-                        .items(sportFields.stream().map(sf -> {
-                            SportsFieldResponse sportsFieldResponse = sportsFieldMapper
-                                    .toSportsFieldResponse(sf);
-                            setSportsFieldImages(sportsFieldResponse, sf);
-                            return sportsFieldResponse;
-                        }).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset),
-                                Integer.parseInt(limit),
-                                sportFields.getTotalElements()))
-                        .build());
-    }
-
-        @GetMapping("/management/{userId}/search/{text}")
-        public ResponseEntity<PaginateResponse<SportsFieldResponse>> findSportsFieldsByKeywordAndUserId(
-                        @PathVariable String text,
-                        @PathVariable String userId,
-                        @RequestParam String colSort,
-                        @RequestParam Integer sortDirection,
-                        @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit,
-                        @RequestParam(defaultValue = "100000") Double maxPrice,
-                        @RequestParam(defaultValue = "1") Double minPrice,
-                        @RequestParam(defaultValue = "0") Integer categoryCol) {
-                Page<SportsField> sportFields = sportsFieldService.findSportsFieldsByKeywordAndUserId(userId, text,
-                                Integer.parseInt(offset), Integer.parseInt(limit), colSort, sortDirection, maxPrice, minPrice, categoryCol);
-
-                return ResponseEntity.status(HttpStatus.OK)
-                                .body(PaginateResponse.<SportsFieldResponse>builder()
-                                                .items(sportFields.stream().map(sf -> {
-                                                        SportsFieldResponse sportsFieldResponse = sportsFieldMapper
-                                                                        .toSportsFieldResponse(sf);
-                                                        setSportsFieldImages(sportsFieldResponse, sf);
-                                                        return sportsFieldResponse;
-                                                }).toList())
-                                                .pagination(new Pagination(Integer.parseInt(offset),
-                                                                Integer.parseInt(limit),
+                                                .pagination(new Pagination(offset,
+                                                                limit,
                                                                 sportFields.getTotalElements()))
                                                 .build());
         }
