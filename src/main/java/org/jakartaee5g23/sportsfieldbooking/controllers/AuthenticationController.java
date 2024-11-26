@@ -34,6 +34,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 import static org.jakartaee5g23.sportsfieldbooking.enums.Gender.Other;
@@ -166,7 +167,7 @@ public class AuthenticationController {
         ProviderType providerType;
         Map<String, Object> userInfo;
         try {
-            providerType = ProviderType.valueOf(provider.toUpperCase());
+            providerType = ProviderType.valueOf(provider.trim().toUpperCase());
             userInfo = authenticationService.fetchSocialUser(code, providerType);
 
         } catch (Exception e) {
@@ -176,7 +177,7 @@ public class AuthenticationController {
 
         String email = userInfo.get("email").toString();
         String name = userInfo.get("name").toString();
-        String sub = userInfo.get("sub").toString();
+        String randomPassword = "1YkXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij";
         if (!userService.existsByEmail(userInfo.get("email").toString())) {
             User newUser = User.builder()
                     .email(email)
@@ -186,14 +187,14 @@ public class AuthenticationController {
                     .mobileNumber("not provided")
                     .gender(Other)
                     .birthdate(LocalDate.now().minusYears(21))
-                    .password(sub)
+                    .password(randomPassword)
                     .isActivated(true)
                     .status(ACTIVE)
                     .build();
-            authenticationService.signUp(newUser, sub, true, false);
+            authenticationService.signUp(newUser, randomPassword, true, false);
 
         }
-        User signInUser = authenticationService.signIn(email, sub);
+        User signInUser = authenticationService.signIn(email, randomPassword);
 
         String accessToken = authenticationService.generateToken(signInUser, false);
 

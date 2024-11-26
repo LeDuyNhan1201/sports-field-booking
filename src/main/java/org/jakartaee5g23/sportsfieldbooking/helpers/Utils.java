@@ -10,10 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
@@ -78,6 +81,16 @@ public class Utils {
 
         long randomMillis = ThreadLocalRandom.current().nextLong(startMillis, endMillis);
         return new Date(randomMillis);
+    }
+
+    public static String toHmacSHA256(String data, String secretKey) throws Exception {
+
+        // Generate HmacSHA256 signature
+        Mac hmacSha256 = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+        hmacSha256.init(secretKeySpec);
+        byte[] hash = hmacSha256.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(hash);
     }
 
 }

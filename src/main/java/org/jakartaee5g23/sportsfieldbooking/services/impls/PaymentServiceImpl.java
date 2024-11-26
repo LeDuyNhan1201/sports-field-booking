@@ -4,8 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
+import org.jakartaee5g23.sportsfieldbooking.configs.MomoConfig;
 import org.jakartaee5g23.sportsfieldbooking.configs.VNPayConfig;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.MomoOneTimePaymentRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.payment.MomoOneTimePaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.Payment;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
@@ -21,20 +26,27 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.PaymentRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.OrderService;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
 import org.jakartaee5g23.sportsfieldbooking.vnpay.Utils.VNPayUtils;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.toHmacSHA256;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
     VNPayConfig vnPayConfig;
+
+    MomoConfig momoConfig;
 
     OrderService orderService;
 
@@ -64,6 +76,78 @@ public class PaymentServiceImpl implements PaymentService {
 
         String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
         return new VNPayResponse("ok", getLocalizedMessage("payment_success"), paymentUrl);
+    }
+
+    @Override
+    public MomoOneTimePaymentResponse createMomoOneTimePayment(String referenceId, String orderId, String orderInfo, double amount, String lang) {
+        String data = generateRawHash(
+                momoConfig.getAccessKey(),
+                String.valueOf(amount),
+                "",
+                momoConfig.getRedirectUrl(),
+                orderId,
+                orderInfo,
+                momoConfig.getPartnerCode(),
+                momoConfig.getRedirectUrl(),
+                referenceId,
+                "captureWallet");
+
+        MomoOneTimePaymentRequest momoRequest;
+        try {
+            momoRequest = MomoOneTimePaymentRequest.builder()
+                    .partnerCode(momoConfig.getPartnerCode())
+                    .requestId(referenceId)
+                    .amount(String.valueOf(amount))
+                    .orderId(orderId)
+                    .orderInfo(orderInfo)
+                    .redirectUrl(momoConfig.getRedirectUrl())
+                    .ipnUrl(momoConfig.getRedirectUrl())
+                    .requestType("captureWallet")
+                    .lang(lang)
+                    .signature(toHmacSHA256(data, momoConfig.getSecretKey()))
+                    .items(List.of(
+                            MomoOneTimePaymentRequest.Item.builder()
+                                    .id("1")
+                                    .name("Test")
+                                    .quantity(1)
+                                    .price(10000)
+                                    .totalPrice(10000)
+                                    .currency("VND")
+                                    .build()
+                    ))
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Error when generating signature for MoMo payment", e);
+            throw new PaymentException(PaymentErrorCode.PAYMENT_MOMO_SIGNATURE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        log.info("Momo request: {}", momoRequest.getSignature());
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity<MomoOneTimePaymentRequest> request = new HttpEntity<>(momoRequest, headers);
+
+        String url = momoConfig.getPaymentUrl();
+        ResponseEntity<MomoOneTimePaymentResponse> postResponse = restTemplate.exchange(url, HttpMethod.POST, request, MomoOneTimePaymentResponse.class);
+
+        return postResponse.getBody();
+    }
+
+    public static String generateRawHash(String accessKey, String amount, String extraData, String ipnUrl,
+                                         String orderId, String orderInfo, String partnerCode,
+                                         String redirectUrl, String requestId, String requestType) {
+        // Build data string in sorted order
+        String data = "accessKey=" + accessKey +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + ipnUrl +
+                "&orderId=" + orderId +
+                "&orderInfo=" + orderInfo +
+                "&partnerCode=" + partnerCode +
+                "&redirectUrl=" + redirectUrl +
+                "&requestId=" + requestId +
+                "&requestType=" + requestType;
+        return data;
     }
 
     @Override

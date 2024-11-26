@@ -35,6 +35,12 @@ payment:
     version: "2.1.0"
     command: "pay"
     orderType: "other"
+  momo:
+    paymentUrl: "https://test-payment.momo.vn/v2/gateway/api/confirm"
+    redirectUrl: "http://localhost:3333/sports-field-booking/payment/momo/callback"
+    partnerCode: "MOMOBKUN20180529"
+    accessKey: "klm05TvNBzhg7h7j"
+    secretKey: "at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa"
 
 # Spring Boot Actuator configuration (Health, Info, Metrics, etc.)
 management:
@@ -82,24 +88,34 @@ security:
     client:
       registration:
         google:
-          client-id: 104804516769-v0lame500n11e37c11l1buufs0a12imc.apps.googleusercontent.com
-          client-secret: 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
+          client-id: ${GOOGLE_CLIENT_ID}
+          client-secret: ${GOOGLE_CLIENT_SECRET}
           redirect-uri: "${GOOGLE_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/google/callback}"
+          auth-uri: https://accounts.google.com/o/oauth2/v2/auth
+          token-uri: https://oauth2.googleapis.com/token
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+          scope: openid profile email
+          resource-server:
+            opaque-token:
+              introspection-uri: "https://googleapis.com"
+
         facebook:
-          client-id: 1007654770988152
-          client-secret: e2cf57ff60294712585c0c2a81b188c0
+          client-id: ${FACEBOOK_CLIENT_ID}
+          client-secret: ${FACEBOOK_CLIENT_SECRET}
           redirect-uri: "${FACEBOOK_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/facebook/callback}"
           auth-uri: https://www.facebook.com/v21.0/dialog/oauth
           token-uri: https://graph.facebook.com/oauth/access_token
           user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture.type(large)
-          scope:
-            - email
-            - public_profile
-      resource-server:
-        opaque-token:
-          introspection-uri: "https://googleapis.com"
+          scope: email,public_profile
 
+        github:
+          client-id: ${GITHUB_CLIENT_ID}
+          client-secret: ${GITHUB_CLIENT_SECRET}
+          redirect-uri: "${GITHUB_REDIRECT_URI:http://localhost:3333/sports-field-booking/auth/github/callback}"
+          auth-uri: https://
+          token-uri: https://
+          user-info-uri: https://api.github.com/user
+          scope: user:email
 
 # Spring configuration
 spring:

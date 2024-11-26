@@ -18,16 +18,19 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.PaymentRequest
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.payment.VNPayRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.VNPayResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking.PaymentResponse;
+import org.jakartaee5g23.sportsfieldbooking.dtos.responses.payment.MomoOneTimePaymentResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingItemMapper;
 import org.jakartaee5g23.sportsfieldbooking.mappers.PaymentMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
 import org.jakartaee5g23.sportsfieldbooking.services.PaymentService;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/payment")
@@ -60,6 +63,22 @@ public class PaymentController {
         VNPayResponse vnPayResponse = paymentService.createVNPayPayment(amount, orderId, request);
 
         return ResponseEntity.ok(vnPayResponse);
+    }
+
+    @Operation(summary = "Create Momo Payment", description = "Create Momo Payment")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/momo")
+    public ResponseEntity<MomoOneTimePaymentResponse> createMomoPayment(@RequestBody @Valid VNPayRequest payRequest) {
+        MomoOneTimePaymentResponse momoOneTimePaymentResponse =
+                paymentService.createMomoOneTimePayment(
+                        UUID.randomUUID().toString(),
+                        payRequest.orderId(),
+                        "This is test order",
+                        payRequest.amount(),
+                        LocaleContextHolder.getLocale().toLanguageTag()
+                );
+
+        return ResponseEntity.ok(momoOneTimePaymentResponse);
     }
 
     @Operation(summary = "Create Payment", description = "Create Payment")

@@ -55,7 +55,7 @@ public class SecurityConfig {
                 "/auth/social/**",
                 "/auth/sign-out",
                 "/auth/introspect",
-                "/users/**",
+                "/users",
                 "/sports-field/**",
                 "/promotions/**",
                 "/status",
@@ -70,7 +70,7 @@ public class SecurityConfig {
                 "/booking/**",
                 "/booking-items/**",
                 "/userRole/**",
-                "/category/**",
+                "/category",
                 "/reviews/**",
                 "/field-availability-access/**",
                 "/rating/**"

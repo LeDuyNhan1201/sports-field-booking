@@ -32,8 +32,9 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Category APIs")
 public class CategoryController {
-        final CategoryService categoryService;
-        final CategoryMapper categoryMapper;
+
+        CategoryService categoryService;
+        CategoryMapper categoryMapper;
 
         @Operation(summary = "Get all categories", description = "Get all categories when user wants to see all")
         @GetMapping

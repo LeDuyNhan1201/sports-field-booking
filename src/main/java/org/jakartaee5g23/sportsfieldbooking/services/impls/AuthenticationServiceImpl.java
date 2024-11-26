@@ -1,6 +1,7 @@
 package org.jakartaee5g23.sportsfieldbooking.services.impls;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -31,6 +32,7 @@ import org.jakartaee5g23.sportsfieldbooking.services.RoleService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -39,6 +41,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
@@ -84,8 +87,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String GOOGLE_REDIRECT_URI;
 
     @NonFinal
+    @Value("${security.oauth2.client.registration.google.auth-uri}")
+    String GOOGLE_AUTH_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.token-uri}")
+    String GOOGLE_TOKEN_URI;
+
+    @NonFinal
     @Value("${security.oauth2.client.registration.google.user-info-uri}")
     String GOOGLE_USER_INFO_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.google.scope}")
+    String GOOGLE_SCOPE;
 
     @NonFinal
     @Value("${security.oauth2.client.registration.facebook.client-id}")
@@ -100,8 +115,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String FACEBOOK_REDIRECT_URI;
 
     @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.auth-uri}")
+    String FACEBOOK_AUTH_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.token-uri}")
+    String FACEBOOK_TOKEN_URI;
+
+    @NonFinal
     @Value("${security.oauth2.client.registration.facebook.user-info-uri}")
     String FACEBOOK_USER_INFO_URI;
+
+    @NonFinal
+    @Value("${security.oauth2.client.registration.facebook.scope}")
+    String FACEBOOK_SCOPE;
 
     int VERIFICATION_VALID_DURATION = 15;
 
@@ -247,11 +274,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String generateSocialAuthUrl(ProviderType providerType) {
         return switch (providerType) {
-            case GOOGLE -> "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + GOOGLE_CLIENT_ID +
-                    "&redirect_uri=" + GOOGLE_REDIRECT_URI + "&response_type=code&scope=openid%20profile%20email";
-
-            case FACEBOOK -> "https://www.facebook.com/v11.0/dialog/oauth?client_id=" + FACEBOOK_CLIENT_ID +
-                    "&redirect_uri=" + FACEBOOK_REDIRECT_URI + "&scope=email";
+            case GOOGLE -> UriComponentsBuilder.fromHttpUrl(GOOGLE_AUTH_URI)
+                    .queryParam("client_id", GOOGLE_CLIENT_ID)
+                    .queryParam("redirect_uri", GOOGLE_REDIRECT_URI)
+                    .queryParam("scope", GOOGLE_SCOPE)
+                    .queryParam("response_type", "code")
+                    .toUriString();
+            case FACEBOOK -> UriComponentsBuilder.fromHttpUrl(FACEBOOK_AUTH_URI)
+                    .queryParam("client_id", FACEBOOK_CLIENT_ID)
+                    .queryParam("redirect_uri", FACEBOOK_REDIRECT_URI)
+                    .queryParam("scope", FACEBOOK_SCOPE)
+                    .queryParam("response_type", "code")
+                    .toUriString();
         };
     }
 
@@ -264,6 +298,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             case GOOGLE -> {
                 accessToken = new GoogleAuthorizationCodeTokenRequest(
                         new NetHttpTransport(),
+                        GOOGLE_TOKEN_URI,
                         GOOGLE_CLIENT_ID,
                         GOOGLE_CLIENT_SECRET,
                         code,
@@ -277,6 +312,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
                 return new ObjectMapper().readValue(
                         restTemplate.getForEntity(GOOGLE_USER_INFO_URI, String.class).getBody(),
+                        new TypeReference<>(){});
+            }
+            case FACEBOOK -> {
+                String urlGetAccessToken = UriComponentsBuilder.fromHttpUrl(FACEBOOK_TOKEN_URI)
+                        .queryParam("client_id", FACEBOOK_CLIENT_ID)
+                        .queryParam("client_secret", FACEBOOK_CLIENT_SECRET)
+                        .queryParam("redirect_uri", FACEBOOK_REDIRECT_URI)
+                        .queryParam("code", code)
+                        .toUriString();
+
+                ResponseEntity<String> response = restTemplate.getForEntity(urlGetAccessToken, String.class);
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+
+                accessToken = jsonNode.get("access_token").asText();
+
+                String userInfoUrl = UriComponentsBuilder.fromHttpUrl(FACEBOOK_USER_INFO_URI)
+                        .queryParam("access_token", accessToken)
+                        .toUriString();
+
+                return objectMapper.readValue(
+                        restTemplate.getForEntity(userInfoUrl, String.class).getBody(),
                         new TypeReference<>(){});
             }
 
