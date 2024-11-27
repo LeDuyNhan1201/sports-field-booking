@@ -155,6 +155,10 @@ spring:
   profiles:
     active: dev
 
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+
   servlet:
     multipart:
       enabled: true

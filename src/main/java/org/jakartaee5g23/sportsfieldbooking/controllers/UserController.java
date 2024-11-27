@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.ChangePasswordRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.SignOutRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.file.FileUploadRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.user.UserUpdateRequest;
@@ -17,6 +18,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.PaginateRespons
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
@@ -32,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.text.ParseException;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -131,21 +134,18 @@ public class UserController {
                         .build());
     }
 
-    @Operation(summary = "Change user password", description = "Change the user's password", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/{userId}/change-password")
-    public ResponseEntity<String> changePassword(
-            @PathVariable String userId,
-            @RequestBody String password) {
+    @Operation(summary = "Change user password", description = "Change the user's password",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ResponseStatus(OK)
+    @PutMapping("/password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
 
-        User existingUser = userService.findById(userId);
-        if (existingUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
+        User currentUser = userService.findById(getUserIdFromContext());
 
-        if (password.startsWith("\"") && password.endsWith("\"")) {
-            password = password.substring(1, password.length() - 1);
+        if (!passwordEncoder.matches(request.oldPassword(), currentUser.getPassword())) {
+            throw new AuthenticationException(AuthenticationErrorCode.WRONG_PASSWORD, UNAUTHORIZED);
         }
-        userService.updatePassword(existingUser, password);
+        userService.updatePassword(currentUser, request.newPassword());
 
         return ResponseEntity.status(HttpStatus.OK).body("Password updated successfully");
     }

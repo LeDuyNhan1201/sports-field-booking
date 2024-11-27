@@ -44,6 +44,7 @@ public class SecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         String[] PUBLIC_ENDPOINTS = Stream.of(
+                "/ai/**",
                 "/auth/sign-up",
                 "/auth/verify-email-by-code",
                 "/auth/verify-email-by-token",
