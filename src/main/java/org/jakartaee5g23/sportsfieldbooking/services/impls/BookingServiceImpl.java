@@ -158,9 +158,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
+    public Page<Booking> searchBookings(String fieldOwnerID,String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return bookingRepository.searchBookings(keyword, status, startDate, endDate, pageable);
+        return bookingRepository.searchBookings(fieldOwnerID,keyword, status, startDate, endDate, pageable);
     }
 
     @Override
@@ -396,7 +396,7 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
-    public Page<Booking> findTopOrdersByFieldOwner(String fieldOwnerId, int offset, int limit) {
+    public Page<Booking> findBookingsByFieldOwner(String fieldOwnerId, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit);
 
         return bookingRepository.findBookingsByFieldOwner(fieldOwnerId, pageable);

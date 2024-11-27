@@ -109,12 +109,12 @@ public class BookingController {
 
         @Operation(summary = "Get booking list", description = "Get booking list", security = @SecurityRequirement(name = "bearerAuth"))
         @GetMapping
-        @PreAuthorize("hasRole('ADMIN')")
+        @PreAuthorize("hasRole('FIELD_OWNER')")
         public ResponseEntity<PaginateResponse<BookingResponse>> findAll(
                         @RequestParam(defaultValue = "0") String offset,
                         @RequestParam(defaultValue = "100") String limit) {
                 User current = userService.findById(getUserIdFromContext());
-                Page<Booking> bookings = bookingService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+                Page<Booking> bookings = bookingService.findBookingsByFieldOwner(current.getId(),Integer.parseInt(offset), Integer.parseInt(limit));
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<BookingResponse>builder()
                                                 .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
@@ -122,23 +122,6 @@ public class BookingController {
                                                                 Integer.parseInt(limit),
                                                                 bookings.getTotalElements()))
                                                 .build());
-        }
-
-        @Operation(summary = "Get top orders for FIELD_OWNER", description = "Retrieve top orders for all fields owned by the FIELD_OWNER", security = @SecurityRequirement(name = "bearerAuth"))
-        @GetMapping("/top-orders")
-        @PreAuthorize("hasRole('FIELD_OWNER')")
-        public ResponseEntity<PaginateResponse<BookingResponse>> getTopOrders(
-                @RequestParam(defaultValue = "0") String offset,
-                @RequestParam(defaultValue = "100") String limit) {
-                User current = userService.findById(getUserIdFromContext());
-                Page<Booking> topOrders = bookingService.findTopOrdersByFieldOwner(current.getId(), Integer.parseInt(offset), Integer.parseInt(limit));
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(PaginateResponse.<BookingResponse>builder()
-                                .items(topOrders.stream().map(bookingMapper::toBookingResponse).toList())
-                                .pagination(new Pagination(Integer.parseInt(offset),
-                                        Integer.parseInt(limit),
-                                        topOrders.getTotalElements()))
-                                .build());
         }
 
         @Operation(summary = "Get order by status", description = "Find order by status when user want filter", security = @SecurityRequirement(name = "bearerAuth"))
@@ -273,7 +256,8 @@ public class BookingController {
                         @RequestParam(defaultValue = "0") String offset,
                         @RequestParam(defaultValue = "100") String limit) {
 
-                Page<Booking> bookings = bookingService.searchBookings(keyword, status, startDate, endDate,
+                User current = userService.findById(getUserIdFromContext());
+                Page<Booking> bookings = bookingService.searchBookings(current.getId(), keyword, status, startDate, endDate,
                                 Integer.parseInt(offset), Integer.parseInt(limit));
 
                 return ResponseEntity.ok(
