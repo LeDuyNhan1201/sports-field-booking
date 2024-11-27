@@ -13,12 +13,8 @@ import org.jakartaee5g23.sportsfieldbooking.annotations.RateLimit;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.TokensResponse;
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.authentication.*;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.authentication.*;
-import org.jakartaee5g23.sportsfieldbooking.entities.Role;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
-import org.jakartaee5g23.sportsfieldbooking.entities.UserRole;
-import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
 import org.jakartaee5g23.sportsfieldbooking.enums.ProviderType;
-import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
@@ -28,13 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
 import static org.jakartaee5g23.sportsfieldbooking.enums.Gender.Other;
@@ -87,7 +78,8 @@ public class AuthenticationController {
     ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid SignUpRequest request) {
         User user = userMapper.toUser(request);
         user.setActivated(false);
-        authenticationService.signUp(user, request.passwordConfirmation(), request.acceptTerms(), request.isFieldOwner());
+        authenticationService.signUp(user, request.passwordConfirmation(), request.acceptTerms(),
+                request.isFieldOwner());
         authenticationService.sendEmailVerification(user.getEmail(), VERIFY_EMAIL_BY_TOKEN);
         return ResponseEntity.status(CREATED).body(
                 new SignUpResponse(getLocalizedMessage("sign_up_success"), user.getId()));
@@ -140,8 +132,7 @@ public class AuthenticationController {
         return ResponseEntity.status(OK).body(
                 SignInResponse.builder()
                         .tokensResponse(new TokensResponse(accessToken, refreshToken))
-                        .userInfo(userMapper.toUserResponse(signInUser)).build()
-        );
+                        .userInfo(userMapper.toUserResponse(signInUser)).build());
     }
 
     @Operation(summary = "Sign in with social", description = "Authenticate user with social account")
@@ -203,8 +194,7 @@ public class AuthenticationController {
         return ResponseEntity.status(OK).body(
                 SignInResponse.builder()
                         .tokensResponse(new TokensResponse(accessToken, refreshToken))
-                        .userInfo(userMapper.toUserResponse(signInUser)).build()
-        );
+                        .userInfo(userMapper.toUserResponse(signInUser)).build());
     }
 
     @Operation(summary = "Refresh", description = "Refresh token")
@@ -212,7 +202,7 @@ public class AuthenticationController {
     @ResponseStatus(OK)
     @RateLimit(limitKeyTypes = { BY_TOKEN })
     ResponseEntity<RefreshResponse> refresh(@RequestBody @Valid RefreshRequest request,
-                                            HttpServletRequest httpServletRequest) {
+            HttpServletRequest httpServletRequest) {
         User user;
         try {
             user = authenticationService.refresh(request.refreshToken(), httpServletRequest);
@@ -225,8 +215,7 @@ public class AuthenticationController {
 
         return ResponseEntity.status(OK).body(new RefreshResponse(
                 getLocalizedMessage("refresh_token_success"),
-                newAccessToken
-        ));
+                newAccessToken));
     }
 
     @Operation(summary = "Sign out", description = "Sign out user")
@@ -251,8 +240,7 @@ public class AuthenticationController {
 
         return ResponseEntity.status(OK).body(new SendEmailForgotPasswordResponse(
                 getLocalizedMessage("send_forgot_password_email_success"),
-                60
-        ));
+                60));
     }
 
     @Operation(summary = "Verify forgot password code", description = "Verify forgot password code")
@@ -264,8 +252,7 @@ public class AuthenticationController {
 
         return ResponseEntity.status(OK).body(new ForgotPasswordResponse(
                 getLocalizedMessage("verify_forgot_password_code_success"),
-                forgotPasswordToken
-        ));
+                forgotPasswordToken));
     }
 
     @Operation(summary = "Reset password", description = "Reset password")
@@ -287,5 +274,4 @@ public class AuthenticationController {
 
         return ResponseEntity.status(OK).body(new IntrospectResponse(isValid));
     }
-
 }

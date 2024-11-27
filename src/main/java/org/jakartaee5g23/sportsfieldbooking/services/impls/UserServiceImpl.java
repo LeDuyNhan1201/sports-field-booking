@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
@@ -36,14 +35,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() ->
-                new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
     }
 
     @Override
     public User findById(String id) {
-        return userRepository.findById(id).orElseThrow(() ->
-                new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
+        return userRepository.findById(id).orElseThrow(() -> new AuthenticationException(USER_NOT_FOUND, NOT_FOUND));
     }
 
     @Override
@@ -86,6 +84,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setBirthdate(user.getBirthdate());
         existingUser.setGender(user.getGender());
         existingUser.setAvatar(user.getAvatar());
+        existingUser.setStatus(user.getStatus());
 
         userRepository.save(existingUser);
     }
@@ -96,5 +95,4 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
         userRepository.delete(user);
     }
-
 }

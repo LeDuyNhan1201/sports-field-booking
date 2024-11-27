@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.dtos.requests.user;
 
 import lombok.Data;
 import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 
 import java.time.LocalDate;
 
@@ -13,5 +14,6 @@ public class UserUpdateRequest {
     private String mobileNumber;
     private LocalDate birthdate;
     private Gender gender;
-//    private AppFileMetadata avatar;
+    private UserStatus status;
+    // private AppFileMetadata avatar;
 }
