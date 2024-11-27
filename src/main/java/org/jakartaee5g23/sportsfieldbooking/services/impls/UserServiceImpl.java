@@ -95,4 +95,9 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
         userRepository.delete(user);
     }
+
+    @Override
+    public Page<User> searchUsers(String keyword, int offset, int limit) {
+        return userRepository.searchUsers(keyword, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    }
 }

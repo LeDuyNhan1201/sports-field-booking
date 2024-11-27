@@ -171,6 +171,22 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body("Password verified");
     }
 
+    // search user by keyword
+    @Operation(summary = "Search user", description = "Search user by keyword")
+    @GetMapping("/search")
+    public ResponseEntity<PaginateResponse<UserResponse>> search(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") String offset,
+            @RequestParam(defaultValue = "100") String limit) {
+        Page<User> users = userService.searchUsers(keyword, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<UserResponse>builder()
+                        .items(users.stream().map(userMapper::toUserResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit),
+                                users.getTotalElements()))
+                        .build());
+    }
+
     /*
      * @Operation(summary = "Upload avatar", description = "Upload avatar", security
      * = @SecurityRequirement(name = "bearerAuth"))
