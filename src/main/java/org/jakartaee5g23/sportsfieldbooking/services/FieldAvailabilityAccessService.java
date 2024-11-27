@@ -12,5 +12,9 @@ public interface FieldAvailabilityAccessService {
 
     FieldAvailabilityAccess create(FieldAvailabilityAccess request);
 
+    FieldAvailabilityAccess update(FieldAvailabilityAccess request);
+
+    Void delete(String id);
+
     List<FieldAvailabilityAccess> findBySportsFieldId(String sportsFieldId);
 }
