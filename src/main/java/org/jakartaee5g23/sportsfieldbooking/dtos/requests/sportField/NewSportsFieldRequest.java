@@ -33,8 +33,6 @@ public record NewSportsFieldRequest(
     @NotNull(message = "null_field")
     Integer categoryId,
 
-    @NotNull(message = "null_field")
-    Double rating,
 
     @NotNull(message = "null_field")
     @NotBlank(message = "blank_field")
