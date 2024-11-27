@@ -114,7 +114,7 @@ public class BookingController {
                         @RequestParam(defaultValue = "0") String offset,
                         @RequestParam(defaultValue = "100") String limit) {
                 User current = userService.findById(getUserIdFromContext());
-                Page<Booking> bookings = bookingService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
+                Page<Booking> bookings = bookingService.findBookingsByFieldOwner(current.getId(),Integer.parseInt(offset), Integer.parseInt(limit));
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<BookingResponse>builder()
                                                 .items(bookings.stream().map(bookingMapper::toBookingResponse).toList())
@@ -205,41 +205,45 @@ public class BookingController {
 
         @GetMapping("/current-month")
         public ResponseEntity<List<BookingResponse>> getCurrentMonthBookings(
-                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
-                List<Booking> bookings = bookingService.getBookingsForCurrentMonth(fromDate);
+                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+                @RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsForCurrentMonth(fromDate, userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/previous-month")
         public ResponseEntity<List<BookingResponse>> getPreviousMonthBookings(
-                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
-                List<Booking> bookings = bookingService.getBookingsForPreviousMonth(toDate);
+                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
+                @RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsForPreviousMonth(toDate, userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/current-week")
-        public ResponseEntity<List<BookingResponse>> getCurrentWeekBookings() {
-                List<Booking> bookings = bookingService.getBookingsForCurrentWeek();
+        public ResponseEntity<List<BookingResponse>> getCurrentWeekBookings(@RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsForCurrentWeek(userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/previous-week")
-        public ResponseEntity<List<BookingResponse>> getPreviousWeekBookings() {
-                List<Booking> bookings = bookingService.getBookingsForPreviousWeek();
+        public ResponseEntity<List<BookingResponse>> getPreviousWeekBookings(@RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsForPreviousWeek(userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/from-year")
         public ResponseEntity<List<BookingResponse>> getFromDateBookings(
-                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate) {
-                List<Booking> bookings = bookingService.getBookingsFromYear(fromDate);
+                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+                @RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsFromYear(fromDate, userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
         @GetMapping("/to-year")
         public ResponseEntity<List<BookingResponse>> getPreviousYearBookings(
-                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate) {
-                List<Booking> bookings = bookingService.getBookingsToYear(toDate);
+                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
+                @RequestParam String userId) {
+                List<Booking> bookings = bookingService.getBookingsToYear(toDate, userId);
                 return ResponseEntity.ok(bookings.stream().map(bookingMapper::toBookingResponse).toList());
         }
 
@@ -252,7 +256,8 @@ public class BookingController {
                         @RequestParam(defaultValue = "0") String offset,
                         @RequestParam(defaultValue = "100") String limit) {
 
-                Page<Booking> bookings = bookingService.searchBookings(keyword, status, startDate, endDate,
+                User current = userService.findById(getUserIdFromContext());
+                Page<Booking> bookings = bookingService.searchBookings(current.getId(), keyword, status, startDate, endDate,
                                 Integer.parseInt(offset), Integer.parseInt(limit));
 
                 return ResponseEntity.ok(

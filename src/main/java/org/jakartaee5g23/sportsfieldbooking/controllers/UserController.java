@@ -19,6 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.user.UserResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationErrorCode;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.mappers.UserMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.AuthenticationService;
@@ -57,17 +58,19 @@ public class UserController {
 
     @Operation(summary = "Get user profile", description = "Get user profile", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/{userId}")
-    // @PostAuthorize("returnObject.b ody.email == authentication.name")
+        // @PostAuthorize("returnObject.b ody.email == authentication.name")
     ResponseEntity<UserResponse> getProfile(@PathVariable String userId) {
         return ResponseEntity.status(OK).body(userMapper.toUserResponse(userService.findById(userId)));
     }
 
     @Operation(summary = "Update user profile", description = "Update user profile", security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> updateProfile(@PathVariable String userId, @RequestBody UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<UserResponse> updateProfile(@PathVariable String userId,
+                                                      @RequestBody UserUpdateRequest userUpdateRequest) {
         User existingUser = userService.findById(userId);
 
-        if (existingUser == null) return ResponseEntity.status(NOT_FOUND).build();
+        if (existingUser == null)
+            return ResponseEntity.status(NOT_FOUND).build();
 
         existingUser.setFirstName(userUpdateRequest.getFirstName());
         existingUser.setLastName(userUpdateRequest.getLastName());
@@ -75,7 +78,8 @@ public class UserController {
         existingUser.setMobileNumber(userUpdateRequest.getMobileNumber());
         existingUser.setBirthdate(userUpdateRequest.getBirthdate());
         existingUser.setGender(userUpdateRequest.getGender());
-
+        existingUser.setUsername(userUpdateRequest.getUsername());
+        existingUser.setStatus(UserStatus.ACTIVE);
         userService.update(existingUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toUserResponse(existingUser));
@@ -84,7 +88,7 @@ public class UserController {
     @Operation(summary = "Upload avatar", description = "Upload avatar", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/avatar")
     ResponseEntity<CommonResponse<Long, ?>> uploadAvatar(@RequestPart(name = "file") MultipartFile file,
-                                                        @RequestPart(name = "request") @Valid FileUploadRequest request) {
+                                                         @RequestPart(name = "request") @Valid FileUploadRequest request) {
 
         User existingUser = userService.findById(request.ownerId());
 
@@ -106,8 +110,7 @@ public class UserController {
                 CommonResponse.<Long, Object>builder()
                         .message(getLocalizedMessage(message))
                         .results(uploadedSize)
-                        .build()
-        );
+                        .build());
     }
 
     @DeleteMapping("/{userId}")
@@ -121,16 +124,16 @@ public class UserController {
         }
     }
 
-
     @Operation(summary = "Get all users", description = "Get all users")
     @GetMapping
     public ResponseEntity<PaginateResponse<UserResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
-                                                                         @RequestParam(defaultValue = "100") String limit) {
+                                                                  @RequestParam(defaultValue = "100") String limit) {
         Page<User> users = userService.findAll(Integer.parseInt(offset), Integer.parseInt(limit));
         return ResponseEntity.status(HttpStatus.OK)
                 .body(PaginateResponse.<UserResponse>builder()
                         .items(users.stream().map(userMapper::toUserResponse).toList())
-                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit), users.getTotalElements()))
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit),
+                                users.getTotalElements()))
                         .build());
     }
 
@@ -170,23 +173,43 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body("Password verified");
     }
 
+    // search user by keyword
+    @Operation(summary = "Search user", description = "Search user by keyword")
+    @GetMapping("/search")
+    public ResponseEntity<PaginateResponse<UserResponse>> search(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") String offset,
+            @RequestParam(defaultValue = "100") String limit) {
+        Page<User> users = userService.searchUsers(keyword, Integer.parseInt(offset), Integer.parseInt(limit));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PaginateResponse.<UserResponse>builder()
+                        .items(users.stream().map(userMapper::toUserResponse).toList())
+                        .pagination(new Pagination(Integer.parseInt(offset), Integer.parseInt(limit),
+                                users.getTotalElements()))
+                        .build());
+    }
 
-
-
-/*    @Operation(summary = "Upload avatar", description = "Upload avatar", security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/avatar")
-    @ResponseStatus(OK)
-    ResponseEntity<CommonResponse<?, ?>> uploadAvatar(@RequestPart MultipartFile avatar) {
-        SecurityContext context = SecurityContextHolder.getContext();
-        User user = userService.findByEmail(context.getAuthentication().getName());
-
-        if (user.getAvatar() != null) fileService.deleteFile(user.getAvatar().getId());
-
-        if (avatar != null) fileService.uploadFiles(user, List.of(avatar));
-        else throw new FileException(CAN_NOT_STORE_FILE, BAD_REQUEST);
-
-        return ResponseEntity.status(OK).body(CommonResponse.builder()
-                .message(getLocalizedMessage("upload_avatar_success", user.getId())).build());
-    }*/
-
+    /*
+     * @Operation(summary = "Upload avatar", description = "Upload avatar", security
+     * = @SecurityRequirement(name = "bearerAuth"))
+     *
+     * @PutMapping("/avatar")
+     *
+     * @ResponseStatus(OK)
+     * ResponseEntity<CommonResponse<?, ?>> uploadAvatar(@RequestPart MultipartFile
+     * avatar) {
+     * SecurityContext context = SecurityContextHolder.getContext();
+     * User user = userService.findByEmail(context.getAuthentication().getName());
+     *
+     * if (user.getAvatar() != null)
+     * fileService.deleteFile(user.getAvatar().getId());
+     *
+     * if (avatar != null) fileService.uploadFiles(user, List.of(avatar));
+     * else throw new FileException(CAN_NOT_STORE_FILE, BAD_REQUEST);
+     *
+     * return ResponseEntity.status(OK).body(CommonResponse.builder()
+     * .message(getLocalizedMessage("upload_avatar_success",
+     * user.getId())).build());
+     * }
+     */
 }

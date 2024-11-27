@@ -14,6 +14,7 @@ import org.jakartaee5g23.sportsfieldbooking.repositories.BookingItemRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -61,6 +62,14 @@ public class BookingItemsServiceImpl implements BookingItemsService {
     public Page<BookingItem> findAll(int offset, int limit) {
         return bookingItemsRepository.findAll(PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
+
+    @Override
+    public Page<BookingItem> findBookingItemsByFieldOwner(String fieldOwnerId, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+
+        return bookingItemsRepository.findBookingItemsByFieldOwner(fieldOwnerId, pageable);
+    }
+
     @Override
     public List<BookingItem> findBySportsFieldId(String sportsFieldId) {
         return bookingItemsRepository.findBySportsFieldId(sportsFieldId);

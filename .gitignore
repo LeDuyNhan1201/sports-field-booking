@@ -35,3 +35,4 @@ build/
 env.properties
 
 docker/sports-field-booking-minio-data/.minio.sys/
+docker/grafana-stack/tempo/tempo-data/

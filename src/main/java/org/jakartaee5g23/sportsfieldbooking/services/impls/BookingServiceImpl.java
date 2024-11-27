@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
+
 import org.jakartaee5g23.sportsfieldbooking.entities.*;
 import org.jakartaee5g23.sportsfieldbooking.enums.NotificationType;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingStatus;
@@ -28,8 +29,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import static org.jakartaee5g23.sportsfieldbooking.components.Translator.getLocalizedMessage;
-
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -159,13 +158,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
+    public Page<Booking> searchBookings(String fieldOwnerID,String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return bookingRepository.searchBookings(keyword, status, startDate, endDate, pageable);
+        return bookingRepository.searchBookings(fieldOwnerID,keyword, status, startDate, endDate, pageable);
     }
 
     @Override
-    public List<Booking> getBookingsForCurrentMonth(Date date) {
+    public List<Booking> getBookingsForCurrentMonth(Date date, String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -183,11 +182,30 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(Calendar.MILLISECOND, 999);
         Date endOfMonth = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
 
     @Override
-    public List<Booking> getBookingsForPreviousMonth(Date date) {
+    public List<Booking> getBookingsForPreviousMonth(Date date, String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -205,10 +223,29 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(Calendar.MILLISECOND, 999);
         Date endOfMonth = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfMonth, endOfMonth);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
 
-    public List<Booking> getBookingsForCurrentWeek() {
+    public List<Booking> getBookingsForCurrentWeek(String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -224,10 +261,29 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(Calendar.MILLISECOND, 999);
         Date endOfWeek = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
 
-    public List<Booking> getBookingsForPreviousWeek() {
+    public List<Booking> getBookingsForPreviousWeek(String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.WEEK_OF_YEAR, -1); // back 1 week from current week
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -244,11 +300,30 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(Calendar.MILLISECOND, 999);
         Date endOfWeek = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfWeek, endOfWeek);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
 
     @Override
-    public List<Booking> getBookingsFromYear(Date fromDate) {
+    public List<Booking> getBookingsFromYear(Date fromDate, String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(fromDate);
         int year = calendar.get(Calendar.YEAR);
@@ -259,10 +334,29 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
         Date endOfYear = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
     @Override
-    public List<Booking> getBookingsToYear(Date toDate) {
+    public List<Booking> getBookingsToYear(Date toDate, String userId) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(toDate);
         int year = calendar.get(Calendar.YEAR);
@@ -273,7 +367,26 @@ public class BookingServiceImpl implements BookingService {
         calendar.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
         Date endOfYear = calendar.getTime();
 
-        return bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+        List<Booking> bookings = bookingRepository.findBookingsByDateRange(startOfYear, endOfYear);
+
+        return bookings.stream()
+                .map(booking -> {
+                    List<BookingItem> filteredItems = booking.getBookingItems().stream()
+                            .filter(item -> item.getSportsField().getUser().getId().equals(userId))
+                            .toList();
+                    booking.setBookingItems(filteredItems);
+
+                    ZonedDateTime bangkokTime = booking.getCreatedAt()
+                            .toInstant()
+                            .atZone(ZoneId.of("Asia/Bangkok"))
+                            .plusHours(7);
+
+                    booking.setCreatedAt(Date.from(bangkokTime.toInstant()));
+
+                    return booking;
+                })
+                .filter(booking -> !booking.getBookingItems().isEmpty())
+                .toList();
     }
 
 
@@ -283,4 +396,9 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
+    public Page<Booking> findBookingsByFieldOwner(String fieldOwnerId, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+
+        return bookingRepository.findBookingsByFieldOwner(fieldOwnerId, pageable);
+    }
 }

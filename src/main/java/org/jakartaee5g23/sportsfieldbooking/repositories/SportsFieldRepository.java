@@ -23,12 +23,13 @@ public interface SportsFieldRepository extends JpaSpecificationExecutor<SportsFi
                 "AND (:userId = '0' OR sf.user.id = :userId) " +
                 "AND (:categoryId = 0 OR sf.category.id = :categoryId) " +
                 "AND fa.price BETWEEN :minPrice AND :maxPrice " +
-                "AND (:userId != '0' OR sf.status IN (org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus.OPEN))")
+                "AND (:userId != '0' OR :onlyActiveStatus = 0 OR sf.status IN (org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus.OPEN, org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus.CLOSED))")
         Page<SportsField> searchSportsFields(@Param("userId") String userId,
                                              @Param("text") String text,
                                              @Param("categoryId") Integer categoryId,
                                              @Param("maxPrice") Double maxPrice,
                                              @Param("minPrice") Double minPrice,
+                                             @Param("onlyActiveStatus") Integer onlyActiveStatus,
                                              Pageable pageable);
 
 

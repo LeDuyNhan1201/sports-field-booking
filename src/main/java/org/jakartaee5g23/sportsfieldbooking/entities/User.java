@@ -36,9 +36,10 @@ public class User extends AbstractEntity {
     @Column(name = "is_activated", nullable = false)
     boolean isActivated;
 
+    @Column(name = "bio", nullable = false)
     String bio;
 
-    @Column(name="username", nullable = false, unique = true, length = 50)
+    @Column(name = "username", nullable = false, unique = true, length = 50)
     String username;
 
     @Column(name = "first_name", nullable = false, length = 50)

@@ -33,19 +33,23 @@ public interface BookingService {
 
     void deleteBooking(String id);
 
-    Page<Booking> searchBookings(String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size);
+    Page<Booking> searchBookings(String fieldOwnerID, String keyword, BookingStatus status, Date startDate, Date endDate, int page, int size);
 
-    List<Booking> getBookingsForCurrentMonth(Date year);
+    List<Booking> getBookingsForCurrentMonth(Date year, String userId);
 
-    List<Booking> getBookingsForPreviousMonth(Date year);
+    List<Booking> getBookingsForPreviousMonth(Date year, String userId);
 
-    List<Booking> getBookingsForCurrentWeek();
+    List<Booking> getBookingsForCurrentWeek(String userId);
 
-    List<Booking> getBookingsForPreviousWeek();
+    List<Booking> getBookingsForPreviousWeek(String userId);
 
-    List<Booking> getBookingsFromYear(Date year);
+    List<Booking> getBookingsFromYear(Date year, String userId);
 
-    List<Booking> getBookingsToYear(Date year);
+    List<Booking> getBookingsToYear(Date year, String userId);
 
     List<String> getBookingStatus();
+
+    Page<Booking> findBookingsByFieldOwner(String fieldOwnerId, int offset, int limit);
+
+
 }

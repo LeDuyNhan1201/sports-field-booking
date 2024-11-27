@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jakartaee5g23.sportsfieldbooking.enums.Gender;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -43,4 +43,6 @@ public class UserResponse {
     List<String> mRoles;
 
     Gender gender;
+
+    UserStatus status;
 }

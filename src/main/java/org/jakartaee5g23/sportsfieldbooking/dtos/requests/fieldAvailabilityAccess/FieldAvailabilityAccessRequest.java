@@ -1,4 +1,4 @@
-package org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailability;
+package org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailabilityAccess;
 
 import jakarta.validation.constraints.NotNull;
 

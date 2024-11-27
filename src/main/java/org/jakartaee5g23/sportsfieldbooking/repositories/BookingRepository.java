@@ -46,17 +46,28 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
                         @Param("startDate") Date startDate,
                         @Param("endDate") Date endDate);
 
-        @Query("SELECT b FROM Booking b " +
-                        "JOIN b.user u " +
-                        "WHERE (:keyword IS NULL OR " +
-                        "       b.id LIKE CONCAT('%', :keyword, '%') OR " +
-                        "       u.username LIKE CONCAT('%', :keyword, '%')) " +
-                        "AND (:status IS NULL OR b.status = :status) " +
-                        "AND (:startDate IS NULL OR :endDate IS NULL OR b.createdAt BETWEEN :startDate AND :endDate)")
+        @Query("SELECT DISTINCT b FROM Booking b " +
+                "JOIN b.bookingItems bi " +
+                "JOIN bi.sportsField sf " +
+                "JOIN b.user u " +
+                "WHERE sf.user.id = :fieldOwnerId " +
+                "AND (:keyword IS NULL OR " +
+                "       b.id LIKE CONCAT('%', :keyword, '%') OR " +
+                "       u.username LIKE CONCAT('%', :keyword, '%')) " +
+                "AND (:status IS NULL OR b.status = :status) " +
+                "AND (:startDate IS NULL OR :endDate IS NULL OR b.createdAt BETWEEN :startDate AND :endDate)")
         Page<Booking> searchBookings(
-                        @Param("keyword") String keyword,
-                        @Param("status") BookingStatus status,
-                        @Param("startDate") Date startDate,
-                        @Param("endDate") Date endDate,
-                        Pageable pageable);
+                @Param("fieldOwnerId") String fieldOwnerId,
+                @Param("keyword") String keyword,
+                @Param("status") BookingStatus status,
+                @Param("startDate") Date startDate,
+                @Param("endDate") Date endDate,
+                Pageable pageable);
+
+
+        @Query("SELECT DISTINCT b FROM Booking b " +
+                "JOIN b.bookingItems bi " +
+                "JOIN bi.sportsField sf " +
+                "WHERE sf.user.id = :fieldOwnerId")
+        Page<Booking> findBookingsByFieldOwner(@Param("fieldOwnerId") String fieldOwnerId, Pageable pageable);
 }

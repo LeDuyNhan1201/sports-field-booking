@@ -23,4 +23,6 @@ public interface UserService {
     void update(User user);
 
     void deleteUser(String id);
+
+    Page<User> searchUsers(String keyword, int offset, int limit);
 }

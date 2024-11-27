@@ -8,8 +8,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailability.FieldAvailabilityAccessRequest;
+
 import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailability.NewFieldAvailabilityRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailabilityAccess.FieldAvailabilityAccessRequest;
+import org.jakartaee5g23.sportsfieldbooking.dtos.requests.fieldAvailabilityAccess.UpdateAvailabilityAccessRequest;
 import org.jakartaee5g23.sportsfieldbooking.dtos.responses.sportField.FieldAvailabilityAccessResponse;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailability;
 import org.jakartaee5g23.sportsfieldbooking.entities.FieldAvailabilityAccess;
@@ -63,5 +65,19 @@ public class FieldAvailabilityAccessController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(fieldAvailabilityAccessMapper.toFieldAvailabilityAccessResponse(fieldAvailabilityAccessService.create(fieldAvailabilityAccess)));
+    }
+    @Operation(summary = "Update a new field availability access", description = "Update a new field availability access", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/update")
+    public ResponseEntity<FieldAvailabilityAccessResponse> create(@RequestBody @Valid UpdateAvailabilityAccessRequest request) {
+        FieldAvailabilityAccess fieldAvailabilityAccess = fieldAvailabilityAccessMapper.toFieldAvailabilityAccess(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(fieldAvailabilityAccessMapper.toFieldAvailabilityAccessResponse(fieldAvailabilityAccessService.update(fieldAvailabilityAccess)));
+    }
+
+    @Operation(summary = "Delete a new field availability access", description = "Dalete a new field availability access", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestBody @Valid String id) {
+        fieldAvailabilityAccessService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -19,6 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldEr
 import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportsFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
+import org.jakartaee5g23.sportsfieldbooking.services.PromotionService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.specifications.Filter;
 import org.jakartaee5g23.sportsfieldbooking.specifications.SportsFieldSpecification;
@@ -36,6 +37,8 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     SportsFieldRepository sportsFieldRepository;
 
     CategoryRepository categoryRepository;
+
+    PromotionService promotionService;
 
     public Optional<Date> parseTime(String time) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
@@ -98,7 +101,13 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         sportsField.setStatus(status);
         return sportsFieldRepository.save(sportsField);
     }
-
+    @Override
+    public SportsField updatePromotion(String id, String promotionId) {
+        Promotion promotion = promotionService.findById(promotionId);
+        SportsField sportsField = findById(id);
+        sportsField.setPromotion(promotion);
+        return sportsFieldRepository.save(sportsField);
+    }
     @Override
     public SportsField create(SportsField request, Boolean isConfirmed) {
         if (!isConfirmed)
@@ -116,7 +125,6 @@ public class SportsFieldServiceImpl implements SportsFieldService {
                     .opacity(request.getOpacity())
                     .openingTime(openingTime)
                     .closingTime(closingTime)
-                    .rating(request.getRating())
                     .status(SportsFieldStatus.PENDING)
                     .category(category)
                     .user(request.getUser())
@@ -126,13 +134,13 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
     @Override
     public Page<SportsField> searchSportsField(String userId,String text,
-                                                        Double maxPrice, Double minPrice, Integer categoryId, int offset, int limit , String colSort, int sortDirection) {
+                                                        Double maxPrice, Double minPrice, Integer categoryId, Integer onlyActiveStatus, int offset, int limit , String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(0, 1000, sort);
-        Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, pageable);
+        Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, onlyActiveStatus,pageable);
 
         if (allFields.isEmpty()) {
             return Page.empty(PageRequest.of(offset, limit, sort));

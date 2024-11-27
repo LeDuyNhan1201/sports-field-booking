@@ -25,6 +25,7 @@ public class FieldAvailabilityAccessServiceImpl implements FieldAvailabilityAcce
     FieldAvailabilityAccessRepository fieldAvailabilityAccessRepository;
     SportsFieldRepository sportsFieldRepository;
     SportsFieldService sportsFieldService;
+
     @Override
     public FieldAvailabilityAccess findById(String id) {
         return fieldAvailabilityAccessRepository.findById(id)
@@ -49,5 +50,25 @@ public class FieldAvailabilityAccessServiceImpl implements FieldAvailabilityAcce
     public List<FieldAvailabilityAccess> findBySportsFieldId(String sportsFieldId) {
         SportsField sportsField = sportsFieldService.findById(sportsFieldId);
         return fieldAvailabilityAccessRepository.findBySportsField(sportsField);
+    }
+
+    @Override
+    public FieldAvailabilityAccess update(FieldAvailabilityAccess request) {
+        FieldAvailabilityAccess fieldAvailabilityAccess = findById(request.getId());
+        fieldAvailabilityAccess.setStartDate(request.getStartDate());
+        fieldAvailabilityAccess.setEndDate(request.getEndDate());
+        fieldAvailabilityAccess.setSportsField(fieldAvailabilityAccess.getSportsField());
+
+        return fieldAvailabilityAccessRepository.save(fieldAvailabilityAccess);
+    }
+
+    @Override
+    public Void delete(String id) {
+        System.out.println(id);
+        FieldAvailabilityAccess fieldAvailabilityAccess = fieldAvailabilityAccessRepository.findById(id)
+                .orElseThrow(() -> new AppException(CommonErrorCode.OBJECT_NOT_FOUND, HttpStatus.NOT_FOUND, "Field Availability Access"));
+        fieldAvailabilityAccess.setSportsField(fieldAvailabilityAccess.getSportsField());
+        fieldAvailabilityAccessRepository.delete(fieldAvailabilityAccess);
+        return null;
     }
 }

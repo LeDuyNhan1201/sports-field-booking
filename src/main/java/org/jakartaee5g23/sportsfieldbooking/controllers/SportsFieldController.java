@@ -21,6 +21,7 @@ import org.jakartaee5g23.sportsfieldbooking.enums.FieldAvailabilityStatus;
 import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.SportsFieldMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.MinioClientService;
+import org.jakartaee5g23.sportsfieldbooking.services.PromotionService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
@@ -50,6 +51,8 @@ public class SportsFieldController {
         SportsFieldService sportsFieldService;
 
         UserService userService;
+
+        PromotionService promotionService;
 
         MinioClientService minioClientService;
 
@@ -88,6 +91,17 @@ public class SportsFieldController {
                 return ResponseEntity.status(OK)
                                 .body(sportsFieldMapper
                                                 .toSportsFieldResponse(sportsFieldService.updateStatus(id, status)));
+        }
+
+        @Operation(summary = "Update promotion sport field", description = "Update promotion sport field when user want change it", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping("/promotion/{id}")
+        public ResponseEntity<SportsFieldResponse> updatePromotion(@PathVariable String id,
+                                                                @RequestParam String promotionId) {
+
+            Promotion promotion = promotionService.findById(promotionId);
+            return ResponseEntity.status(OK)
+                    .body(sportsFieldMapper
+                            .toSportsFieldResponse(sportsFieldService.updatePromotion(id, promotionId)));
         }
 
         @Operation(summary = "Get all sport fields", description = "Get all sport fields when user want to see all fields")
@@ -135,8 +149,9 @@ public class SportsFieldController {
                         @RequestParam(defaultValue = "100") Integer limit,
                         @RequestParam(defaultValue = "1000") Double maxPrice,
                         @RequestParam(defaultValue = "1") Double minPrice,
-                        @RequestParam(defaultValue = "0") Integer categoryId) {
-                Page<SportsField> sportFields = sportsFieldService.searchSportsField(userId,text,maxPrice,minPrice,categoryId,offset,limit,colSort,sortDirection);
+                        @RequestParam(defaultValue = "0") Integer categoryId,
+                        @RequestParam (defaultValue = "0") Integer onlyActiveStatus) {
+                Page<SportsField> sportFields = sportsFieldService.searchSportsField(userId,text,maxPrice,minPrice,categoryId, onlyActiveStatus,offset,limit,colSort,sortDirection);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<SportsFieldResponse>builder()
