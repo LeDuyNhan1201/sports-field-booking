@@ -145,9 +145,14 @@ public class UserController {
 
         User currentUser = userService.findById(getUserIdFromContext());
 
+        if (!request.newPassword().equals(request.passwordConfirmation())){
+            throw new AuthenticationException(AuthenticationErrorCode.PASSWORD_MIS_MATCH, BAD_REQUEST);
+        }
+
         if (!passwordEncoder.matches(request.oldPassword(), currentUser.getPassword())) {
             throw new AuthenticationException(AuthenticationErrorCode.WRONG_PASSWORD, UNAUTHORIZED);
         }
+
         userService.updatePassword(currentUser, request.newPassword());
 
         return ResponseEntity.status(HttpStatus.OK).body("Password updated successfully");
