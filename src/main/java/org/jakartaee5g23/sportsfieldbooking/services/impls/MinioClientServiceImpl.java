@@ -222,6 +222,7 @@ public class MinioClientServiceImpl implements MinioClientService {
                     .build());
 
         } catch (MinioException | InvalidKeyException | IOException | NoSuchAlgorithmException e) {
+            log.error("Error getting object URL", e);
             throw new FileException(COULD_NOT_READ_FILE, BAD_REQUEST);
         }
     }

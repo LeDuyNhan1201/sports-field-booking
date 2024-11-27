@@ -3,18 +3,16 @@ package org.jakartaee5g23.sportsfieldbooking.repositories;
 import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
-import org.jakartaee5g23.sportsfieldbooking.enums.SportsFieldStatus;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 @Observed
-public interface SportsFieldRepository extends JpaRepository<SportsField, String> {
+public interface SportsFieldRepository extends JpaSpecificationExecutor<SportsField>, JpaRepository<SportsField, String> {
 
         Page<SportsField> findByUser(User user, Pageable pageable);
 

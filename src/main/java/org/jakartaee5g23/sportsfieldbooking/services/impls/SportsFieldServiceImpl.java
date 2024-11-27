@@ -20,7 +20,10 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldEx
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportsFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
+import org.jakartaee5g23.sportsfieldbooking.specifications.Filter;
+import org.jakartaee5g23.sportsfieldbooking.specifications.SportsFieldSpecification;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -169,4 +172,14 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         return sportsFieldRepository.findSportsFieldsByCategoryLocationPrice(categoryId, location, minPrice, maxPrice,
                 pageable);
     }
+
+    @Override
+    public Page<SportsField> searchSportsFields(
+            List<Filter> filters, Integer categoryId, String userId, Double maxPrice, Double minPrice,
+            List<Sort.Order> orders, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by(orders));
+        Specification<SportsField> specification = new SportsFieldSpecification(filters, categoryId, userId, maxPrice, minPrice, orders);
+        return sportsFieldRepository.findAll(specification, pageable);
+    }
+
 }

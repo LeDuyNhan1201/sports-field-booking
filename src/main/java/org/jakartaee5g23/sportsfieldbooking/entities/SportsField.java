@@ -36,6 +36,7 @@ public class SportsField extends AbstractEntity {
         @Column(name = "opening_time", nullable = false)
         Date openingTime;
 
+        @Column(name = "closing_time", nullable = false)
         Date closingTime;
 
         Double rating;
