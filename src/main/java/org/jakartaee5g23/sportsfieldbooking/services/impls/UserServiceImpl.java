@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setBirthdate(user.getBirthdate());
         existingUser.setGender(user.getGender());
         existingUser.setAvatar(user.getAvatar());
+        existingUser.setUsername(user.getUsername());
         existingUser.setStatus(user.getStatus());
 
         userRepository.save(existingUser);

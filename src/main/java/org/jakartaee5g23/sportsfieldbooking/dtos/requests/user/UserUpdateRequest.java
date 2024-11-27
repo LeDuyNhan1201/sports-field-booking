@@ -13,6 +13,7 @@ public class UserUpdateRequest {
     private String email;
     private String mobileNumber;
     private LocalDate birthdate;
+    private String username;
     private Gender gender;
     private UserStatus status;
     // private AppFileMetadata avatar;
