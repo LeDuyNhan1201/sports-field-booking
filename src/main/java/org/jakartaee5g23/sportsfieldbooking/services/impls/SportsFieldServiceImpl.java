@@ -123,13 +123,13 @@ public class SportsFieldServiceImpl implements SportsFieldService {
 
     @Override
     public Page<SportsField> searchSportsField(String userId,String text,
-                                                        Double maxPrice, Double minPrice, Integer categoryId, int offset, int limit , String colSort, int sortDirection) {
+                                                        Double maxPrice, Double minPrice, Integer categoryId, Integer onlyActiveStatus, int offset, int limit , String colSort, int sortDirection) {
         Sort sort = (sortDirection == 1)
                 ? Sort.by(colSort).ascending() // Sắp xếp từ A đến Z
                 : Sort.by(colSort).descending(); // Sắp xếp từ Z đến A
 
         Pageable pageable = PageRequest.of(0, 1000, sort);
-        Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, pageable);
+        Page<SportsField> allFields = sportsFieldRepository.searchSportsFields(userId,text,categoryId,maxPrice,minPrice, onlyActiveStatus,pageable);
 
         if (allFields.isEmpty()) {
             return Page.empty(PageRequest.of(offset, limit, sort));

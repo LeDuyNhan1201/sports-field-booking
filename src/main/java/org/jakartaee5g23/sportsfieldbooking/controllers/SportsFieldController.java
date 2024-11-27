@@ -135,8 +135,9 @@ public class SportsFieldController {
                         @RequestParam(defaultValue = "100") Integer limit,
                         @RequestParam(defaultValue = "1000") Double maxPrice,
                         @RequestParam(defaultValue = "1") Double minPrice,
-                        @RequestParam(defaultValue = "0") Integer categoryId) {
-                Page<SportsField> sportFields = sportsFieldService.searchSportsField(userId,text,maxPrice,minPrice,categoryId,offset,limit,colSort,sortDirection);
+                        @RequestParam(defaultValue = "0") Integer categoryId,
+                        @RequestParam (defaultValue = "0") Integer onlyActiveStatus) {
+                Page<SportsField> sportFields = sportsFieldService.searchSportsField(userId,text,maxPrice,minPrice,categoryId, onlyActiveStatus,offset,limit,colSort,sortDirection);
 
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(PaginateResponse.<SportsFieldResponse>builder()
