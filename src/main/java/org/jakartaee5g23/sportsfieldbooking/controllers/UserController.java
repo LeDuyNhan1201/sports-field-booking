@@ -119,6 +119,16 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/delete-user/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.noContent().build();
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(NOT_FOUND).build();
+        }
+    }
+
     @Operation(summary = "Get all users", description = "Get all users")
     @GetMapping
     public ResponseEntity<PaginateResponse<UserResponse>> findAll(@RequestParam(defaultValue = "0") String offset,
