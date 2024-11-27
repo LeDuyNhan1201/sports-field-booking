@@ -52,7 +52,7 @@ public class BookingItemsServiceImpl implements BookingItemsService {
         List<BookingItem> bookingItemList = bookingItemsRepository.findAll();
 
         for (BookingItem bookingItem : bookingItemList) {
-            if (bookingItem.getEndTime().before(currentTime)) {
+            if (bookingItem.getAvailableDate().before(currentTime)) {
                 bookingItem.setStatus(BookingItemStatus.COMPLETE);
                 bookingItemsRepository.save(bookingItem);
             }
@@ -73,5 +73,14 @@ public class BookingItemsServiceImpl implements BookingItemsService {
     @Override
     public List<BookingItem> findBySportsFieldId(String sportsFieldId) {
         return bookingItemsRepository.findBySportsFieldId(sportsFieldId);
+    }
+
+    public BookingItem updateStatus(String bookingItemId, BookingItemStatus status) {
+        BookingItem bookingItem = bookingItemsRepository.findById(bookingItemId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking item not found with ID: " + bookingItemId));
+
+        bookingItem.setStatus(status);
+
+        return bookingItemsRepository.save(bookingItem);
     }
 }

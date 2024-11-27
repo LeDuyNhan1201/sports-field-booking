@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.services;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
+import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +21,6 @@ public interface BookingItemsService {
 
     Page<BookingItem> findBookingItemsByFieldOwner(String fieldOwnerId, int offset, int limit);
 
+    public BookingItem updateStatus(String bookingItemId, BookingItemStatus status);
     void updateBookingItemStatus();
 }

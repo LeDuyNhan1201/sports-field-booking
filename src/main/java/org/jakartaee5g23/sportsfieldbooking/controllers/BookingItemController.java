@@ -104,4 +104,15 @@ public class BookingItemController {
                                 .build());
         }
 
+        @Operation(summary = "Update Booking Item Status", description = "Update the status of a specific booking item", security = @SecurityRequirement(name = "bearerAuth"))
+        @PutMapping("/update-status/{bookingItemId}")
+        public ResponseEntity<BookingItemResponse> updateBookingItemStatus(
+                @PathVariable String bookingItemId,
+                @RequestParam BookingItemStatus status) {
+                System.out.println("test cai data: "+bookingItemId+" "+status);
+                BookingItem updatedBookingItem = bookingItemsService.updateStatus(bookingItemId, status);
+
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(bookingItemMapper.toBookingItemResponse(updatedBookingItem));
+        }
 }
