@@ -59,4 +59,11 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
                         @Param("startDate") Date startDate,
                         @Param("endDate") Date endDate,
                         Pageable pageable);
+
+
+        @Query("SELECT DISTINCT b FROM Booking b " +
+                "JOIN b.bookingItems bi " +
+                "JOIN bi.sportsField sf " +
+                "WHERE sf.user.id = :fieldOwnerId")
+        Page<Booking> findBookingsByFieldOwner(@Param("fieldOwnerId") String fieldOwnerId, Pageable pageable);
 }

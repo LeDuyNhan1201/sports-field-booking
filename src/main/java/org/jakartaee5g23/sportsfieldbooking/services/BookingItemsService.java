@@ -18,5 +18,7 @@ public interface BookingItemsService {
 
     Page<BookingItem> findAll(int offset, int limit);
 
+    Page<BookingItem> findBookingItemsByFieldOwner(String fieldOwnerId, int offset, int limit);
+
     void updateBookingItemStatus();
 }

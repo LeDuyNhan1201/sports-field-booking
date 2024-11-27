@@ -15,11 +15,13 @@ import org.jakartaee5g23.sportsfieldbooking.dtos.responses.other.Pagination;
 import org.jakartaee5g23.sportsfieldbooking.entities.Booking;
 import org.jakartaee5g23.sportsfieldbooking.entities.BookingItem;
 import org.jakartaee5g23.sportsfieldbooking.entities.SportsField;
+import org.jakartaee5g23.sportsfieldbooking.entities.User;
 import org.jakartaee5g23.sportsfieldbooking.enums.BookingItemStatus;
 import org.jakartaee5g23.sportsfieldbooking.mappers.BookingItemMapper;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingItemsService;
 import org.jakartaee5g23.sportsfieldbooking.services.BookingService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
+import org.jakartaee5g23.sportsfieldbooking.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+import static org.jakartaee5g23.sportsfieldbooking.helpers.Utils.getUserIdFromContext;
+
 @RestController
 @RequestMapping("${api.prefix}/booking-items")
 @RequiredArgsConstructor
@@ -44,6 +48,8 @@ public class BookingItemController {
         BookingItemsService bookingItemsService;
         BookingService bookingService;
         SportsFieldService sportsFieldService;
+        UserService userService;
+
         BookingItemMapper bookingItemMapper = BookingItemMapper.INSTANCE;
 
         @Operation(summary = "Add Booking Item", description = "Create booking item with booking ID and sports field ID", security = @SecurityRequirement(name = "bearerAuth"))
@@ -85,17 +91,17 @@ public class BookingItemController {
         @GetMapping
         @PreAuthorize("hasRole('FIELD_OWNER')")
         public ResponseEntity<PaginateResponse<BookingItemResponse>> findAll(
-                        @RequestParam(defaultValue = "0") String offset,
-                        @RequestParam(defaultValue = "100") String limit) {
-                Page<BookingItem> bookingItems = bookingItemsService.findAll(Integer.parseInt(offset),
-                                Integer.parseInt(limit));
+                @RequestParam(defaultValue = "0") String offset,
+                @RequestParam(defaultValue = "100") String limit) {
+                User user = userService.findById(getUserIdFromContext());
+                Page<BookingItem> bookingItems = bookingItemsService.findBookingItemsByFieldOwner(user.getId(),Integer.parseInt(offset), Integer.parseInt(limit));
                 return ResponseEntity.status(HttpStatus.OK)
-                                .body(PaginateResponse.<BookingItemResponse>builder()
-                                                .items(bookingItems.stream()
-                                                                .map(bookingItemMapper::toBookingItemResponse).toList())
-                                                .pagination(new Pagination(Integer.parseInt(offset),
-                                                                Integer.parseInt(limit),
-                                                                bookingItems.getTotalElements()))
-                                                .build());
+                        .body(PaginateResponse.<BookingItemResponse>builder()
+                                .items(bookingItems.stream().map(bookingItemMapper::toBookingItemResponse).toList())
+                                .pagination(new Pagination(Integer.parseInt(offset),
+                                        Integer.parseInt(limit),
+                                        bookingItems.getTotalElements()))
+                                .build());
         }
+
 }
