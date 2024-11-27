@@ -19,6 +19,7 @@ import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldEr
 import org.jakartaee5g23.sportsfieldbooking.exceptions.sportsfield.SportsFieldException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.SportsFieldRepository;
 import org.jakartaee5g23.sportsfieldbooking.repositories.CategoryRepository;
+import org.jakartaee5g23.sportsfieldbooking.services.PromotionService;
 import org.jakartaee5g23.sportsfieldbooking.services.SportsFieldService;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,8 @@ public class SportsFieldServiceImpl implements SportsFieldService {
     SportsFieldRepository sportsFieldRepository;
 
     CategoryRepository categoryRepository;
+
+    PromotionService promotionService;
 
     public Optional<Date> parseTime(String time) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
@@ -95,7 +98,13 @@ public class SportsFieldServiceImpl implements SportsFieldService {
         sportsField.setStatus(status);
         return sportsFieldRepository.save(sportsField);
     }
-
+    @Override
+    public SportsField updatePromotion(String id, String promotionId) {
+        Promotion promotion = promotionService.findById(promotionId);
+        SportsField sportsField = findById(id);
+        sportsField.setPromotion(promotion);
+        return sportsFieldRepository.save(sportsField);
+    }
     @Override
     public SportsField create(SportsField request, Boolean isConfirmed) {
         if (!isConfirmed)

@@ -16,7 +16,7 @@ public interface SportsFieldService {
         SportsField update(SportsField request, Boolean isConfirmed);
 
         SportsField updateStatus(String id, SportsFieldStatus status);
-
+        SportsField updatePromotion(String id, String promotion);
         Page<SportsField> searchSportsField(String userId,String text,
                                             Double maxPrice, Double minPrice, Integer categoryId, Integer onlyActiveStatus, int offset, int limit , String colSort, int sortDirection);
 
