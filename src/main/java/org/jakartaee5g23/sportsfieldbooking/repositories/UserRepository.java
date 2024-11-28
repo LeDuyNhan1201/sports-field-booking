@@ -5,6 +5,7 @@ import io.micrometer.observation.annotation.Observed;
 import org.jakartaee5g23.sportsfieldbooking.entities.Category;
 import org.jakartaee5g23.sportsfieldbooking.entities.Role;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,15 +40,16 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // query keyword by id, username, email, mobileNumber, firstName,
     @Query("""
-                SELECT u
-                FROM User u
-                WHERE (:keyword IS NULL OR
-                u.id LIKE CONCAT('%', :keyword, '%') OR
-                u.username LIKE CONCAT('%', :keyword, '%') OR
-                u.email LIKE CONCAT('%', :keyword, '%') OR
-                u.mobileNumber LIKE CONCAT('%', :keyword, '%') OR
-                u.firstName LIKE CONCAT('%', :keyword, '%'))
+             SELECT u
+             FROM User u
+             WHERE (:keyword IS NULL OR
+                    CAST(u.id AS string) LIKE CONCAT('%', :keyword, '%') OR
+                    u.username LIKE CONCAT('%', :keyword, '%') OR
+                    u.email LIKE CONCAT('%', :keyword, '%') OR
+                    u.mobileNumber LIKE CONCAT('%', :keyword, '%') OR
+                    u.firstName LIKE CONCAT('%', :keyword, '%'))
+               AND (:status IS NULL OR u.status = :status)
             """)
-    Page<User> searchUsers(@Param("keyword") String keyword, Pageable pageable);
+    Page<User> searchUsers(@Param("keyword") String keyword, @Param("status") UserStatus status, Pageable pageable);
 
 }
