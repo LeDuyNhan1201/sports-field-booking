@@ -19,6 +19,7 @@ public interface SportsFieldRepository extends JpaSpecificationExecutor<SportsFi
         @Query("SELECT sf FROM SportsField sf JOIN sf.fieldAvailabilities fa WHERE " +
                 "(sf.name LIKE %:text% " +
                 "OR sf.location LIKE %:text% " +
+                "OR fa.price = CAST(:text AS double) " +
                 "OR sf.category.id = CAST(:text AS integer) OR :text = ' ' ) " +
                 "AND (:userId = '0' OR sf.user.id = :userId) " +
                 "AND (:categoryId = 0 OR sf.category.id = :categoryId) " +
