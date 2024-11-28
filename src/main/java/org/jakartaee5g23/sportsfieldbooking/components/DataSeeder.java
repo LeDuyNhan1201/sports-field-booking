@@ -53,6 +53,7 @@ public class DataSeeder {
     StatisticRepository statisticRepository;
     FieldAvailabilityRepository fieldAvailabilityRepository;
     BookingItemRepository bookingItemRepository;
+    RatingRepository ratingRepository;
 
     MinioClientService minioClientService;
 
@@ -79,6 +80,7 @@ public class DataSeeder {
         seedPromotions();
         seedStatistics();
         seedFiles();
+        seedRatings();
     }
 
     private void seedRoles() {
@@ -93,7 +95,7 @@ public class DataSeeder {
     private void seedUsers() {
         if (userRepository.count() == 0) {
             List<User> users = new ArrayList<>();
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 200).forEach(_ -> {
                 User user = User.builder()
                         .username(faker.name().username())
                         .password(passwordEncoder.encode("123456"))
@@ -209,6 +211,30 @@ public class DataSeeder {
         }
     }
 
+    private void seedRatings() {
+        if (ratingRepository.count() == 0) {
+            List<BookingItem> bookingItems = bookingItemRepository.findAll();
+
+            List<Rating> ratings = new ArrayList<>();
+
+            bookingItems.forEach(bookingItem -> {
+                User user = bookingItem.getBooking().getUser();
+                SportsField sportsField = bookingItem.getSportsField();
+
+                Rating rating = Rating.builder()
+                        .rating_point(faker.number().randomDouble(1, 1, 5))
+                        .user(user)
+                        .sportsField(sportsField)
+                        .bookingItem(bookingItem)
+                        .build();
+
+                ratings.add(rating);
+            });
+
+            ratingRepository.saveAll(ratings);
+        }
+    }
+
     private void seedBookings() {
         if (bookingRepository.count() == 0) {
             List<User> users = userRepository.findAll();
@@ -303,7 +329,7 @@ public class DataSeeder {
             List<User> users = userRepository.findAll();
             List<SportsField> fields = sportFieldRepository.findAll();
             List<Review> reviews = new ArrayList<>();
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 200).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
                 Review review = Review.builder()
                         .user(createdBy)
@@ -340,13 +366,36 @@ public class DataSeeder {
         if (notificationRepository.count() == 0) {
             List<User> users = userRepository.findAll();
             List<Booking> bookings = bookingRepository.findAll();
+            List<Review> reviews = reviewRepository.findAll(); // Assuming you have a reviewRepository
+            List<SportsField> sportsFields = sportFieldRepository.findAll(); // Assuming you have a sportsFieldRepository
 
-            IntStream.range(0, 20).forEach(_ -> {
+            IntStream.range(0, 50).forEach(_ -> {
                 User createdBy = users.get(faker.number().numberBetween(0, users.size()));
+
+                // Generate optional associated entities
+                Review review = faker.bool().bool() && !reviews.isEmpty()
+                        ? reviews.get(faker.number().numberBetween(0, reviews.size())) : null;
+
+                SportsField sportsField = faker.bool().bool() && !sportsFields.isEmpty()
+                        ? sportsFields.get(faker.number().numberBetween(0, sportsFields.size())) : null;
+
+                NotificationType type;
+                if (review != null) {
+                    type = NotificationType.COMMENT_FEEDBACK;
+                } else if (sportsField != null) {
+                    type = sportsField.getPromotion() != null
+                            ? NotificationType.PROMOTION
+                            : NotificationType.YARD_STATUS_UPDATE;
+                } else {
+                    type = NotificationType.ORDER_STATUS_UPDATE;
+                }
+
                 Notification notification = Notification.builder()
                         .user(createdBy)
                         .booking(bookings.get(faker.number().numberBetween(0, bookings.size())))
-                        .type(getRandomEnum(NotificationType.class))
+                        .review(review)
+                        .sportField(sportsField)
+                        .type(type)
                         .message(faker.lorem().sentence(10))
                         .createdBy(createdBy.getId())
                         .build();
@@ -355,6 +404,7 @@ public class DataSeeder {
             });
         }
     }
+
 
     private void seedPromotions() {
         if (promotionRepository.count() == 0) {
