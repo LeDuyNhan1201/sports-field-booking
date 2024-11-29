@@ -1,6 +1,3 @@
-# IMPORTANCE:
-go to the root directory of the project, create file "env.properties" and paste the content from Zalo:
-
 # Setup Docker:
 1. Install Docker Desktop (Search for Docker Desktop on Google)
 2. Go to root directory of the project, open terminal and run the following commands:
