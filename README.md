@@ -1,14 +1,11 @@
-# IMPORTANCE:
-go to the root directory of the project, create file "env.properties" and paste the content from Zalo:
-
-# About Docker:
+# Setup Docker:
 1. Install Docker Desktop (Search for Docker Desktop on Google)
 2. Go to root directory of the project, open terminal and run the following commands:
     - docker-compose -f docker-compose.yml up -d (Waiting for the images of containers to be pulled and started for the first time)
 3. Open Docker Desktop, go to "Containers" at the left sidebar, click "sports-field-booking" to see the containers running:
 4. Go to http://localhost:8000/ to access phpMyAdmin (database name: sports_field_booking_db)
 
-# About The Source Code:
+# Project Structure:
 1. "entities" folder contains the classes for the entities in the database (using ORM)
 2. "repositories" folder contains the classes for CRUD into database (using JPA)
 3. "services" folder contains the classes for the business logic of the application:

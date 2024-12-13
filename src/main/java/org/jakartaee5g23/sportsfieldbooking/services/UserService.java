@@ -2,6 +2,7 @@ package org.jakartaee5g23.sportsfieldbooking.services;
 
 import org.jakartaee5g23.sportsfieldbooking.entities.FileMetadata;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.springframework.data.domain.Page;
 
 public interface UserService {
@@ -24,5 +25,5 @@ public interface UserService {
 
     void deleteUser(String id);
 
-    Page<User> searchUsers(String keyword, int offset, int limit);
+    Page<User> searchUsers(String keyword, UserStatus status, int offset, int limit);
 }

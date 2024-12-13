@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jakartaee5g23.sportsfieldbooking.entities.User;
+import org.jakartaee5g23.sportsfieldbooking.enums.UserStatus;
 import org.jakartaee5g23.sportsfieldbooking.exceptions.authentication.AuthenticationException;
 import org.jakartaee5g23.sportsfieldbooking.repositories.UserRepository;
 import org.jakartaee5g23.sportsfieldbooking.services.UserService;
@@ -98,7 +99,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> searchUsers(String keyword, int offset, int limit) {
-        return userRepository.searchUsers(keyword, PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
+    public Page<User> searchUsers(String keyword, UserStatus status, int offset, int limit) {
+        return userRepository.searchUsers(keyword, status,
+                PageRequest.of(offset, limit, Sort.by("createdAt").descending()));
     }
 }
