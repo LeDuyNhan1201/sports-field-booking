@@ -1,5 +1,6 @@
 package org.jakartaee5g23.sportsfieldbooking.dtos.responses.booking;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +25,7 @@ public class BookingResponse {
 
     Date createdAt;
 
+    @JsonIgnore
     BookingStatus status;
 
     @JsonProperty(value = "user")

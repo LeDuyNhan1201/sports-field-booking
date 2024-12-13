@@ -141,16 +141,16 @@ public class UserController {
             security = @SecurityRequirement(name = "bearerAuth"))
     @ResponseStatus(OK)
     @PutMapping("/password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
 
         User currentUser = userService.findById(getUserIdFromContext());
 
-        if (!request.newPassword().equals(request.passwordConfirmation())){
-            throw new AuthenticationException(AuthenticationErrorCode.PASSWORD_MIS_MATCH, BAD_REQUEST);
-        }
-
         if (!passwordEncoder.matches(request.oldPassword(), currentUser.getPassword())) {
             throw new AuthenticationException(AuthenticationErrorCode.WRONG_PASSWORD, UNAUTHORIZED);
+        }
+
+        if (!request.newPassword().equals(request.passwordConfirmation())){
+            throw new AuthenticationException(AuthenticationErrorCode.PASSWORD_MIS_MATCH, BAD_REQUEST);
         }
 
         userService.updatePassword(currentUser, request.newPassword());

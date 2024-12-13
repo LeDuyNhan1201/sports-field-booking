@@ -127,7 +127,6 @@ public class MinioClientServiceImpl implements MinioClientService {
         if (!isMedia(contentType)) throw new FileException(INVALID_FILE_TYPE, BAD_REQUEST);
 
         //if (hashFileChunk(file).equals(chunkHash)) throw new FileException(INVALID_FILE_PROVIDED, BAD_REQUEST);
-
         uploadStatusMap.putIfAbsent(fileMetadataId, new CopyOnWriteArrayList<>());
         List<ChunkUploadProgress> uploadStatus = uploadStatusMap.get(fileMetadataId);
 
