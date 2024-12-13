@@ -1,3 +1,38 @@
+## User Roles and Features
+
+### **Customer Users:**
+- **Browse Website:** View homepage and website introduction.
+- **Sports Fields:** Browse fields, add to cart, and book via the booking form.
+- **User Info:** Edit personal information.
+- **Invoices:** View all confirmed bookings.
+- **Feedback:** Rate fields (stars) and comment after completing a booked session.
+
+### **Field Owners:**
+- Same features as **Customer Users**, plus:
+  - **Statistics Management:** Manage reports and analytics.
+  - **Invoice Management:** Handle owner-related invoices.
+  - **Field Management:** Manage owned sports fields.
+
+### **Administrators (Admins):**
+- **User Management:** Add, edit, or remove users.
+- **Discount Management:** Manage discounts.
+- **Field Management:** Manage all sports fields.
+- **Category Management:** Handle field categories.
+
+---
+
+## Additional Features:
+- **Password Recovery:** Send reset password email via Gmail.
+- **Social Login:** Login and register using Gmail or Facebook.
+- **Core Technologies:** Built with Spring Security, Spring JPA, Thymeleaf, Spring Web, and RESTful APIs.
+- **Payments:** Integrated with VNPay for secure transactions.
+- **Logging:** Application logging with Elasticsearch, Logstash, and Kibana (ELK Stack).
+- **Authentication:** Access and refresh token handling for secure sessions.
+- **Async Tasks:** Kafka for tasks like email sending, metadata management, CRUD operations.
+- **Caching:** Redis cache for JWT revoked token handling.
+- **System Monitoring:** Grafana, Prometheus, and Tempo for observability.
+
+-------------------------------------------------------------------------------------------------------------------------------------------
 # Setup Docker:
 1. Install Docker Desktop (Search for Docker Desktop on Google)
 2. Go to root directory of the project, open terminal and run the following commands:
